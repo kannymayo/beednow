@@ -12,10 +12,6 @@
 		"vscode": {
 			"extensions": [
 				"esbenp.prettier-vscode",
-				"Prisma.prisma",
-				"TabNine.tabnine-vscode",
-				"ms-azuretools.vscode-docker",
-				"eamodio.gitlens",
 				"mhutchie.git-graph",
 				"vscode-icons-team.vscode-icons"
 			]

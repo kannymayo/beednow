@@ -10,7 +10,7 @@ WORKDIR /approot
 COPY ["./project/package.json", "./project/package-lock.json*", "./"]
 RUN apk update \
     && apk add git \
-    && npm ci \
+    && npm install \
     && npm cache clean --force
 
 # Copy source
