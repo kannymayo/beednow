@@ -16,7 +16,8 @@
 				"TabNine.tabnine-vscode",
 				"ms-azuretools.vscode-docker",
 				"eamodio.gitlens",
-				"mhutchie.git-graph"
+				"mhutchie.git-graph",
+				"vscode-icons-team.vscode-icons"
 			]
 		}
 	},
