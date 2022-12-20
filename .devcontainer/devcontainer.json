@@ -13,7 +13,8 @@
 			"extensions": [
 				"esbenp.prettier-vscode",
 				"mhutchie.git-graph",
-				"vscode-icons-team.vscode-icons"
+				"vscode-icons-team.vscode-icons",
+				"csstools.postcss"
 			]
 		}
 	},
