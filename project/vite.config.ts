@@ -8,6 +8,6 @@ export default defineConfig({
     hmr: true,
     watch: {
       usePolling: true,
-    }
-  }
+    },
+  },
 })
