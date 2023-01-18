@@ -12,22 +12,7 @@ import BidHistory from './components/layout/main-bid/current-bid/BidHistory'
 import BidItem from './components/layout/main-bid/current-bid/BidItem'
 
 import readExport from './utils/read-export'
-
-function parseWowheadXML(data: string) {
-  //parse into xml
-  const parser = new DOMParser()
-  const xml = parser.parseFromString(data, 'text/xml')
-
-  // select json nodes
-  const jsonNode = xml.getElementsByTagName('json')[0]
-  const jsonEquipNode = xml.getElementsByTagName('jsonEquip')[0]
-
-  const info = JSON.parse(`{${jsonNode.textContent}}`)
-  const infoEquip = JSON.parse(`{${jsonEquipNode.textContent}}`)
-
-  console.log(info)
-  console.log(infoEquip)
-}
+import parseTooltip from './utils/parse-wow-tooltip'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -35,14 +20,14 @@ function App() {
 
   const itemId = items[0]
 
-  const url = `https://cors-anywhere.leezy.workers.dev/?https://www.wowhead.com/wotlk/item=${itemId}?xml`
+  const url = `https://nether.wowhead.com/tooltip/item/40627?dataEnv=8&locale=0`
 
   // fetch the result from url
   useEffect(() => {
     fetch(url)
-      .then((res) => res.text())
+      .then((res) => res.json())
       .then((data) => {
-        parseWowheadXML(data)
+        console.log(parseTooltip(data))
       })
   }, [url])
 
@@ -62,7 +47,7 @@ function App() {
           <ItemCollectionWatchList />
         </div>
         <div className="col-span-4 col-start-5 row-[2_/_span_4]">
-          <a href="#" data-wowhead="item=40273&domain=cn.wrath">
+          <a href="#" data-wowhead="item=40627&domain=wrath">
             <BidHistory />
           </a>
         </div>
