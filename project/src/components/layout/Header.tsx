@@ -21,8 +21,14 @@ export default function Header() {
           <span className="ml-3 text-xl">BeedNow</span>
         </a>
         {/* Nav items */}
-        <nav className="flex flex-wrap items-center justify-center text-base md:ml-auto">
+        <nav className="flex flex-wrap items-center justify-center px-4 text-base md:ml-auto">
           {/* <a className="mr-5 hover:text-gray-900">First Link</a> */}
+          <label
+            htmlFor="my-drawer"
+            className="btn btn-outline drawer-button btn-sm"
+          >
+            Show Finished Bids
+          </label>
         </nav>
         {/* Login button */}
         <button className="mt-4 inline-flex items-center rounded border-0 bg-indigo-500 py-1 px-3 text-base hover:bg-indigo-600 focus:outline-none md:mt-0">
