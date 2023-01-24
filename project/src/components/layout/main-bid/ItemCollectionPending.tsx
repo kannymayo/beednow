@@ -1,10 +1,21 @@
 import React, { useMemo, useEffect, useState } from 'react'
 import parseTooltip, { ItemFromAPI } from '../../../utils/parse-wow-tooltip'
-import readExport from '../../../utils/read-export'
+import useForm from '../../../hooks/form'
 
 export default function ItemCollectionPending() {
   const [items, setItems] = useState<ItemFromAPI[]>([])
-  const itemIds = useMemo(() => [40273, 40247, 40254, 44577], [])
+  const [displayedItems, setDisplayedItems] = useState<ItemFromAPI[]>([])
+  const [showScrollToTop, setShowScrollToTop] = useState<Boolean>(false)
+  const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
+
+  const itemIds = useMemo(
+    () => [
+      40273, 40247, 40254, 44577, 40278, 40288, 40627, 40317, 40207, 40065,
+      40346, 40636, 40303, 40256, 40258, 40384,
+    ],
+    []
+  )
+  const refScrollingContainer = React.useRef<HTMLDivElement>(null)
 
   // fetch the result from url
   useEffect(() => {
@@ -14,23 +25,98 @@ export default function ItemCollectionPending() {
         .then((res) => res.json())
         .then((data) => {
           const parsed = parseTooltip(data, id)
-          setItems((prevState) => [...prevState, parsed])
+          if (items.length < 14) {
+            setItems((prevState) => [...prevState, parsed])
+          }
         })
     })
   }, [itemIds])
 
-  // const url = `https://nether.wowhead.com/tooltip/item/40627?dataEnv=8&locale=0`
+  // compute displayed items
+  useEffect(() => {
+    if (formValues) {
+      const filteredItems = items.filter((item) =>
+        item.name.toLowerCase().includes(formValues.searchPhrase.toLowerCase())
+      )
+      setDisplayedItems(filteredItems)
+    } else {
+      setDisplayedItems(items)
+    }
+  }, [formValues.searchPhrase, items])
+
+  function scrollToTop() {
+    refScrollingContainer.current?.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
+    })
+  }
+  // on scroll, check scroll position and show/hide button
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = refScrollingContainer.current?.scrollTop
+      if (scrollPosition && scrollPosition > 150) {
+        setShowScrollToTop(true)
+      } else {
+        setShowScrollToTop(false)
+      }
+    }
+    refScrollingContainer.current?.addEventListener('scroll', handleScroll)
+    return () => {
+      refScrollingContainer.current?.removeEventListener('scroll', handleScroll)
+    }
+  }, [showScrollToTop])
 
   return (
-    <>
-      collection pending
+    <div
+      ref={refScrollingContainer}
+      className="scrollbar-hide h-full overflow-y-scroll"
+    >
+      {/* Scroll to top */}
+      {showScrollToTop && (
+        <div className="sticky top-0 z-10 h-0 w-full">
+          <button
+            className="badge badge-accent badge-lg absolute top-10 left-1/2 -translate-x-1/2  shadow-lg transition-none transition-all hover:scale-110"
+            onClick={scrollToTop}
+          >
+            Top
+          </button>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="navbar bg-base-100">
+        <div className="flex-1">
+          <a className="btn btn-xs btn-ghost text-xs normal-case">Pending</a>
+        </div>
+
+        {/* Search */}
+        <div className="flex-none gap-2">
+          <div className="form-control">
+            <input
+              name="searchPhrase"
+              type="text"
+              placeholder="Search"
+              value={formValues.searchPhrase}
+              onChange={handleFormValues}
+              className="input input-bordered input-sm"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* List of items */}
       <ul>
-        {items &&
-          items.map((item) => (
+        {displayedItems &&
+          displayedItems.map((item) => (
             <li key={item.name}>
               <div className="card card-side bg-base-200  my-1 rounded-md py-0">
                 <figure className="flex-shrink-0">
-                  <a href="#" data-wowhead={`item=${item.id}&domain=wrath`}>
+                  <a
+                    className="h-13 w-13"
+                    href="#"
+                    data-wowhead={`item=${item.id}&domain=wrath`}
+                  >
                     <img src={item.iconUrl} />
                   </a>
                 </figure>
@@ -49,6 +135,6 @@ export default function ItemCollectionPending() {
             </li>
           ))}
       </ul>
-    </>
+    </div>
   )
 }

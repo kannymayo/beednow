@@ -23,7 +23,7 @@ function App() {
             <Header />
           </div>
           <MainBid>
-            <div className="scrollbar-hide col-span-1 col-start-1 row-[2_/_span_11] overflow-y-scroll">
+            <div className=" col-span-1 col-start-1 row-[2_/_span_11] ">
               <ItemCollectionPending />
             </div>
             <div className="col-span-8 col-start-5 row-[span_2_/_13]">
