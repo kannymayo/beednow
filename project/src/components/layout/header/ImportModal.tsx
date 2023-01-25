@@ -1,5 +1,5 @@
 import './ImportModal.css'
-import React, { Fragment, useState, useEffect, useRef } from 'react'
+import React, { Fragment, useState, useEffect, useRef, useMemo } from 'react'
 
 import { Dialog, Transition } from '@headlessui/react'
 import { useQueries } from 'react-query'
@@ -16,20 +16,29 @@ export default function ImportModal({
   isOpen: boolean
   closeModal: () => void
 }) {
-  // const itemIds = [
-  //   40273, 40247, 40254, 44577, 40278, 40288, 40627, 40317, 40207, 40065, 40346,
-  //   40636, 40303, 40256, 40258, 40384,
-  // ]
-  const [idList, setIdList] = useState<number[]>([])
-  const [uniqueIds, setUniqueIds] = useState<number[]>([])
-  const [idOccurrences, setIdOccurrences] = useState<
-    Map<string, { count: number }>
-  >(new Map())
+  const [itemOccurrences, setItemOccurrences] = useState<{
+    [idSeq: string]: { _count: number }
+  }>({})
   const [itemDetails, setItemDetails] = useState<Map<number, ItemFromAPI>>(
     new Map()
   )
   const [importString, setImportString] = useState('')
   const editableDivRef = useRef<HTMLDivElement>(null)
+
+  const idListVolatile = useMemo(
+    () => readGeneralExport(importString) || [],
+    [importString]
+  )
+
+  const idList = useMemo(
+    () => [...idListVolatile],
+    [JSON.stringify(idListVolatile)]
+  )
+
+  const uniqueIds = useMemo(
+    () => [...new Set(idList)],
+    [JSON.stringify(idList)]
+  )
 
   // likely wrong type
   const results = useQueries<Array<{ queryKey: [string, number] }>>(
@@ -53,45 +62,38 @@ export default function ImportModal({
     }
   })
 
-  // detect and verify valid item ids
+  // substantiate itemOccurrences
   useEffect(() => {
-    const ids = readGeneralExport(importString)
-    if (ids !== undefined) {
-      setIdList(ids)
-    }
-  }, [importString])
+    setItemOccurrences((prev) => {
+      const newItemOccurrences = { ...prev }
+      for (const [key, value] of Object.entries(newItemOccurrences)) {
+        let id = JSON.parse(key)[0]
+        newItemOccurrences[key] = { ...value, ...itemDetails.get(id) }
+      }
+      return newItemOccurrences
+    })
+  }, [
+    JSON.stringify(Array.from(itemDetails.keys())),
+    JSON.stringify(Object.keys(itemOccurrences)),
+  ])
 
-  // compute unique ids
+  // compute and write occurrences
   useEffect(() => {
-    const unique = [...new Set(idList)]
-    setUniqueIds(unique)
-  }, [idList])
-
-  // compute id occurrences
-  useEffect(() => {
+    const newIdOccurrences: { [idSeq: string]: { _count: number } } = {}
     idList.forEach((id) => {
-      if (idOccurrences) {
-        if (!idOccurrences.has(`${id}#0`)) {
-          // create the first occurrence
-          setIdOccurrences((prev) => {
-            const newMap = new Map(prev)
-            newMap.set(`${id}#0`, { count: 1 })
-            return newMap
-          })
-        } else {
-          // add new occurrence
-          // but only update count on the first occurrence
-          setIdOccurrences((prev) => {
-            const count = idOccurrences.get(`${id}#0`)?.count || 1
-            const newMap = new Map(prev)
-            newMap.set(`${id}#0`, { count: count + 1 })
-            newMap.set(`${id}#${count}`, { count: 1 })
-            return newMap
-          })
-        }
+      let first = itemOccurrences[JSON.stringify([id, 0])]
+      // debugger
+      if (first === undefined || first === null) {
+        // creat first occurrence
+        newIdOccurrences[JSON.stringify([id, 0])] = { _count: 1 }
+      } else {
+        // set new occurrence, update count at first occurrence
+        newIdOccurrences[JSON.stringify([id, 0])] = { _count: first._count + 1 }
+        newIdOccurrences[JSON.stringify([id, first._count])] = { _count: 1 }
       }
     })
-  }, [idList])
+    setItemOccurrences(newIdOccurrences)
+  }, [JSON.stringify(idList)])
 
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
     setImportString(e.target.innerText)
@@ -114,8 +116,20 @@ export default function ImportModal({
   function handleClose() {
     closeModal()
     setTimeout(() => {
-      setIdList([])
+      setImportString('')
     }, 300)
+  }
+
+  function handleAddDemoData() {
+    if (editableDivRef.current !== null) {
+      editableDivRef.current.innerText += `[
+        //   40273, 40247, 40254, 44577, 40278, 40288, 40627, 40317, 40207, 40065, 40346,
+        //   40636, 40303, 40256, 40258, 40384,
+        // ]`
+      editableDivRef.current.dispatchEvent(
+        new Event('input', { bubbles: true })
+      )
+    }
   }
 
   return (
@@ -147,6 +161,12 @@ export default function ImportModal({
               <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all lg:max-w-4xl">
                 <Dialog.Title as="h3" className="mb-5 font-medium">
                   Add more items for bidding
+                  <button
+                    className="btn btn-secondary btn-xs ml-5"
+                    onClick={handleAddDemoData}
+                  >
+                    Add Demo Data
+                  </button>
                 </Dialog.Title>
                 <div className="flex flex-col gap-2">
                   <div className="flex max-h-96 w-full">
@@ -160,8 +180,8 @@ export default function ImportModal({
                     ></div>
                     <div className="divider divider-horizontal"></div>
                     <div className="card min-h-16 grid flex-1 place-items-center gap-1 overflow-y-auto rounded-sm px-2">
-                      {idList.map((itemId) => (
-                        <ImportableItem id={itemId} />
+                      {Object.entries(itemOccurrences).map((el) => (
+                        <ImportableItem id={JSON.parse(el[0])[0]} key={el[0]} />
                       ))}
                     </div>
                   </div>

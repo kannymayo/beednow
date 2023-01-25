@@ -4,7 +4,6 @@ import useForm from '../../../hooks/form'
 
 export default function ItemCollectionPending() {
   const [items, setItems] = useState<ItemFromAPI[]>([])
-  const [displayedItems, setDisplayedItems] = useState<ItemFromAPI[]>([])
   const [showScrollToTop, setShowScrollToTop] = useState<Boolean>(false)
   const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
 
@@ -32,28 +31,20 @@ export default function ItemCollectionPending() {
     })
   }, [itemIds])
 
-  // compute displayed items
-  useEffect(() => {
+  const displayedItems = useMemo(() => {
     if (formValues) {
       const filteredItems = items.filter((item) =>
         item.name
           .toLowerCase()
           .includes(formValues.searchPhrase.toLowerCase().trim())
       )
-      setDisplayedItems(filteredItems)
+      return filteredItems
     } else {
-      setDisplayedItems(items)
+      return items
     }
   }, [formValues.searchPhrase, items])
 
-  function scrollToTop() {
-    refScrollingContainer.current?.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'smooth',
-    })
-  }
-  // on scroll, check scroll position and show/hide button
+  // Listen on DOM child's scroll event
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = refScrollingContainer.current?.scrollTop
@@ -67,7 +58,15 @@ export default function ItemCollectionPending() {
     return () => {
       refScrollingContainer.current?.removeEventListener('scroll', handleScroll)
     }
-  }, [showScrollToTop])
+  }, [])
+
+  function scrollToTop() {
+    refScrollingContainer.current?.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
+    })
+  }
 
   return (
     <div
