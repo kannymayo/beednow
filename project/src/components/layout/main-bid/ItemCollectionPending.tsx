@@ -36,7 +36,9 @@ export default function ItemCollectionPending() {
   useEffect(() => {
     if (formValues) {
       const filteredItems = items.filter((item) =>
-        item.name.toLowerCase().includes(formValues.searchPhrase.toLowerCase())
+        item.name
+          .toLowerCase()
+          .includes(formValues.searchPhrase.toLowerCase().trim())
       )
       setDisplayedItems(filteredItems)
     } else {

@@ -121,7 +121,6 @@ export default function deepRead(
     // replace br with br/
     const woBadBr = `<div>${xmlStr.replace(/<br>/g, '<br/>')}</div>`
     const woBadNbsp = woBadBr.replace(/&nbsp;/g, ' ')
-    console.log(woBadNbsp)
     return p.parseFromString(woBadNbsp, 'text/xml').children[0]
   }
 
