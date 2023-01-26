@@ -3,7 +3,7 @@ import React, { Fragment, useState, useEffect, useRef, useMemo } from 'react'
 
 import { Dialog, Transition } from '@headlessui/react'
 
-import { useItemDetailsMultiple } from '../../../api/itemDetails'
+import { useItemDetailsMultiple, ItemFromAPI } from '../../../api/itemDetails'
 import ImportableItem from './ImportableItem'
 import { readGeneralExport } from '../../../utils/read-export'
 
@@ -14,9 +14,7 @@ export default function ImportModal({
   isOpen: boolean
   closeModal: () => void
 }) {
-  const [itemOccurrences, setItemOccurrences] = useState<{
-    [idSeq: string]: { _count: number }
-  }>({})
+  const [itemOccurrencesGroup, setItemOccurrencesGroup] = useState({})
   const [importString, setImportString] = useState('')
   const editableDivRef = useRef<HTMLDivElement>(null)
 
@@ -30,50 +28,14 @@ export default function ImportModal({
     [JSON.stringify(idList)]
   )
 
-  const results = useItemDetailsMultiple(idList)
+  const itemDetailsQryRslts = useItemDetailsMultiple(idList)
 
-  useEffect(() => {
-    annotateItemOccurrencesWithDetails()
-
-    function annotateItemOccurrencesWithDetails() {
-      setItemOccurrences((prev) => {
-        const newItemOccurrences = { ...prev }
-        for (const [key, value] of Object.entries(newItemOccurrences)) {
-          let id = JSON.parse(key)[0]
-          newItemOccurrences[key] = {
-            ...value,
-            ...results.find((el) => el.data?.id === id),
-          }
-        }
-        return newItemOccurrences
-      })
-    }
+  const itemOccurrences = useMemo(() => {
+    return annotate(createSkeletonIOC(idList), itemDetailsQryRslts)
   }, [
-    JSON.stringify(results.map((r) => r.data?.id)),
-    JSON.stringify(Object.keys(itemOccurrences)),
+    JSON.stringify(itemDetailsQryRslts.map((r) => r.data?.id)),
+    JSON.stringify(uniqueIds),
   ])
-
-  useEffect(() => {
-    deriveItemOccurrences()
-
-    function deriveItemOccurrences() {
-      const newIdOccurrences: { [idSeq: string]: { _count: number } } = {}
-      idList.forEach((id) => {
-        let first = newIdOccurrences[JSON.stringify([id, 0])]
-        if (first === undefined || first === null) {
-          // creat first occurrence
-          newIdOccurrences[JSON.stringify([id, 0])] = { _count: 1 }
-        } else {
-          // set new occurrence, update count at first occurrence
-          newIdOccurrences[JSON.stringify([id, 0])] = {
-            _count: first._count + 1,
-          }
-          newIdOccurrences[JSON.stringify([id, first._count])] = { _count: 1 }
-        }
-      })
-      setItemOccurrences(newIdOccurrences)
-    }
-  }, [JSON.stringify(idList)])
 
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
     setImportString(e.target.innerText)
@@ -109,6 +71,43 @@ export default function ImportModal({
       editableDivRef.current.dispatchEvent(
         new Event('input', { bubbles: true })
       )
+    }
+  }
+
+  function createSkeletonIOC(idList: number[]) {
+    const itemOccurrences: { [idSeq: string]: { _count: number } } = {}
+    idList.forEach((id) => {
+      let first = itemOccurrences[JSON.stringify([id, 0])]
+      if (first === undefined || first === null) {
+        // creat first occurrence
+        itemOccurrences[JSON.stringify([id, 0])] = { _count: 1 }
+      } else {
+        // set new occurrence, update count at first occurrence
+        itemOccurrences[JSON.stringify([id, 0])] = {
+          _count: first._count + 1,
+        }
+        itemOccurrences[JSON.stringify([id, first._count])] = { _count: 1 }
+      }
+    })
+    return itemOccurrences
+  }
+
+  function annotate(
+    itemOccurrences: ReturnType<typeof createSkeletonIOC>,
+    queryResults: ReturnType<typeof useItemDetailsMultiple>
+  ) {
+    for (const [key, value] of Object.entries(itemOccurrences)) {
+      const id = JSON.parse(key)[0]
+      const matchedItemDetails = queryResults.find(
+        (qryRslt) => qryRslt.data?.id === id
+      )
+      itemOccurrences[key] = {
+        ...value,
+        ...(matchedItemDetails && { details: matchedItemDetails.data }),
+      }
+    }
+    return itemOccurrences as ReturnType<typeof createSkeletonIOC> & {
+      [idSeq: string]: { details?: ItemFromAPI }
     }
   }
 
@@ -162,7 +161,7 @@ export default function ImportModal({
                     <div className="card min-h-16 grid flex-1 place-items-center gap-1 overflow-y-auto rounded-sm px-2">
                       {Object.entries(itemOccurrences).map((occrTuple) => (
                         <ImportableItem
-                          item={occrTuple[1].data}
+                          item={occrTuple[1].details}
                           key={occrTuple[0]}
                         />
                       ))}

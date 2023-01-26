@@ -44,3 +44,4 @@ function useItemDetailsMultiple(ids: number[]) {
 }
 
 export { useItemDetails, useItemDetailsMultiple }
+export type { ItemFromAPI }
