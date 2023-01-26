@@ -2,12 +2,10 @@ import './ImportModal.css'
 import React, { Fragment, useState, useEffect, useRef, useMemo } from 'react'
 
 import { Dialog, Transition } from '@headlessui/react'
-import { useQueries } from 'react-query'
 
-import fetchItem from '../../../api/item-db'
+import { useItemDetailsMultiple } from '../../../api/itemDetails'
 import ImportableItem from './ImportableItem'
 import { readGeneralExport } from '../../../utils/read-export'
-import { ItemFromAPI } from '../../../utils/parse-wow-tooltip'
 
 export default function ImportModal({
   isOpen = false,
@@ -19,20 +17,12 @@ export default function ImportModal({
   const [itemOccurrences, setItemOccurrences] = useState<{
     [idSeq: string]: { _count: number }
   }>({})
-  const [itemDetails, setItemDetails] = useState<Map<number, ItemFromAPI>>(
-    new Map()
-  )
   const [importString, setImportString] = useState('')
   const editableDivRef = useRef<HTMLDivElement>(null)
 
-  const idListVolatile = useMemo(
+  const idList = useMemo(
     () => readGeneralExport(importString) || [],
     [importString]
-  )
-
-  const idList = useMemo(
-    () => [...idListVolatile],
-    [JSON.stringify(idListVolatile)]
   )
 
   const uniqueIds = useMemo(
@@ -40,59 +30,49 @@ export default function ImportModal({
     [JSON.stringify(idList)]
   )
 
-  // likely wrong type
-  const results = useQueries<Array<{ queryKey: [string, number] }>>(
-    idList.map((id) => ({
-      queryKey: ['item', id],
-      queryFn: fetchItem,
-    }))
-  )
+  const results = useItemDetailsMultiple(idList)
 
-  // construct dict of <id, item detail>
-  results.map((q) => {
-    if (q.data) {
-      const item = q.data as ItemFromAPI
-      if (!itemDetails.has(item.id)) {
-        setItemDetails((prev) => {
-          const newMap = new Map(prev)
-          newMap.set(item.id, item)
-          return newMap
-        })
-      }
-    }
-  })
-
-  // substantiate itemOccurrences
   useEffect(() => {
-    setItemOccurrences((prev) => {
-      const newItemOccurrences = { ...prev }
-      for (const [key, value] of Object.entries(newItemOccurrences)) {
-        let id = JSON.parse(key)[0]
-        newItemOccurrences[key] = { ...value, ...itemDetails.get(id) }
-      }
-      return newItemOccurrences
-    })
+    annotateItemOccurrencesWithDetails()
+
+    function annotateItemOccurrencesWithDetails() {
+      setItemOccurrences((prev) => {
+        const newItemOccurrences = { ...prev }
+        for (const [key, value] of Object.entries(newItemOccurrences)) {
+          let id = JSON.parse(key)[0]
+          newItemOccurrences[key] = {
+            ...value,
+            ...results.find((el) => el.data?.id !== id),
+          }
+        }
+        return newItemOccurrences
+      })
+    }
   }, [
-    JSON.stringify(Array.from(itemDetails.keys())),
+    JSON.stringify(results.map((r) => r.data?.id)),
     JSON.stringify(Object.keys(itemOccurrences)),
   ])
 
-  // compute and write occurrences
   useEffect(() => {
-    const newIdOccurrences: { [idSeq: string]: { _count: number } } = {}
-    idList.forEach((id) => {
-      let first = itemOccurrences[JSON.stringify([id, 0])]
-      // debugger
-      if (first === undefined || first === null) {
-        // creat first occurrence
-        newIdOccurrences[JSON.stringify([id, 0])] = { _count: 1 }
-      } else {
-        // set new occurrence, update count at first occurrence
-        newIdOccurrences[JSON.stringify([id, 0])] = { _count: first._count + 1 }
-        newIdOccurrences[JSON.stringify([id, first._count])] = { _count: 1 }
-      }
-    })
-    setItemOccurrences(newIdOccurrences)
+    deriveItemOccurrences()
+
+    function deriveItemOccurrences() {
+      const newIdOccurrences: { [idSeq: string]: { _count: number } } = {}
+      idList.forEach((id) => {
+        let first = newIdOccurrences[JSON.stringify([id, 0])]
+        if (first === undefined || first === null) {
+          // creat first occurrence
+          newIdOccurrences[JSON.stringify([id, 0])] = { _count: 1 }
+        } else {
+          // set new occurrence, update count at first occurrence
+          newIdOccurrences[JSON.stringify([id, 0])] = {
+            _count: first._count + 1,
+          }
+          newIdOccurrences[JSON.stringify([id, first._count])] = { _count: 1 }
+        }
+      })
+      setItemOccurrences(newIdOccurrences)
+    }
   }, [JSON.stringify(idList)])
 
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
