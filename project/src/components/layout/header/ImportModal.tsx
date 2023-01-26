@@ -42,7 +42,7 @@ export default function ImportModal({
           let id = JSON.parse(key)[0]
           newItemOccurrences[key] = {
             ...value,
-            ...results.find((el) => el.data?.id !== id),
+            ...results.find((el) => el.data?.id === id),
           }
         }
         return newItemOccurrences
@@ -160,8 +160,11 @@ export default function ImportModal({
                     ></div>
                     <div className="divider divider-horizontal"></div>
                     <div className="card min-h-16 grid flex-1 place-items-center gap-1 overflow-y-auto rounded-sm px-2">
-                      {Object.entries(itemOccurrences).map((el) => (
-                        <ImportableItem id={JSON.parse(el[0])[0]} key={el[0]} />
+                      {Object.entries(itemOccurrences).map((occrTuple) => (
+                        <ImportableItem
+                          item={occrTuple[1].data}
+                          key={occrTuple[0]}
+                        />
                       ))}
                     </div>
                   </div>

@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function ImportableItem({ id }: { id: number }) {
+export default function ImportableItem({ item }: { item: any }) {
   return (
     <>
       <label className="input-group flex place-items-center bg-gray-300">
@@ -9,7 +9,7 @@ export default function ImportableItem({ id }: { id: number }) {
           type="checkbox"
           id="id"
         />
-        very long name {id}
+        {item?.name} {item?.id}
       </label>
     </>
   )
