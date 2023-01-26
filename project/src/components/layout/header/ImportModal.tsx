@@ -1,11 +1,20 @@
 import './ImportModal.css'
 import React, { Fragment, useState, useEffect, useRef, useMemo } from 'react'
-
-import { Dialog, Transition } from '@headlessui/react'
+import produce from 'immer'
 
 import { useItemDetailsMultiple, ItemFromAPI } from '../../../api/itemDetails'
-import ImportableItem from './ImportableItem'
 import { readGeneralExport } from '../../../utils/read-export'
+
+import { Dialog, Transition } from '@headlessui/react'
+import ImportableItem from './ImportableItem'
+
+interface ItemOccurrencesGrouped {
+  [id: number]: {
+    _idSeq: string
+    _count: number
+    details?: ItemFromAPI
+  }[]
+}
 
 export default function ImportModal({
   isOpen = false,
@@ -14,7 +23,8 @@ export default function ImportModal({
   isOpen: boolean
   closeModal: () => void
 }) {
-  const [itemOccurrencesGroup, setItemOccurrencesGroup] = useState({})
+  const [itemOccurrencesGrouped, setItemOccurrencesGrouped] =
+    useState<ItemOccurrencesGrouped>({})
   const [importString, setImportString] = useState('')
   const editableDivRef = useRef<HTMLDivElement>(null)
 
@@ -35,6 +45,58 @@ export default function ImportModal({
   }, [
     JSON.stringify(itemDetailsQryRslts.map((r) => r.data?.id)),
     JSON.stringify(uniqueIds),
+  ])
+
+  // sync itemOccurrencesGroup with itemOccurrences
+  useEffect(() => {
+    // not taking from the memoized uniqueIds to reduce the number of dependencies
+    const uniqueIds = new Set(
+      Object.keys(itemOccurrences).map((idSeq) => JSON.parse(idSeq)[0])
+    )
+
+    setItemOccurrencesGrouped(
+      produce((draft) => {
+        // remove member
+        for (const idSeq of Object.keys(draft)) {
+          const id = JSON.parse(idSeq)[0]
+          if (!uniqueIds.has(id)) {
+            delete draft[id]
+          }
+        }
+        draft = Object.entries(itemOccurrences).reduce(
+          (collapsed: ItemOccurrencesGrouped, [idSeq, IOCValue]) => {
+            const id = JSON.parse(idSeq)[0]
+            const group = collapsed[id]
+            // create 1st member
+            if (group === undefined || group === null) {
+              collapsed[id] = [{ _idSeq: idSeq, ...IOCValue }]
+            } else {
+              // find member
+              const matchedMemberIdx = collapsed[id].findIndex((member) => {
+                return member._idSeq === idSeq
+              })
+              // add member
+              if (collapsed[id][matchedMemberIdx] === undefined) {
+                collapsed[id].push({ _idSeq: idSeq, ...IOCValue })
+              }
+              // update member
+              else {
+                collapsed[id][matchedMemberIdx] = {
+                  ...collapsed[id][matchedMemberIdx],
+                  ...IOCValue,
+                }
+              }
+            }
+            return collapsed
+          },
+          {}
+        )
+        return draft
+      })
+    )
+  }, [
+    JSON.stringify(Object.keys(itemOccurrences)),
+    JSON.stringify(itemDetailsQryRslts.map((r) => r.data?.id)),
   ])
 
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
