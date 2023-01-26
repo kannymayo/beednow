@@ -1,5 +1,12 @@
 import './ImportModal.css'
-import React, { Fragment, useState, useEffect, useRef, useMemo } from 'react'
+import React, {
+  Fragment,
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useReducer,
+} from 'react'
 import produce from 'immer'
 
 import { useItemDetailsMultiple, ItemFromAPI } from '../../../api/itemDetails'
@@ -23,8 +30,10 @@ export default function ImportModal({
   isOpen: boolean
   closeModal: () => void
 }) {
-  const [itemOccurrencesGrouped, setItemOccurrencesGrouped] =
-    useState<ItemOccurrencesGrouped>({})
+  const [itemOccurrencesGrouped, itemOccurrencesGroupedDispatcher] = useReducer(
+    iocGroupedReducer,
+    {}
+  )
   const [importString, setImportString] = useState('')
   const editableDivRef = useRef<HTMLDivElement>(null)
 
@@ -49,51 +58,10 @@ export default function ImportModal({
 
   // sync itemOccurrencesGroup with itemOccurrences
   useEffect(() => {
-    // not taking from the memoized uniqueIds to reduce the number of dependencies
-    const uniqueIds = new Set(
-      Object.keys(itemOccurrences).map((idSeq) => JSON.parse(idSeq)[0])
-    )
-
-    setItemOccurrencesGrouped(
-      produce((draft) => {
-        // remove member
-        for (const idSeq of Object.keys(draft)) {
-          const id = JSON.parse(idSeq)[0]
-          if (!uniqueIds.has(id)) {
-            delete draft[id]
-          }
-        }
-        draft = Object.entries(itemOccurrences).reduce(
-          (collapsed: ItemOccurrencesGrouped, [idSeq, IOCValue]) => {
-            const id = JSON.parse(idSeq)[0]
-            const group = collapsed[id]
-            // create 1st member
-            if (group === undefined || group === null) {
-              collapsed[id] = [{ _idSeq: idSeq, ...IOCValue }]
-            } else {
-              // find member
-              const matchedMemberIdx = collapsed[id].findIndex((member) => {
-                return member._idSeq === idSeq
-              })
-              // add member
-              if (collapsed[id][matchedMemberIdx] === undefined) {
-                collapsed[id].push({ _idSeq: idSeq, ...IOCValue })
-              }
-              // update member
-              else {
-                collapsed[id][matchedMemberIdx] = {
-                  ...collapsed[id][matchedMemberIdx],
-                  ...IOCValue,
-                }
-              }
-            }
-            return collapsed
-          },
-          {}
-        )
-        return draft
-      })
-    )
+    itemOccurrencesGroupedDispatcher({
+      type: 'sync',
+      payload: { IOCs: itemOccurrences },
+    })
   }, [
     JSON.stringify(Object.keys(itemOccurrences)),
     JSON.stringify(itemDetailsQryRslts.map((r) => r.data?.id)),
@@ -133,43 +101,6 @@ export default function ImportModal({
       editableDivRef.current.dispatchEvent(
         new Event('input', { bubbles: true })
       )
-    }
-  }
-
-  function createSkeletonIOC(idList: number[]) {
-    const itemOccurrences: { [idSeq: string]: { _count: number } } = {}
-    idList.forEach((id) => {
-      let first = itemOccurrences[JSON.stringify([id, 0])]
-      if (first === undefined || first === null) {
-        // creat first occurrence
-        itemOccurrences[JSON.stringify([id, 0])] = { _count: 1 }
-      } else {
-        // set new occurrence, update count at first occurrence
-        itemOccurrences[JSON.stringify([id, 0])] = {
-          _count: first._count + 1,
-        }
-        itemOccurrences[JSON.stringify([id, first._count])] = { _count: 1 }
-      }
-    })
-    return itemOccurrences
-  }
-
-  function annotate(
-    itemOccurrences: ReturnType<typeof createSkeletonIOC>,
-    queryResults: ReturnType<typeof useItemDetailsMultiple>
-  ) {
-    for (const [key, value] of Object.entries(itemOccurrences)) {
-      const id = JSON.parse(key)[0]
-      const matchedItemDetails = queryResults.find(
-        (qryRslt) => qryRslt.data?.id === id
-      )
-      itemOccurrences[key] = {
-        ...value,
-        ...(matchedItemDetails && { details: matchedItemDetails.data }),
-      }
-    }
-    return itemOccurrences as ReturnType<typeof createSkeletonIOC> & {
-      [idSeq: string]: { details?: ItemFromAPI }
     }
   }
 
@@ -242,4 +173,110 @@ export default function ImportModal({
       </Dialog>
     </Transition>
   )
+}
+
+function createSkeletonIOC(idList: number[]) {
+  const itemOccurrences: { [idSeq: string]: { _count: number } } = {}
+  idList.forEach((id) => {
+    let first = itemOccurrences[JSON.stringify([id, 0])]
+    if (first === undefined || first === null) {
+      // creat first occurrence
+      itemOccurrences[JSON.stringify([id, 0])] = { _count: 1 }
+    } else {
+      // set new occurrence, update count at first occurrence
+      itemOccurrences[JSON.stringify([id, 0])] = {
+        _count: first._count + 1,
+      }
+      itemOccurrences[JSON.stringify([id, first._count])] = { _count: 1 }
+    }
+  })
+  return itemOccurrences
+}
+
+function annotate(
+  itemOccurrences: ReturnType<typeof createSkeletonIOC>,
+  queryResults: ReturnType<typeof useItemDetailsMultiple>
+) {
+  for (const [key, value] of Object.entries(itemOccurrences)) {
+    const id = JSON.parse(key)[0]
+    const matchedItemDetails = queryResults.find(
+      (qryRslt) => qryRslt.data?.id === id
+    )
+    itemOccurrences[key] = {
+      ...value,
+      ...(matchedItemDetails && { details: matchedItemDetails.data }),
+    }
+  }
+  return itemOccurrences as ReturnType<typeof createSkeletonIOC> & {
+    [idSeq: string]: { details?: ItemFromAPI }
+  }
+}
+
+function iocGroupedReducer(
+  state: ItemOccurrencesGrouped,
+  action: {
+    type: 'toggle-select' | 'togggle-select-all' | 'sync'
+    payload: {
+      id?: number
+      seq?: number
+      IOCs?: ReturnType<typeof annotate>
+    }
+  }
+) {
+  return produce(state, (draft) => {
+    switch (action.type) {
+      case 'sync':
+        // not taking from the memoized uniqueIds to reduce the number of dependencies
+        const IOCs = action.payload.IOCs
+        if (!IOCs) break
+        const uniqueIds = new Set(
+          Object.keys(IOCs).map((idSeq) => JSON.parse(idSeq)[0])
+        )
+        // remove member
+        for (const idSeq of Object.keys(draft)) {
+          const id = JSON.parse(idSeq)[0]
+          if (!uniqueIds.has(id)) {
+            delete draft[id]
+          }
+        }
+
+        const grouped = Object.entries(IOCs).reduce(
+          (collapsed: ItemOccurrencesGrouped, [idSeq, IOCValue]) => {
+            const id = JSON.parse(idSeq)[0]
+            const group = collapsed[id]
+            // create 1st member
+            if (group === undefined || group === null) {
+              collapsed[id] = [{ _idSeq: idSeq, ...IOCValue }]
+            } else {
+              // find member
+              const matchedMemberIdx = collapsed[id].findIndex((member) => {
+                return member._idSeq === idSeq
+              })
+              // add member
+              if (collapsed[id][matchedMemberIdx] === undefined) {
+                collapsed[id].push({ _idSeq: idSeq, ...IOCValue })
+              }
+              // update member
+              else {
+                collapsed[id][matchedMemberIdx] = {
+                  ...collapsed[id][matchedMemberIdx],
+                  ...IOCValue,
+                }
+              }
+            }
+            return collapsed
+          },
+          {}
+        )
+        // assignment to draft won't work, use mutation instead
+        // how come this problem didn't surface with setState?
+        Object.entries(grouped).forEach((el, index) => {
+          draft[index] = el
+        })
+        break
+
+      default:
+        break
+    }
+  })
 }
