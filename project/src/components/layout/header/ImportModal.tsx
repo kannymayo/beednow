@@ -56,7 +56,6 @@ export default function ImportModal({
     JSON.stringify(uniqueIds),
   ])
 
-  // sync itemOccurrencesGroup with itemOccurrences
   useEffect(() => {
     itemOccurrencesGroupedDispatcher({
       type: 'sync',
@@ -233,45 +232,35 @@ function iocGroupedReducer(
           Object.keys(IOCs).map((idSeq) => JSON.parse(idSeq)[0])
         )
         // remove member
-        for (const idSeq of Object.keys(draft)) {
-          const id = JSON.parse(idSeq)[0]
+        for (const id of Object.keys(draft)) {
           if (!uniqueIds.has(id)) {
-            delete draft[id]
+            delete draft[parseInt(id)]
           }
         }
 
-        const grouped = Object.entries(IOCs).reduce(
-          (collapsed: ItemOccurrencesGrouped, [idSeq, IOCValue]) => {
-            const id = JSON.parse(idSeq)[0]
-            const group = collapsed[id]
-            // create 1st member
-            if (group === undefined || group === null) {
-              collapsed[id] = [{ _idSeq: idSeq, ...IOCValue }]
-            } else {
-              // find member
-              const matchedMemberIdx = collapsed[id].findIndex((member) => {
-                return member._idSeq === idSeq
-              })
-              // add member
-              if (collapsed[id][matchedMemberIdx] === undefined) {
-                collapsed[id].push({ _idSeq: idSeq, ...IOCValue })
-              }
-              // update member
-              else {
-                collapsed[id][matchedMemberIdx] = {
-                  ...collapsed[id][matchedMemberIdx],
-                  ...IOCValue,
-                }
+        Object.entries(IOCs).forEach(([idSeq, IOCValue]) => {
+          const id = JSON.parse(idSeq)[0]
+          const groupInDraft = draft[id]
+          // create 1st member
+          if (groupInDraft === undefined || groupInDraft === null) {
+            draft[id] = [{ _idSeq: idSeq, ...IOCValue }]
+          } else {
+            // find member
+            const matchedMemberIdx = groupInDraft.findIndex((member) => {
+              return member._idSeq === idSeq
+            })
+            // add member
+            if (groupInDraft[matchedMemberIdx] === undefined) {
+              groupInDraft.push({ _idSeq: idSeq, ...IOCValue })
+            }
+            // update member
+            else {
+              groupInDraft[matchedMemberIdx] = {
+                ...groupInDraft[matchedMemberIdx],
+                ...IOCValue,
               }
             }
-            return collapsed
-          },
-          {}
-        )
-        // assignment to draft won't work, use mutation instead
-        // how come this problem didn't surface with setState?
-        Object.entries(grouped).forEach((el, index) => {
-          draft[index] = el
+          }
         })
         break
 
