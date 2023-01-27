@@ -13,14 +13,31 @@ import { useItemDetailsMultiple, ItemFromAPI } from '../../../api/itemDetails'
 import { readGeneralExport } from '../../../utils/read-export'
 
 import { Dialog, Transition } from '@headlessui/react'
-import ImportableItem from './ImportableItem'
+import ImportableItemGroup from './importableItemGroup'
 
-interface ItemOccurrencesGrouped {
-  [id: number]: {
-    _idSeq: string
-    _count: number
-    details?: ItemFromAPI
-  }[]
+interface CommonFields {
+  _count: number
+  details?: ItemFromAPI
+  qry?: {
+    isLoading: boolean
+    isError: boolean
+    isSuccess: boolean
+  }
+  _processingFlags?: {
+    isMatchError?: boolean
+  }
+}
+
+interface ItemOccurrencesMapped {
+  [idSeq: string]: CommonFields
+}
+
+export interface ItemOccurrence extends CommonFields {
+  _idSeq: string
+}
+
+export interface ItemOccurrencesGrouped {
+  [id: number]: ItemOccurrence[]
 }
 
 export default function ImportModal({
@@ -47,10 +64,15 @@ export default function ImportModal({
     [JSON.stringify(idList)]
   )
 
+  const validItemUniqueCount = Object.keys(itemOccurrencesGrouped).length
+  // mathmatical smart
+  const validItemCount =
+    Object.entries(itemOccurrencesGrouped).flat(2).length - validItemUniqueCount
+
   const itemDetailsQryRslts = useItemDetailsMultiple(idList)
 
   const itemOccurrences = useMemo(() => {
-    return annotate(createSkeletonIOC(idList), itemDetailsQryRslts)
+    return annotate(createSkeleton(idList), itemDetailsQryRslts)
   }, [
     JSON.stringify(itemDetailsQryRslts.map((r) => r.data?.id)),
     JSON.stringify(uniqueIds),
@@ -151,17 +173,19 @@ export default function ImportModal({
                     ></div>
                     <div className="divider divider-horizontal"></div>
                     <div className="card min-h-16 grid flex-1 place-items-center gap-1 overflow-y-auto rounded-sm px-2">
-                      {Object.entries(itemOccurrences).map((occrTuple) => (
-                        <ImportableItem
-                          item={occrTuple[1].details}
-                          key={occrTuple[0]}
-                        />
-                      ))}
+                      {Object.entries(itemOccurrencesGrouped).map(
+                        (tuple, index) => (
+                          <ImportableItemGroup
+                            group={tuple[1] as ItemOccurrence[]}
+                            key={tuple[0]}
+                          />
+                        )
+                      )}
                     </div>
                   </div>
                   <div className="flex place-items-center justify-end gap-6">
                     {idList.length > 1 &&
-                      `Detected ${idList.length} items of ${uniqueIds.length} types`}
+                      `Detected ${validItemCount} items of ${validItemUniqueCount} types`}
                     <button className="btn btn-primary">Add</button>
                   </div>
                 </div>
@@ -174,7 +198,7 @@ export default function ImportModal({
   )
 }
 
-function createSkeletonIOC(idList: number[]) {
+function createSkeleton(idList: number[]): ItemOccurrencesMapped {
   const itemOccurrences: { [idSeq: string]: { _count: number } } = {}
   idList.forEach((id) => {
     let first = itemOccurrences[JSON.stringify([id, 0])]
@@ -193,22 +217,34 @@ function createSkeletonIOC(idList: number[]) {
 }
 
 function annotate(
-  itemOccurrences: ReturnType<typeof createSkeletonIOC>,
+  itemOccurrences: ItemOccurrencesMapped,
   queryResults: ReturnType<typeof useItemDetailsMultiple>
 ) {
-  for (const [key, value] of Object.entries(itemOccurrences)) {
-    const id = JSON.parse(key)[0]
-    const matchedItemDetails = queryResults.find(
-      (qryRslt) => qryRslt.data?.id === id
-    )
-    itemOccurrences[key] = {
-      ...value,
-      ...(matchedItemDetails && { details: matchedItemDetails.data }),
+  for (const [idSeq, body] of Object.entries(itemOccurrences)) {
+    const id = JSON.parse(idSeq)[0]
+    const matchedQuery = queryResults.find((qryRslt) => qryRslt.data?.id === id)
+    if (matchedQuery) {
+      itemOccurrences[idSeq] = {
+        ...body,
+        ...(matchedQuery && { details: matchedQuery.data }),
+        ...(matchedQuery && {
+          qry: {
+            isLoading: matchedQuery.isLoading,
+            isError: matchedQuery.isError,
+            isSuccess: matchedQuery.isSuccess,
+          },
+        }),
+      }
+    } else {
+      itemOccurrences[idSeq] = {
+        ...body,
+        _processingFlags: {
+          isMatchError: true,
+        },
+      }
     }
   }
-  return itemOccurrences as ReturnType<typeof createSkeletonIOC> & {
-    [idSeq: string]: { details?: ItemFromAPI }
-  }
+  return itemOccurrences as ItemOccurrencesMapped
 }
 
 function iocGroupedReducer(
@@ -218,7 +254,7 @@ function iocGroupedReducer(
     payload: {
       id?: number
       seq?: number
-      IOCs?: ReturnType<typeof annotate>
+      IOCs?: ItemOccurrencesMapped
     }
   }
 ) {
@@ -231,13 +267,12 @@ function iocGroupedReducer(
         const uniqueIds = new Set(
           Object.keys(IOCs).map((idSeq) => JSON.parse(idSeq)[0])
         )
-        // remove member
+        // remove group whose id is absent in uniqueIds
         for (const id of Object.keys(draft)) {
           if (!uniqueIds.has(id)) {
             delete draft[parseInt(id)]
           }
         }
-
         Object.entries(IOCs).forEach(([idSeq, IOCValue]) => {
           const id = JSON.parse(idSeq)[0]
           const groupInDraft = draft[id]
@@ -262,6 +297,14 @@ function iocGroupedReducer(
             }
           }
         })
+
+        // remove unmatched groups
+        // do this last for processingFlags to overrule
+        for (const [id, group] of Object.entries(draft)) {
+          if (group.some((member) => member._processingFlags?.isMatchError)) {
+            delete draft[parseInt(id)]
+          }
+        }
         break
 
       default:
