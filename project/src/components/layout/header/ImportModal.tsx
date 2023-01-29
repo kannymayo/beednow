@@ -22,7 +22,7 @@ export default function ImportModal({
   isOpen: boolean
   closeModal: () => void
 }) {
-  const [itemOccurrencesGrouped, itemOccurrencesGroupedDispatcher] = useReducer(
+  const [itemOccurrencesGrouped, itemOccurrencesGroupedDispatch] = useReducer(
     iocGroupedReducer,
     {}
   )
@@ -40,7 +40,7 @@ export default function ImportModal({
   )
 
   const validItemUniqueCount = Object.keys(itemOccurrencesGrouped).length
-  // mathmatical smart
+  // mathmatical smartass
   const validItemCount =
     Object.entries(itemOccurrencesGrouped).flat(2).length - validItemUniqueCount
 
@@ -54,7 +54,7 @@ export default function ImportModal({
   ])
 
   useEffect(() => {
-    itemOccurrencesGroupedDispatcher({
+    itemOccurrencesGroupedDispatch({
       type: 'sync',
       payload: { IOCs: itemOccurrences },
     })
@@ -77,7 +77,7 @@ export default function ImportModal({
 
   const importTextarea = (
     <div
-      className="textarea textarea-bordered flex-1 overflow-y-auto"
+      className="textarea textarea-bordered m-1 flex-1 overflow-y-auto border-2 p-1 outline-0"
       contentEditable
       data-placeholder="Paste here your text containing item IDs."
       onInput={handleInput}
@@ -87,11 +87,13 @@ export default function ImportModal({
   )
 
   const importPreview = (
-    <div className="card min-h-16 grid flex-1 place-items-center gap-1 overflow-y-auto rounded-sm px-2">
+    <div className="card min-h-16 flex-1 place-items-stretch gap-2 overflow-y-auto rounded-sm px-2 py-1">
       {Object.entries(itemOccurrencesGrouped).map((tuple, index) => (
         <ImportableItemGroup
           group={tuple[1] as ItemOccurrence[]}
+          id={parseInt(tuple[0])}
           key={tuple[0]}
+          dispatch={itemOccurrencesGroupedDispatch}
         />
       ))}
     </div>
@@ -109,7 +111,7 @@ export default function ImportModal({
 
   const modal = (
     <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all lg:max-w-4xl">
-      <Dialog.Title as="h3" className="mb-5 font-medium">
+      <Dialog.Title as="h3" className="mb-4 font-medium">
         {modalTitle}
       </Dialog.Title>
       <div className="flex flex-col gap-2">
@@ -169,6 +171,9 @@ export default function ImportModal({
   }
 
   function handlePaste(e: React.ClipboardEvent<HTMLInputElement>) {
+    // buggy when performing paste at cursor & paste to selection
+    // maybe it's still a better option to go with a textarea
+
     // pasting uncleaned text would mess up editable div
     e.preventDefault()
     const text = e.clipboardData.getData('text/plain')
@@ -238,6 +243,11 @@ function annotate(
             isSuccess: matchedQuery.isSuccess,
           },
         }),
+        // all preselected, unless already specified
+        // buggy, but fixing would require the memo to depend on iocsgrouped
+        formState: {
+          selected: itemOccurrences[idSeq]?.formState?.selected ?? true,
+        },
       }
     } else {
       itemOccurrences[idSeq] = {
@@ -253,18 +263,11 @@ function annotate(
 
 function iocGroupedReducer(
   state: ItemOccurrencesGrouped,
-  action: {
-    type: 'toggle-select' | 'togggle-select-all' | 'sync'
-    payload: {
-      id?: number
-      seq?: number
-      IOCs?: ItemOccurrencesMapped
-    }
-  }
+  action: IOCGroupedAction
 ) {
   return produce(state, (draft) => {
     switch (action.type) {
-      case 'sync':
+      case 'sync': {
         // not taking from the memoized uniqueIds to reduce the number of dependencies
         const IOCs = action.payload.IOCs
         if (!IOCs) break
@@ -310,13 +313,42 @@ function iocGroupedReducer(
           }
         }
         break
+      }
+      case 'toggle-single': {
+        const id = action.payload.id
+        const seq = action.payload.seq
+        if (id === undefined || seq === undefined) break
+        const occ = draft[id].find((el) => {
+          return JSON.parse(el._idSeq)[1] === seq
+        })
+        if (occ) {
+          occ.formState = { selected: !occ.formState?.selected }
+        }
+        break
+      }
+      case 'toggle-group': {
+        const id = action.payload.id
+        if (id === undefined) break
+        const isFirstSelected = draft[id][0].formState?.selected
+        draft[id].forEach((el) => {
+          el.formState = { selected: !isFirstSelected }
+        })
+        break
+      }
 
       default:
         break
     }
   })
 }
-
+export interface IOCGroupedAction {
+  type: 'toggle-single' | 'toggle-group' | 'sync'
+  payload: {
+    id?: number
+    seq?: number
+    IOCs?: ItemOccurrencesMapped
+  }
+}
 interface CommonFields {
   _count: number
   details?: ItemFromAPI
@@ -327,6 +359,9 @@ interface CommonFields {
   }
   _processingFlags?: {
     isMatchError?: boolean
+  }
+  formState?: {
+    selected: boolean
   }
 }
 
