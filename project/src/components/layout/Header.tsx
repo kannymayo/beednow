@@ -1,16 +1,7 @@
-import React, { useState, Fragment } from 'react'
+import React from 'react'
 import ImportModal from './header/ImportModal'
 
 export default function Header() {
-  const [isOpen, setIsOpen] = useState(false)
-
-  function handleOpen() {
-    setIsOpen(true)
-  }
-  function closeModal() {
-    setIsOpen(false)
-  }
-
   const LoginButton = (
     <button className="mt-4 inline-flex items-center rounded border-0 bg-indigo-500 py-1 px-3 text-base hover:bg-indigo-600 focus:outline-none md:mt-0">
       Login
@@ -48,9 +39,10 @@ export default function Header() {
 
   const NavItems = (
     <nav className="flex flex-wrap items-center justify-center gap-1 px-4 text-base md:ml-auto">
-      <button className="btn btn-sm rounded-3xl" onClick={handleOpen}>
+      {/* New modal */}
+      <label htmlFor="import-modal" className="btn btn-sm rounded-3xl">
         +
-      </button>
+      </label>
       <label htmlFor="my-drawer" className="btn  drawer-button btn-sm">
         Show Finished Bids
       </label>
@@ -59,7 +51,7 @@ export default function Header() {
 
   return (
     <>
-      <ImportModal isOpen={isOpen} closeModal={closeModal} />
+      <ImportModal />
 
       <header className="body-font h-full bg-slate-400 text-gray-200">
         <div className="container mx-auto flex h-full flex-col flex-wrap items-center px-12 md:flex-row">

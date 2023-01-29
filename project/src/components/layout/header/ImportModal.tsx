@@ -1,27 +1,14 @@
 import './ImportModal.css'
-import React, {
-  Fragment,
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  useReducer,
-} from 'react'
+import React, { useState, useEffect, useRef, useMemo, useReducer } from 'react'
 import produce from 'immer'
 
 import { useItemDetailsMultiple, ItemFromAPI } from '../../../api/itemDetails'
 import { readGeneralExport } from '../../../utils/read-export'
 
-import { Dialog, Transition } from '@headlessui/react'
 import ImportableItemGroup from './importableItemGroup'
 
-export default function ImportModal({
-  isOpen = false,
-  closeModal,
-}: {
-  isOpen: boolean
-  closeModal: () => void
-}) {
+export default function ImportModal() {
+  const [isOpen, setIsOpen] = useState(false)
   const [itemOccurrencesGrouped, itemOccurrencesGroupedDispatch] = useReducer(
     iocGroupedReducer,
     {}
@@ -77,7 +64,7 @@ export default function ImportModal({
 
   const importTextarea = (
     <div
-      className="textarea textarea-bordered m-1 flex-1 overflow-y-auto border-2 p-1 outline-0"
+      className="textarea textarea-bordered scrollbar-hide m-1 flex-1 overflow-y-auto border-2 p-1 outline-0"
       contentEditable
       data-placeholder="Paste here your text containing item IDs."
       onInput={handleInput}
@@ -109,62 +96,45 @@ export default function ImportModal({
     </div>
   )
 
-  const modal = (
-    <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all lg:max-w-4xl">
-      <Dialog.Title as="h3" className="mb-4 font-medium">
-        {modalTitle}
-      </Dialog.Title>
-      <div className="flex flex-col gap-2">
-        <div className="flex max-h-96 w-full">
-          {importTextarea}
-          <div className="divider divider-horizontal"></div>
-          {importPreview}
-        </div>
-        <div className="flex place-items-center justify-end gap-6">
-          {importSummary}
-          <button className="btn btn-primary">Import</button>
-        </div>
-      </div>
-    </Dialog.Panel>
-  )
-
-  const backdrop = <div className="fixed inset-0 bg-black bg-opacity-25" />
-
   const _RETURN = (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={handleClose}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
+    <>
+      <input
+        type="checkbox"
+        id="import-modal"
+        className="modal-toggle"
+        checked={isOpen}
+        onChange={handleChange}
+      />
+      {/* MODEL BACKDROP */}
+      <label htmlFor="import-modal" className="modal cursor-pointer">
+        {/* MODEL CONTAINER with overwriting ability, so clicking inside won't dismiss?*/}
+        <label
+          className="modal-box relative flex min-h-[16rem] max-w-xl flex-col gap-4 md:max-w-2xl lg:max-w-4xl"
+          htmlFor=""
         >
-          {backdrop}
-        </Transition.Child>
-
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              {modal}
-            </Transition.Child>
+          <h3 className="text-lg font-bold">{modalTitle}</h3>
+          <div className="flex flex-1 flex-col gap-4">
+            <div className="flex max-h-96 w-full flex-1">
+              {importTextarea}
+              <div className="divider divider-horizontal"></div>
+              {importPreview}
+            </div>
+            <div className="flex flex-grow-0 place-items-center justify-end gap-6">
+              {importSummary}
+              <button className="btn btn-primary btn-sm">Import</button>
+            </div>
           </div>
-        </div>
-      </Dialog>
-    </Transition>
+        </label>
+      </label>
+    </>
   )
 
   return _RETURN
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setIsOpen(e.target.checked)
+    setTimeout(() => setImportString(''), 300)
+  }
 
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
     setImportString(e.target.innerText)
@@ -185,13 +155,6 @@ export default function ImportModal({
         new Event('input', { bubbles: true })
       )
     }
-  }
-
-  function handleClose() {
-    closeModal()
-    setTimeout(() => {
-      setImportString('')
-    }, 300)
   }
 
   function handleAddDemoData() {
