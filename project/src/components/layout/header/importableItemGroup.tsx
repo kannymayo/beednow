@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import classNames from 'classnames'
 
 import { ItemOccurrence, IOCGroupedAction } from './ImportModal'
+import TristateCheckBox from '../../TristateCheckBox'
 
 export default function ImportableItemGroup({
   group,
@@ -12,26 +13,29 @@ export default function ImportableItemGroup({
   group: ItemOccurrence[]
   dispatch: React.Dispatch<IOCGroupedAction>
 }) {
-  const single = (
-    <ul>
-      <li>
-        <ImportableItem
-          item={group[0]}
-          id={id}
-          seq={JSON.parse(group[0]._idSeq)[1]}
-          dispatch={dispatch}
-          isInGroup={false}
-        />
-      </li>
-    </ul>
-  )
+  const isSingle = group.length === 1
+  if (isSingle) {
+    return (
+      <ul>
+        <li>
+          <ImportableItem
+            item={group[0]}
+            id={id}
+            seq={JSON.parse(group[0]._idSeq)[1]}
+            dispatch={dispatch}
+            isInGroup={false}
+          />
+        </li>
+      </ul>
+    )
+  }
 
-  const multiple = (
+  return (
     <div className="rounded-sm rounded-tl-xl border-2 border-slate-100 focus-within:ring-2">
       <label className="mt-[-2px] ml-[-2px] flex ">
-        <input
-          className="checkbox checkbox-primary checkbox-lg rounded-none rounded-tl-xl border-2 border-slate-100 checked:ring-0 hover:border-slate-100 focus:ring-0 focus:ring-offset-0"
-          type="checkbox"
+        <TristateCheckBox
+          className="checkbox checkbox-primary checkbox-lg rounded-none rounded-tl-xl border-2 border-slate-100 checked:ring-0 indeterminate:opacity-60 hover:border-slate-100 focus:ring-0 focus:ring-offset-0"
+          status={calculateTriState(group)}
           onChange={handleClickGroup}
         />
         <div className="flex flex-1 cursor-pointer select-none place-items-center justify-center truncate text-sm opacity-0 hover:opacity-100">
@@ -53,9 +57,6 @@ export default function ImportableItemGroup({
       </ul>
     </div>
   )
-
-  return group.length === 1 ? single : multiple
-
   function handleClickGroup() {
     dispatch({ type: 'toggle-group', payload: { id } })
   }
@@ -74,8 +75,21 @@ function ImportableItem({
   dispatch: React.Dispatch<IOCGroupedAction>
   isInGroup: boolean
 }) {
+  const [isItemHovered, setIsItemHovered] = useState(false)
+  const stylesCopyBtn = isItemHovered ? 'block' : 'hidden'
+  const stylesSelectedBackground = item.formState?.selected
+    ? 'bg-slate-100'
+    : 'bg-transparent'
+
   return (
-    <label className="border-opacity-1000 flex place-items-center rounded-sm bg-indigo-50 only:rounded-tl-xl">
+    <label
+      className={classNames(
+        stylesSelectedBackground,
+        'border-opacity-1000 flex cursor-pointer place-items-center rounded-sm only:rounded-tl-xl'
+      )}
+      onMouseOver={toggleIsItemHovered}
+      onMouseOut={toggleIsItemHovered}
+    >
       <input
         className={classNames(
           { 'rounded-tl-xl': !isInGroup, 'rounded-tl-sm': isInGroup },
@@ -85,17 +99,22 @@ function ImportableItem({
         checked={item.formState?.selected}
         onChange={handleClickSingle}
       />
-      <div className=" flex min-w-0 flex-grow select-none items-center justify-between pr-1">
+      <div className=" flex min-w-0 flex-grow select-none items-center pr-1">
         <img className="h-8 w-8" src={item.details?.iconUrl}></img>
-        <div className="min-w-0 truncate">
-          {item.qry?.isSuccess === true ? item?.details?.name : 'Loading'}
+        <div className="flex min-w-0 flex-grow justify-between">
+          <div className="min-w-0 truncate">
+            {item.qry?.isSuccess === true ? item?.details?.name : 'Loading'}
+          </div>
+          <button
+            className={classNames(
+              stylesCopyBtn,
+              'btn btn-xs btn-outline border-2 text-slate-400 hover:border-slate-600 hover:bg-transparent hover:text-slate-900'
+            )}
+            onClick={handleCopyToClipboard}
+          >
+            copy
+          </button>
         </div>
-        <button
-          className="btn btn-xs btn-outline border-2 opacity-0 hover:border-slate-600 hover:bg-slate-100 hover:text-slate-700 hover:opacity-100"
-          onClick={handleCopyToClipboard}
-        >
-          copy
-        </button>
       </div>
     </label>
   )
@@ -108,5 +127,22 @@ function ImportableItem({
     navigator.clipboard.writeText(
       item.details?.name + ':' + item.details?.id ?? ''
     )
+  }
+
+  function toggleIsItemHovered() {
+    setIsItemHovered((i) => !i)
+  }
+}
+
+function calculateTriState(group: ItemOccurrence[]) {
+  const totalCount = group.length
+  const selectedCount = group.filter((item) => item.formState?.selected).length
+
+  if (totalCount === selectedCount) {
+    return 'checked'
+  } else if (selectedCount === 0) {
+    return 'unchecked'
+  } else {
+    return 'indeterminate'
   }
 }
