@@ -37,10 +37,19 @@ export default function ImportModal() {
   // async query
   const itemDetailsQryRslts = useItemDetailsMultiple(idList)
   const itemOccurrences = useMemo(() => {
-    return annotate(createSkeleton(idList), itemDetailsQryRslts)
+    const withQuries = annotateWithQueries(
+      createSkeleton(idList),
+      itemDetailsQryRslts
+    )
+    const withUserGenerated = annotateWithIOCSGrouped(
+      withQuries,
+      itemOccurrencesGrouped
+    )
+    return withUserGenerated
   }, [
     JSON.stringify(itemDetailsQryRslts.map((r) => r.data?.id)),
-    JSON.stringify(uniqueIds),
+    JSON.stringify(idList),
+    itemOccurrencesGrouped,
   ])
 
   useEffect(() => {
@@ -217,7 +226,27 @@ function createSkeleton(idList: number[]): ItemOccurrencesMapped {
   return itemOccurrences
 }
 
-function annotate(
+function annotateWithIOCSGrouped(
+  itemOccurrences: ItemOccurrencesMapped,
+  iocsGrouped: ItemOccurrencesGrouped
+) {
+  const groupedFlatten = Object.values(iocsGrouped).flat()
+  for (const [idSeq, item] of Object.entries(itemOccurrences)) {
+    const matchedFormState = groupedFlatten.find(
+      (el) => el._idSeq === idSeq
+    )?.formState
+    if (matchedFormState) {
+      item.formState = matchedFormState
+    } else {
+      item.formState = {
+        selected: true,
+      }
+    }
+  }
+  return itemOccurrences
+}
+
+function annotateWithQueries(
   itemOccurrences: ItemOccurrencesMapped,
   queryResults: ReturnType<typeof useItemDetailsMultiple>
 ) {
@@ -235,11 +264,6 @@ function annotate(
             isSuccess: matchedQuery.isSuccess,
           },
         }),
-        // all preselected, unless already specified
-        // buggy, but fixing would require the memo to depend on iocsgrouped
-        formState: {
-          selected: itemOccurrences[idSeq]?.formState?.selected ?? true,
-        },
       }
     } else {
       itemOccurrences[idSeq] = {
