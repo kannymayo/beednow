@@ -43,9 +43,7 @@ function App() {
                 <ItemCollectionWatchList />
               </div>
               <div className="col-span-6 col-start-2 row-[2_/_span_4]">
-                <a href="#" data-wowhead="item=40627&domain=wrath">
-                  <BidHistory />
-                </a>
+                <BidHistory />
               </div>
               <div className="col-span-6 col-start-8 row-[span_5_/_11]">
                 <BidItem />
@@ -69,39 +67,6 @@ function App() {
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   )
-
-  // return (
-  //   <div className="grid-rows-12 grid h-full min-h-[500px] w-full min-w-[768px] grid-cols-12">
-  //     <div className="col-span-12 col-start-auto">
-  //       <Header />
-  //     </div>
-  //     <MainBid>
-  //       <div className="col-span-2 col-start-1 row-[2_/_span_11] overflow-y-scroll">
-  //         <ItemCollectionPending />
-  //       </div>
-  //       <div className="col-span-2 col-start-3 row-[2_/_span_11]">
-  //         <ItemCollectionDone />
-  //       </div>
-  //       <div className="col-span-8 col-start-5 row-[span_2_/_13]">
-  //         <ItemCollectionWatchList />
-  //       </div>
-  //       <div className="col-span-4 col-start-5 row-[2_/_span_4]">
-  //         <a href="#" data-wowhead="item=40627&domain=wrath">
-  //           <BidHistory />
-  //         </a>
-  //       </div>
-  //       <div className="col-span-4 col-end-13 row-[span_5_/_11]">
-  //         <BidItem />
-  //       </div>
-  //       <div className="col-span-4 col-end-13 row-[2_/_span_4]">
-  //         <BidAction />
-  //       </div>
-  //       <div className="col-span-4 col-start-5 row-[span_5_/_11]">
-  //         <BidChat />
-  //       </div>
-  //     </MainBid>
-  //   </div>
-  // )
 }
 
 export default App

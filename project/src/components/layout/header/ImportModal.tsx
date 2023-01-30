@@ -20,7 +20,6 @@ export default function ImportModal() {
     () => readGeneralExport(importString) || [],
     [importString]
   )
-
   const uniqueIds = useMemo(
     () => [...new Set(idList)],
     [JSON.stringify(idList)]
@@ -32,7 +31,6 @@ export default function ImportModal() {
     Object.entries(itemOccurrencesGrouped).flat(2).length - validItemUniqueCount
 
   const itemDetailsQryRslts = useItemDetailsMultiple(idList)
-
   const itemOccurrences = useMemo(() => {
     return annotate(createSkeleton(idList), itemDetailsQryRslts)
   }, [
@@ -133,10 +131,12 @@ export default function ImportModal() {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setIsOpen(e.target.checked)
+    console.log('called')
     setTimeout(() => setImportString(''), 300)
   }
 
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
+    console.log(e)
     setImportString(e.target.innerText)
   }
 

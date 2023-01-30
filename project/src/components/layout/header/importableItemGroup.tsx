@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
-import classNames from 'classnames'
-import { usePopper } from 'react-popper'
+import React from 'react'
+import clsx from 'clsx'
 
 import { ItemOccurrence, IOCGroupedAction } from './ImportModal'
+import ImportableItem from './ImportableItem'
 import TristateCheckBox from '../../TristateCheckBox'
 
 export default function ImportableItemGroup({
@@ -31,17 +31,25 @@ export default function ImportableItemGroup({
     )
   }
 
+  // just to trigger intelisense
+  const containerCls = clsx(
+    'rounded-sm rounded-tl-xl border-2 border-slate-100 focus-within:ring-2'
+  )
+  const headerCls = clsx(
+    'flex flex-1 cursor-pointer select-none place-items-center justify-center truncate text-sm opacity-0 hover:opacity-100'
+  )
+  const triStateCls = clsx(
+    'checkbox checkbox-primary checkbox-lg rounded-none rounded-tl-xl border-2 border-slate-100 checked:ring-0 indeterminate:opacity-60 hover:border-slate-100 focus:ring-0 focus:ring-offset-0'
+  )
   return (
-    <div className="rounded-sm rounded-tl-xl border-2 border-slate-100 focus-within:ring-2">
+    <div className={containerCls}>
       <label className="mt-[-2px] ml-[-2px] flex ">
         <TristateCheckBox
-          className="checkbox checkbox-primary checkbox-lg rounded-none rounded-tl-xl border-2 border-slate-100 checked:ring-0 indeterminate:opacity-60 hover:border-slate-100 focus:ring-0 focus:ring-offset-0"
           status={calculateTriState(group)}
           onChange={handleClickGroup}
+          className={triStateCls}
         />
-        <div className="flex flex-1 cursor-pointer select-none place-items-center justify-center truncate text-sm opacity-0 hover:opacity-100">
-          Toggle all {group.length} items
-        </div>
+        <div className={headerCls}>Toggle all {group.length} items</div>
       </label>
       <ul className="ml-[-2px] mb-[-2px] mr-[-2px] pl-8">
         {group.map((itemOccurrence) => (
@@ -60,102 +68,6 @@ export default function ImportableItemGroup({
   )
   function handleClickGroup() {
     dispatch({ type: 'toggle-group', payload: { id } })
-  }
-}
-
-function ImportableItem({
-  item,
-  id,
-  seq,
-  dispatch,
-  isInGroup,
-}: {
-  item: ItemOccurrence
-  id: number
-  seq: number
-  dispatch: React.Dispatch<IOCGroupedAction>
-  isInGroup: boolean
-}) {
-  // popperjs is unstyled, styling arrow thru css is kinda crazy
-  const [refElement, setRefElement] = useState<HTMLElement | null>(null)
-  const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
-  const { styles, attributes } = usePopper(refElement, popperElement, {
-    placement: 'top-end',
-  })
-  const [shouldShowPopper, setShouldShowPopper] = useState(false)
-
-  const [isItemHovered, setIsItemHovered] = useState(false)
-  const stylesCopyBtn = isItemHovered ? 'block' : 'hidden'
-  const stylesSelectedBackground = item.formState?.selected
-    ? 'bg-slate-100'
-    : 'bg-transparent'
-
-  return (
-    <label
-      className={classNames(
-        stylesSelectedBackground,
-        'flex cursor-pointer place-items-center rounded-sm border-opacity-100 only:rounded-tl-xl hover:bg-indigo-200'
-      )}
-      onMouseOver={toggleIsItemHovered}
-      onMouseOut={toggleIsItemHovered}
-      ref={setRefElement}
-    >
-      <input
-        className={classNames(
-          { 'rounded-tl-xl': !isInGroup, 'rounded-tl-sm': isInGroup },
-          'checkbox checkbox-primary checkbox-lg unchecked:ring-inset rounded-none border-2 border-slate-100  checked:ring-0 hover:border-slate-100 focus:border-slate-100 focus:ring-0 focus:ring-offset-0'
-        )}
-        type="checkbox"
-        checked={item.formState?.selected}
-        onChange={handleClickSingle}
-      />
-      <div className=" flex min-w-0 flex-grow select-none items-center pr-1">
-        <img className="h-8 w-8" src={item.details?.iconUrl}></img>
-        <div className="flex min-w-0 flex-grow justify-between">
-          <div className="min-w-0 truncate">
-            {item.qry?.isSuccess === true ? item?.details?.name : 'Loading'}
-          </div>
-          <button
-            className={classNames(
-              stylesCopyBtn,
-              'btn btn-xs btn-outline border-2 text-slate-400 hover:border-slate-600 hover:bg-transparent hover:text-slate-900'
-            )}
-            onClick={handleCopyToClipboard}
-          >
-            copy
-          </button>
-          <div
-            className={classNames(
-              { invisible: !shouldShowPopper },
-              'alert-success rounded-md p-1 shadow-lg'
-            )}
-            ref={setPopperElement}
-            style={styles.popper}
-            {...attributes.popper}
-          >
-            Copied
-          </div>
-        </div>
-      </div>
-    </label>
-  )
-
-  function handleClickSingle() {
-    dispatch({ type: 'toggle-single', payload: { id, seq } })
-  }
-
-  function handleCopyToClipboard() {
-    navigator.clipboard.writeText(
-      item.details?.name + ':' + item.details?.id ?? ''
-    )
-    setShouldShowPopper(true)
-    setTimeout(() => {
-      setShouldShowPopper(false)
-    }, 500)
-  }
-
-  function toggleIsItemHovered() {
-    setIsItemHovered((i) => !i)
   }
 }
 
