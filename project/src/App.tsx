@@ -24,8 +24,6 @@ const qc = new QueryClient({
 })
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <QueryClientProvider client={qc}>
       <div className="drawer">

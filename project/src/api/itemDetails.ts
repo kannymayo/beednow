@@ -1,4 +1,4 @@
-import parse, { ItemFromAPI } from '../utils/parse-wow-tooltip'
+import parse, { ItemFromAPI, BidItem } from '../utils/parse-wow-tooltip'
 import {
   QueryFunction,
   useQueries,
@@ -44,4 +44,4 @@ function useItemDetailsMultiple(ids: number[]) {
 }
 
 export { useItemDetails, useItemDetailsMultiple }
-export type { ItemFromAPI }
+export type { ItemFromAPI, BidItem }

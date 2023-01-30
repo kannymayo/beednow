@@ -7,6 +7,11 @@ interface FlatTooltipJSON {
 
 type ParseError = 'No containing element found'
 
+export type BidItem = {
+  uuid: string
+  details: ItemFromAPI
+}
+
 export type ItemFromAPI = {
   id: number
   name: string

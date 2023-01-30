@@ -2,9 +2,11 @@ import './ImportModal.css'
 import React, { useState, useEffect, useRef, useMemo, useReducer } from 'react'
 import clsx from 'clsx'
 import produce from 'immer'
+import { useAtom } from 'jotai'
 
 import { useItemDetailsMultiple, ItemFromAPI } from '../../../api/itemDetails'
 import { readGeneralExport } from '../../../utils/read-export'
+import allBidsAtom from '../../../states/bid-item'
 
 import ImportableItemGroup from './importableItemGroup'
 
@@ -16,6 +18,7 @@ export default function ImportModal() {
   const [isOpen, setIsOpen] = useState(false)
   const [importString, setImportString] = useState('')
   const refTextarea = useRef<HTMLTextAreaElement>(null)
+  const [, setAllBids] = useAtom(allBidsAtom)
 
   const idList = useMemo(
     () => readGeneralExport(importString) || [],
@@ -105,7 +108,9 @@ export default function ImportModal() {
           types
         </div>
       )}
-      <button className="btn btn-primary btn-sm">Import</button>
+      <button className="btn btn-primary btn-sm" onClick={handleImport}>
+        Import
+      </button>
     </div>
   )
 
@@ -141,9 +146,39 @@ export default function ImportModal() {
 
   return _RETURN
 
+  function handleImport() {
+    setAllBids((prev) => {
+      return [
+        ...prev,
+        ...Object.values(itemOccurrencesGrouped)
+          .flat()
+          .filter((item) => item.formState.selected)
+          .map((el) => {
+            return {
+              uuid: crypto.randomUUID(),
+              details: el.details,
+            }
+          }),
+      ]
+    })
+    closeModal()
+  }
+
   function handleModalChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setIsOpen(e.target.checked)
+    if (e.target.checked) {
+      openModal()
+    } else {
+      closeModal()
+    }
+  }
+
+  function closeModal() {
+    setIsOpen(false)
     setTimeout(() => setImportString(''), 300)
+  }
+
+  function openModal() {
+    setIsOpen(true)
   }
 
   function handleTextareaChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
@@ -156,7 +191,7 @@ export default function ImportModal() {
       40346, 40636, 40303, 40256, 40258, 40384,
     ]
     const idList = Array.from(
-      { length: 15 },
+      { length: Math.floor(Math.random() * 10) },
       () => idPool[Math.floor(Math.random() * idPool.length)]
     )
     const text = idList.join(' ')
