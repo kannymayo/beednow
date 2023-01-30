@@ -149,7 +149,6 @@ export default function ImportModal() {
   function handleImport() {
     setAllBids((prev) => {
       return [
-        ...prev,
         ...Object.values(itemOccurrencesGrouped)
           .flat()
           .filter((item) => item.formState.selected)
@@ -159,6 +158,7 @@ export default function ImportModal() {
               details: el.details,
             }
           }),
+        ...prev,
       ]
     })
     closeModal()
@@ -191,7 +191,7 @@ export default function ImportModal() {
       40346, 40636, 40303, 40256, 40258, 40384,
     ]
     const idList = Array.from(
-      { length: Math.floor(Math.random() * 10) },
+      { length: Math.max(1, Math.floor(Math.random() * 10)) },
       () => idPool[Math.floor(Math.random() * idPool.length)]
     )
     const text = idList.join(' ')

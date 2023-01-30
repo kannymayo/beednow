@@ -44,13 +44,13 @@ function App() {
                 <BidHistory />
               </div>
               <div className="col-span-6 col-start-8 row-[span_5_/_11]">
-                <BidItem />
-              </div>
-              <div className="col-span-6 col-start-8 row-[2_/_span_4]">
                 <BidAction />
               </div>
-              <div className="col-span-6 col-start-2 row-[span_5_/_11]">
+              <div className="col-span-6 col-start-8 row-[2_/_span_4]">
                 <BidChat />
+              </div>
+              <div className="col-span-6 col-start-2 row-[span_5_/_11]">
+                <BidItem />
               </div>
             </MainBid>
           </div>

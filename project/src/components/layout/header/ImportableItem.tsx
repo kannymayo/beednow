@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import clsx from 'clsx'
 import { usePopper } from 'react-popper'
 
@@ -25,11 +25,18 @@ export default function ImportableItem({
   // popperjs is unstyled, styling arrow thru css is kinda crazy
   const [refElement, setRefElement] = useState<HTMLElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
-  const { styles, attributes } = usePopper(refElement, popperElement, {
+  const { styles, attributes, update } = usePopper(refElement, popperElement, {
     placement: 'top-end',
   })
   const [shouldShowPopper, setShouldShowPopper] = useState(false)
   const stylesCopyBtn = isItemHovered ? 'block' : 'hidden'
+
+  // introduce extra recalculations.
+  // calculation is correct at init, but somehow messed up after awhile
+  // due to animation or async stuff, not sure.
+  useEffect(() => {
+    if (update) update()
+  }, [shouldShowPopper])
 
   //
   const itemChkBoxCls = clsx(

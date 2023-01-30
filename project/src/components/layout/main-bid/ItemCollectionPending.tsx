@@ -3,6 +3,7 @@ import { useAtom } from 'jotai'
 import useForm from '../../../hooks/form'
 
 import allBidsAtom from '../../../states/bid-item'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 export default function ItemCollectionPending() {
   const [showScrollToTop, setShowScrollToTop] = useState<Boolean>(false)
@@ -10,6 +11,8 @@ export default function ItemCollectionPending() {
 
   const refScrollingContainer = React.useRef<HTMLDivElement>(null)
   const [allBids, setAllBids] = useAtom(allBidsAtom)
+
+  const [animationParent] = useAutoAnimate<HTMLUListElement>()
 
   const displayedItems = useMemo(() => {
     if (formValues) {
@@ -87,7 +90,7 @@ export default function ItemCollectionPending() {
       </div>
 
       {/* List of items */}
-      <ul>
+      <ul className="px-1" ref={animationParent}>
         {displayedItems &&
           displayedItems.map((item) => (
             <li key={item.uuid}>
@@ -102,14 +105,19 @@ export default function ItemCollectionPending() {
                   </a>
                 </figure>
                 <div className="card-body gap-0 overflow-hidden p-1 ">
-                  <div className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium">
-                    {item.details.name}
+                  <div className="flex items-center justify-between ">
+                    <div className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium">
+                      {item.details.name}
+                    </div>
+                    <button className="btn btn-xs font-light">P</button>
                   </div>
-                  <div className="card-actions flex-1 items-center justify-between">
-                    <div className="badge badge-primary">
+                  <div className="card-actions flex-1 flex-nowrap items-center">
+                    <div className="badge badge-primary shrink-0">
                       {item.details.type ?? item.details.slot}
                     </div>
-                    <button className="btn btn-xs font-light">Preview</button>
+                    <div className="badge badge-primary shrink-0">
+                      ilvl: {item.details.itemLevel}
+                    </div>
                   </div>
                 </div>
               </div>
