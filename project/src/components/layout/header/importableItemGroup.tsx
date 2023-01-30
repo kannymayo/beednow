@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import classNames from 'classnames'
+import { usePopper } from 'react-popper'
 
 import { ItemOccurrence, IOCGroupedAction } from './ImportModal'
 import TristateCheckBox from '../../TristateCheckBox'
@@ -75,6 +76,14 @@ function ImportableItem({
   dispatch: React.Dispatch<IOCGroupedAction>
   isInGroup: boolean
 }) {
+  // popperjs is unstyled, styling arrow thru css is kinda crazy
+  const [refElement, setRefElement] = useState<HTMLElement | null>(null)
+  const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
+  const { styles, attributes } = usePopper(refElement, popperElement, {
+    placement: 'top-end',
+  })
+  const [shouldShowPopper, setShouldShowPopper] = useState(false)
+
   const [isItemHovered, setIsItemHovered] = useState(false)
   const stylesCopyBtn = isItemHovered ? 'block' : 'hidden'
   const stylesSelectedBackground = item.formState?.selected
@@ -85,10 +94,11 @@ function ImportableItem({
     <label
       className={classNames(
         stylesSelectedBackground,
-        'border-opacity-1000 flex cursor-pointer place-items-center rounded-sm only:rounded-tl-xl'
+        'flex cursor-pointer place-items-center rounded-sm border-opacity-100 only:rounded-tl-xl hover:bg-indigo-200'
       )}
       onMouseOver={toggleIsItemHovered}
       onMouseOut={toggleIsItemHovered}
+      ref={setRefElement}
     >
       <input
         className={classNames(
@@ -114,6 +124,17 @@ function ImportableItem({
           >
             copy
           </button>
+          <div
+            className={classNames(
+              { invisible: !shouldShowPopper },
+              'alert-success rounded-md p-1 shadow-lg'
+            )}
+            ref={setPopperElement}
+            style={styles.popper}
+            {...attributes.popper}
+          >
+            Copied
+          </div>
         </div>
       </div>
     </label>
@@ -127,6 +148,10 @@ function ImportableItem({
     navigator.clipboard.writeText(
       item.details?.name + ':' + item.details?.id ?? ''
     )
+    setShouldShowPopper(true)
+    setTimeout(() => {
+      setShouldShowPopper(false)
+    }, 500)
   }
 
   function toggleIsItemHovered() {
