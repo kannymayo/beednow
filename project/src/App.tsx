@@ -1,4 +1,5 @@
 import React from 'react'
+import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './store/AuthContext'
 import './App.css'
 
@@ -18,12 +19,14 @@ const qc = new QueryClient({
 
 function App() {
   return (
-    <AuthProvider>
-      <QueryClientProvider client={qc}>
-        <Home />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <QueryClientProvider client={qc}>
+          <Home />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 

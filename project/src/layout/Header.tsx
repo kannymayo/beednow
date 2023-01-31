@@ -2,7 +2,8 @@ import React from 'react'
 import clsx from 'clsx'
 
 import { useAuthContext } from '../store/AuthContext'
-import ImportModal from './header/ImportModal'
+import ImportModal from './header/BiddingImporter'
+import BiddingsFinishedModal from './header/BiddingsFinished'
 
 export default function Header() {
   const { user, googleSignIn, signOut } = useAuthContext()
@@ -53,7 +54,7 @@ export default function Header() {
       <label htmlFor="import-modal" className="btn btn-sm rounded-3xl">
         +
       </label>
-      <label htmlFor="my-drawer" className="btn  drawer-button btn-sm">
+      <label htmlFor="finished-modal" className="btn btn-sm ">
         Show Finished Bids
       </label>
     </nav>
@@ -62,6 +63,7 @@ export default function Header() {
   return (
     <>
       <ImportModal />
+      <BiddingsFinishedModal />
 
       <header className="body-font h-full bg-slate-400 text-gray-200">
         <div className="container mx-auto flex h-full flex-col flex-wrap items-center px-12 md:flex-row">

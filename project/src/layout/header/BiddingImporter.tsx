@@ -1,4 +1,4 @@
-import './ImportModal.css'
+import './BiddingImporter.css'
 import React, { useState, useEffect, useRef, useMemo, useReducer } from 'react'
 import clsx from 'clsx'
 import produce from 'immer'

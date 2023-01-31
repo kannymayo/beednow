@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import clsx from 'clsx'
 import { usePopper } from 'react-popper'
 
-import { ItemOccurrence, IOCGroupedAction } from './ImportModal'
+import { ItemOccurrence, IOCGroupedAction } from './BiddingImporter'
 
 export default function ImportableItem({
   item,

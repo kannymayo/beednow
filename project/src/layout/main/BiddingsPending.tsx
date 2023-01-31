@@ -5,7 +5,7 @@ import { useAutoAnimate } from '@formkit/auto-animate/react'
 import useForm from '../../hooks/form'
 import allBidsAtom from '../../store/bid-item'
 
-export default function ItemCollectionPending() {
+export default function BiddingsPending() {
   const [showScrollToTop, setShowScrollToTop] = useState<Boolean>(false)
   const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
 
