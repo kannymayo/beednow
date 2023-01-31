@@ -1,21 +1,31 @@
 import React from 'react'
+import clsx from 'clsx'
+
+import { useAuthContext } from '../AuthContext'
 import ImportModal from './header/ImportModal'
 
 export default function Header() {
+  const { user, googleSignIn, signOut } = useAuthContext()
+
+  const btnCls = clsx(
+    'mt-4 inline-flex items-center rounded border-0 bg-indigo-500 py-1 px-3 text-base hover:bg-indigo-600 focus:outline-none md:mt-0'
+  )
+  const btnSvg = (
+    <svg
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      className="ml-1 h-4 w-4"
+      viewBox="0 0 24 24"
+    >
+      <path d="M5 12h14M12 5l7 7-7 7"></path>
+    </svg>
+  )
   const LoginButton = (
-    <button className="mt-4 inline-flex items-center rounded border-0 bg-indigo-500 py-1 px-3 text-base hover:bg-indigo-600 focus:outline-none md:mt-0">
-      Login
-      <svg
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        className="ml-1 h-4 w-4"
-        viewBox="0 0 24 24"
-      >
-        <path d="M5 12h14M12 5l7 7-7 7"></path>
-      </svg>
+    <button onClick={() => googleSignIn()} className={btnCls}>
+      Login{btnSvg}
     </button>
   )
 
