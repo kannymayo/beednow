@@ -11,23 +11,17 @@ import allBidsAtom from '../../../states/bid-item'
 import ImportableItemGroup from './importableItemGroup'
 
 export default function ImportModal() {
+  const [isOpen, setIsOpen] = useState(false)
+  const refTextarea = useRef<HTMLTextAreaElement>(null)
+
+  const [, setAllBids] = useAtom(allBidsAtom)
+
   const [itemOccurrencesGrouped, itemOccurrencesGroupedDispatch] = useReducer(
     iocGroupedReducer,
     {}
   )
-  const [isOpen, setIsOpen] = useState(false)
   const [importString, setImportString] = useState('')
-  const refTextarea = useRef<HTMLTextAreaElement>(null)
-  const [, setAllBids] = useAtom(allBidsAtom)
-
-  const idList = useMemo(
-    () => readGeneralExport(importString) || [],
-    [importString]
-  )
-  const uniqueIds = useMemo(
-    () => [...new Set(idList)],
-    [JSON.stringify(idList)]
-  )
+  const idList = readGeneralExport(importString) || []
 
   const validItemUniqueCount = Object.keys(itemOccurrencesGrouped).length
   // mathmatical smartass
@@ -49,7 +43,6 @@ export default function ImportModal() {
   }, [
     JSON.stringify(itemDetailsQryRslts.map((r) => r.data?.id)),
     JSON.stringify(idList),
-    itemOccurrencesGrouped,
   ])
 
   useEffect(() => {
@@ -230,17 +223,15 @@ function annotateWithIOCSGrouped(
   itemOccurrences: ItemOccurrencesMapped,
   iocsGrouped: ItemOccurrencesGrouped
 ) {
-  const groupedFlatten = Object.values(iocsGrouped).flat()
+  const targetFlatten = Object.values(iocsGrouped).flat()
   for (const [idSeq, item] of Object.entries(itemOccurrences)) {
-    const matchedFormState = groupedFlatten.find(
+    const targetFormState = targetFlatten.find(
       (el) => el._idSeq === idSeq
     )?.formState
-    if (matchedFormState) {
-      item.formState = matchedFormState
-    } else {
-      item.formState = {
-        selected: true,
-      }
+    item.formState = {
+      // default comes first, so it can be overwritten
+      selected: true,
+      ...targetFormState,
     }
   }
   return itemOccurrences
