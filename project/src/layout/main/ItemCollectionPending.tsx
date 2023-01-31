@@ -1,9 +1,9 @@
 import React, { useMemo, useEffect, useState } from 'react'
 import { useAtom } from 'jotai'
-import useForm from '../../../hooks/form'
-
-import allBidsAtom from '../../../states/bid-item'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
+
+import useForm from '../../hooks/form'
+import allBidsAtom from '../../store/bid-item'
 
 export default function ItemCollectionPending() {
   const [showScrollToTop, setShowScrollToTop] = useState<Boolean>(false)

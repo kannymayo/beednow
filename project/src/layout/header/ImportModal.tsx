@@ -4,9 +4,9 @@ import clsx from 'clsx'
 import produce from 'immer'
 import { useAtom } from 'jotai'
 
-import { useItemDetailsMultiple, ItemFromAPI } from '../../../api/itemDetails'
-import { readGeneralExport } from '../../../utils/read-export'
-import allBidsAtom from '../../../states/bid-item'
+import { useItemDetailsMultiple, ItemFromAPI } from '../../api/itemDetails'
+import { readGeneralExport } from '../../utils/read-export'
+import allBidsAtom from '../../store/bid-item'
 
 import ImportableItemGroup from './importableItemGroup'
 

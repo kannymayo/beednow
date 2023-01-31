@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { useAuthContext } from '../AuthContext'
+import { useAuthContext } from '../store/AuthContext'
 import ImportModal from './header/ImportModal'
 
 export default function Header() {
