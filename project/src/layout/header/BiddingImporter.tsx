@@ -1,5 +1,6 @@
 import './BiddingImporter.css'
 import React, { useState, useEffect, useRef, useMemo, useReducer } from 'react'
+import { toast } from 'react-toastify'
 import clsx from 'clsx'
 import produce from 'immer'
 import { useAtom } from 'jotai'
@@ -149,21 +150,26 @@ export default function ImportModal() {
   return _RETURN
 
   function handleImport() {
-    setAllBids((prev) => {
-      return [
-        ...Object.values(itemOccurrencesGrouped)
-          .flat()
-          .filter((item) => item.formState.selected)
-          .map((el) => {
-            return {
-              uuid: crypto.randomUUID(),
-              details: el.details,
-            }
-          }),
-        ...prev,
-      ]
-    })
+    const selectedItems = Object.values(itemOccurrencesGrouped)
+      .flat()
+      .filter((item) => item.formState.selected)
+    setAllBids(
+      produce((draft) => {
+        draft.unshift(
+          ...selectedItems.map((el) => ({
+            uuid: crypto.randomUUID(),
+            details: el.details,
+          }))
+        )
+      })
+    )
     closeModal()
+    const msg = `Added ${selectedItems.length} item${
+      selectedItems.length > 1 ? 's' : ''
+    } to bidding`
+    toast(msg, {
+      type: 'info',
+    })
   }
 
   function handleModalChange(e: React.ChangeEvent<HTMLInputElement>) {

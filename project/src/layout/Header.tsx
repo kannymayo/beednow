@@ -1,5 +1,9 @@
 import React from 'react'
 import clsx from 'clsx'
+import {
+  ArrowDownTrayIcon,
+  DocumentCheckIcon,
+} from '@heroicons/react/24/outline'
 
 import { useAuthContext } from '../store/AuthContext'
 import ImportModal from './header/BiddingImporter'
@@ -51,11 +55,17 @@ export default function Header() {
   const NavItems = (
     <nav className="flex flex-wrap items-center justify-center gap-1 px-4 text-base md:ml-auto">
       {/* New modal */}
-      <label htmlFor="import-modal" className="btn btn-sm rounded-3xl">
-        +
+      <label
+        htmlFor="import-modal"
+        className="btn btn-sm rounded border-none bg-transparent hover:bg-indigo-500 active:bg-indigo-600"
+      >
+        <ArrowDownTrayIcon className="h-6 w-6" />
       </label>
-      <label htmlFor="finished-modal" className="btn btn-sm ">
-        Show Finished Bids
+      <label
+        htmlFor="finished-modal"
+        className="btn btn-sm rounded border-none bg-transparent hover:bg-indigo-500 active:bg-indigo-600"
+      >
+        <DocumentCheckIcon className="h-6 w-6" />
       </label>
     </nav>
   )

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import clsx from 'clsx'
-import { usePopper } from 'react-popper'
+import { toast } from 'react-toastify'
 
 import { ItemOccurrence, IOCGroupedAction } from './BiddingImporter'
 
@@ -18,27 +18,8 @@ export default function ImportableItem({
   isInGroup: boolean
 }) {
   const [isItemHovered, setIsItemHovered] = useState(false)
-  const stylesSelectedBackground = item.formState?.selected
-    ? 'bg-slate-100'
-    : 'bg-transparent'
-
-  // popperjs is unstyled, styling arrow thru css is kinda crazy
-  const [refElement, setRefElement] = useState<HTMLElement | null>(null)
-  const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
-  const { styles, attributes, update } = usePopper(refElement, popperElement, {
-    placement: 'top-end',
-  })
-  const [shouldShowPopper, setShouldShowPopper] = useState(false)
   const stylesCopyBtn = isItemHovered ? 'block' : 'hidden'
 
-  // introduce extra recalculations.
-  // calculation is correct at init, but somehow messed up after awhile
-  // due to animation or async stuff, not sure.
-  useEffect(() => {
-    if (update) update()
-  }, [shouldShowPopper])
-
-  //
   const itemChkBoxCls = clsx(
     { 'rounded-tl-xl': !isInGroup, 'rounded-tl-sm': isInGroup },
     'checkbox checkbox-primary checkbox-lg unchecked:ring-inset rounded-none border-2 border-slate-100  checked:ring-0 hover:border-slate-100 focus:border-slate-100 focus:ring-0 focus:ring-offset-0'
@@ -52,14 +33,9 @@ export default function ImportableItem({
     />
   )
 
-  //
   const copyBtnCls = clsx(
     stylesCopyBtn,
     'btn btn-xs btn-outline border-2 text-slate-400 hover:border-slate-600 hover:bg-transparent hover:text-slate-900'
-  )
-  const copyBtnPopperCls = clsx(
-    { invisible: !shouldShowPopper },
-    'alert-success rounded-md p-1 shadow-lg'
   )
   const nameAndCopyBtn = (
     <div className="flex min-w-0 flex-grow justify-between">
@@ -69,34 +45,36 @@ export default function ImportableItem({
       <button onClick={handleCopyToClipboard} className={copyBtnCls}>
         copy
       </button>
-      <div
-        ref={setPopperElement}
-        style={styles.popper}
-        {...attributes.popper}
-        className={copyBtnPopperCls}
-      >
-        Copied
-      </div>
     </div>
   )
 
   const labelContainerCls = clsx(
-    stylesSelectedBackground,
+    {
+      'bg-slate-100': item.formState?.selected,
+      'bg-transparent': !item.formState?.selected,
+    },
     'flex cursor-pointer place-items-center rounded-sm border-opacity-100 only:rounded-tl-xl hover:bg-indigo-200'
   )
   const dataWowhead = `item=${item.details?.id}&domain=wrath`
+  const wowheadLink = (
+    <a href="#" data-wowhead={dataWowhead}>
+      <img className="h-8 w-8" src={item.details?.iconUrl}></img>
+    </a>
+  )
+  const wowheadLinkRoundedSmall = (
+    <a href="#" data-wowhead={dataWowhead}>
+      <img className="h-6 w-6 rounded-lg" src={item.details?.iconUrl}></img>
+    </a>
+  )
   const _RETURN = (
     <label
       onMouseOver={toggleIsItemHovered}
       onMouseOut={toggleIsItemHovered}
-      ref={setRefElement}
       className={labelContainerCls}
     >
       {itemChkBox}
       <div className="flex min-w-0 flex-grow select-none items-center pr-1">
-        <a href="#" data-wowhead={dataWowhead}>
-          <img className="h-8 w-8" src={item.details?.iconUrl}></img>
-        </a>
+        {wowheadLink}
         {nameAndCopyBtn}
       </div>
     </label>
@@ -109,13 +87,19 @@ export default function ImportableItem({
   }
 
   function handleCopyToClipboard() {
-    navigator.clipboard.writeText(
-      item.details?.name + ':' + item.details?.id ?? ''
+    const content = item.details?.name + ':' + item.details?.id ?? ''
+    const toastMsg = (
+      <div className="grid gap-2">
+        <div className="flex items-center gap-1">
+          {wowheadLinkRoundedSmall}Copied to Clipboard
+        </div>
+        <div className="flex min-w-0 rounded-sm bg-indigo-50 px-1 text-sm text-slate-600 ">
+          <div className="truncate">{`${content}`}</div>
+        </div>
+      </div>
     )
-    setShouldShowPopper(true)
-    setTimeout(() => {
-      setShouldShowPopper(false)
-    }, 500)
+    navigator.clipboard.writeText(content)
+    toast(toastMsg, { type: 'info' })
   }
 
   function toggleIsItemHovered() {
