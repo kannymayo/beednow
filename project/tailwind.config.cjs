@@ -10,6 +10,7 @@ module.exports = {
         13: 'minmax(300px, 2fr),repeat(12, minmax(0, 1fr))',
       },
       gridColumn: { 'span-13': 'span 13 / span 13' },
+      gridRow: { 'span-12': 'span 12 / span 12' },
     },
   },
   plugins: [

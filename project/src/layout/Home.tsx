@@ -1,13 +1,18 @@
 import React from 'react'
-import { Router } from 'react-router-dom'
+import { Routes, Route, Outlet } from 'react-router-dom'
 
+import Protected from '../components/Protected'
+import PublicOnly from '../components/PublicOnly'
+import EnterRoom from './EnterRoom'
 import Header from './Header'
+import Login from './Login'
 import BiddingsPending from './main/BiddingsPending'
 import BiddingsWatchlist from './main/BiddingsWatchlist'
 import BidAction from './main/BidAction'
 import BidChat from './main/BidChat'
 import BidHistory from './main/BidHistory'
 import BidItem from './main/BidItem'
+import RegistrationPge from './Register'
 
 export default function Home() {
   const biddingView = (
@@ -33,14 +38,61 @@ export default function Home() {
     </>
   )
 
-  const topGrid = (
-    <div className="grid-rows-12 grid-cols-13 grid h-full min-h-[500px] w-full min-w-[768px]">
-      <div className="col-span-13 col-start-auto">
+  function GridLayout({ children }: { children: React.ReactNode }) {
+    return (
+      <div className="grid-rows-12 grid-cols-13 grid h-full min-h-[500px] w-full min-w-[768px]">
         <Header />
+        {children}
       </div>
-      {biddingView}
+    )
+  }
+
+  // topgrid, aka a specific room
+  function Room() {
+    return biddingView
+  }
+
+  // all rooms owned and joined by user
+  function TaggedRooms() {
+    return <HeroPlaceholder>all rooms owned and joined by user</HeroPlaceholder>
+  }
+
+  function NotFound() {
+    return <HeroPlaceholder>Not Found</HeroPlaceholder>
+  }
+
+  return (
+    <GridLayout>
+      <Routes>
+        <Route path="/" element={<EnterRoom />} />
+        <Route element={<PublicOnly />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<RegistrationPge />} />
+        </Route>
+
+        <Route element={<Protected />}>
+          <Route path="/room">
+            <Route path=":roomId" element={<Room />} />
+          </Route>
+          <Route path="/user">
+            <Route path=":userId/rooms" element={<TaggedRooms />} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </GridLayout>
+  )
+}
+
+function HeroPlaceholder({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="hero bg-base-200 col-span-13 row-span-12 row-span-6">
+      <div className="hero-content text-center">
+        <div className="max-w-md">
+          <h1 className="text-5xl font-bold uppercase">{children}</h1>
+        </div>
+      </div>
     </div>
   )
-
-  return topGrid
 }

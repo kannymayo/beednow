@@ -3,16 +3,30 @@ import { auth } from '../api/firebase'
 import {
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
   signOut as authSignOut,
   onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
 } from 'firebase/auth'
 
+type User = {
+  [key: string]: any
+  uid?: string
+}
+
 const AuthContext = createContext<{
-  user: { [key: string]: any | null }
+  user: User
   googleSignIn: any
   signOut: any
-}>({ user: {}, googleSignIn: {}, signOut: {} })
+  createEmailAccount: any
+  signInWithEmail: any
+}>({
+  user: {},
+  googleSignIn: {},
+  signOut: {},
+  createEmailAccount: {},
+  signInWithEmail: {},
+})
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState({})
@@ -20,6 +34,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   function googleSignIn() {
     const provider = new GoogleAuthProvider()
     signInWithPopup(auth, provider)
+  }
+
+  async function createEmailAccount(email: string, password: string) {
+    return await createUserWithEmailAndPassword(auth, email, password)
+  }
+
+  async function signInWithEmail(email: string, password: string) {
+    return await signInWithEmailAndPassword(auth, email, password)
   }
 
   function signOut() {
@@ -38,7 +60,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ googleSignIn, signOut, user }}>
+    <AuthContext.Provider
+      value={{
+        googleSignIn,
+        signOut,
+        user,
+        createEmailAccount,
+        signInWithEmail,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )
