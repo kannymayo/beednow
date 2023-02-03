@@ -5,17 +5,17 @@ import {
   DocumentCheckIcon,
   ArrowRightOnRectangleIcon,
   ArrowLeftOnRectangleIcon,
-  UserIcon,
 } from '@heroicons/react/24/outline'
-import { useMatch, Link, useNavigate } from 'react-router-dom'
+import { useMatch, Link, useNavigate, Outlet } from 'react-router-dom'
 
 import { ReactComponent as Logo } from '../assets/logo.svg'
-import { useSignOut, useAuthState } from '../hooks/useUnifiedAuth'
+import { useSignOut } from '../hooks/useToastyAuth'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
+import useUserAtom from '../store/useUserAtom'
 
 export default function Header() {
-  const [user] = useAuthState()
+  const [user] = useUserAtom()
   const [signout] = useSignOut()
   const navigate = useNavigate()
   // use loader and react query for this
@@ -112,25 +112,28 @@ export default function Header() {
   )
 
   return (
-    <div className="col-span-13 col-start-auto">
-      <ImportModal />
-      <BiddingsFinishedModal />
+    <>
+      <div className="col-span-13 col-start-auto">
+        <ImportModal />
+        <BiddingsFinishedModal />
 
-      <header className="body-font h-full bg-slate-400 text-gray-200">
-        <div className="container mx-auto flex h-full  items-center px-12 md:flex-row">
-          {LogoLink}
-          <nav className="flex h-full flex-wrap items-center justify-center gap-1 px-4 text-base md:ml-auto">
-            {isInRoom ? (
-              <>
-                {BtnForImportModal}
-                {BtnForFinishedModal}
-              </>
-            ) : null}
-            {logInOrOutBtn}
-          </nav>
-        </div>
-      </header>
-    </div>
+        <header className="body-font h-full bg-slate-400 text-gray-200">
+          <div className="container mx-auto flex h-full  items-center px-12 md:flex-row">
+            {LogoLink}
+            <nav className="flex h-full flex-wrap items-center justify-center gap-1 px-4 text-base md:ml-auto">
+              {isInRoom ? (
+                <>
+                  {BtnForImportModal}
+                  {BtnForFinishedModal}
+                </>
+              ) : null}
+              {logInOrOutBtn}
+            </nav>
+          </div>
+        </header>
+      </div>
+      <Outlet />
+    </>
   )
 
   async function handleSignout() {

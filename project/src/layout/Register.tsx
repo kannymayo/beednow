@@ -1,5 +1,4 @@
 import React from 'react'
-import clsx from 'clsx'
 import { Link } from 'react-router-dom'
 import {
   EnvelopeIcon,
@@ -10,15 +9,13 @@ import {
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 import { ReactComponent as Logo } from '../assets/logo.svg'
-import {
-  useAuthState,
-  useCreateUserWithEmailAndPassword,
-} from '../hooks/useUnifiedAuth'
+import useUserAtom from '../store/useUserAtom'
+import { useCreateUserWithEmailAndPassword } from '../hooks/useToastyAuth'
 import useRedirectOnValidUser from '../hooks/useRedirectOnValidUser'
 
 export default function RegistrationPge() {
   const [createEmailAccount] = useCreateUserWithEmailAndPassword()
-  const [user] = useAuthState()
+  const [user] = useUserAtom()
   const redirUrl = useRedirectOnValidUser(user)
   const [animationParent] = useAutoAnimate()
 

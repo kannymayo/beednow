@@ -5,14 +5,14 @@ import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline'
 import { ReactComponent as GoogleIcon } from '../assets/google-icon.svg'
 import { ReactComponent as Logo } from '../assets/logo.svg'
 import {
-  useAuthState,
   useSignInWithEmailAndPassword,
   useSignInWithGoogle,
-} from '../hooks/useUnifiedAuth'
+} from '../hooks/useToastyAuth'
 import useRedirectOnValidUser from '../hooks/useRedirectOnValidUser'
+import useUserAtom from '../store/useUserAtom'
 
 export default function LoginPage() {
-  const [user] = useAuthState()
+  const [user] = useUserAtom()
   const [signInWithEmail] = useSignInWithEmailAndPassword()
   const [signInWithGoogle] = useSignInWithGoogle()
 

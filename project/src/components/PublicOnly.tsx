@@ -2,10 +2,10 @@ import { useEffect } from 'react'
 import { useNavigate, Outlet } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-import { useAuthState } from '../hooks/useUnifiedAuth'
+import useUserAtom from '../store/useUserAtom'
 
 export default function Protected() {
-  const [user] = useAuthState()
+  const [user] = useUserAtom()
   const navigate = useNavigate()
 
   useEffect(() => {

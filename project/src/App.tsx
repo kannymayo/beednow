@@ -1,10 +1,8 @@
 import './App.css'
 import 'react-toastify/dist/ReactToastify.css'
-import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
-import { AuthProvider } from './store/AuthContext'
+import { StrictMode } from 'react'
+import { useAtomsDevtools } from 'jotai-devtools'
 import { ToastContainer } from 'react-toastify'
-
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 
@@ -21,18 +19,21 @@ const qc = new QueryClient({
 
 function App() {
   return (
-    <>
-      <BrowserRouter>
-        <AuthProvider>
-          <QueryClientProvider client={qc}>
-            <Home />
-            <ReactQueryDevtools initialIsOpen={false} />
-          </QueryClientProvider>
-        </AuthProvider>
-      </BrowserRouter>
-      <ToastContainer position="bottom-right" autoClose={1500} />
-    </>
+    <StrictMode>
+      <QueryClientProvider client={qc}>
+        <AtomsDevTools>
+          <Home />
+        </AtomsDevTools>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+      <ToastContainer position="bottom-right" autoClose={1600} />
+    </StrictMode>
   )
+}
+
+function AtomsDevTools({ children }: { children: any }) {
+  useAtomsDevtools('jotai')
+  return children
 }
 
 export default App

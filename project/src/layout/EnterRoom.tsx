@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-export default function () {
+export default function EnterRoom() {
   const [roomId, setRoomId] = useState('')
   const navigate = useNavigate()
 

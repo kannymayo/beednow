@@ -1,47 +1,14 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import {
-  useAuthState as useAuthStateRaw,
   useCreateUserWithEmailAndPassword as useCreateUserWithEmailAndPasswordRaw,
   useSignInWithEmailAndPassword as useSignInWithEmailAndPasswordRaw,
   useSignInWithGoogle as useSignInWithGoogleRaw,
   useSignOut as useSignOutRaw,
 } from 'react-firebase-hooks/auth'
 import { toast } from 'react-toastify'
-import { produce } from 'immer'
 
 import { errorToast } from '../utils/preset-toast'
 import { auth } from '../api/firebase'
-
-const iconFallback = 'https://cdn-icons-png.flaticon.com/512/3940/3940403.png'
-
-export interface UnifiedUser {
-  displayName?: string
-  email?: string
-  provider?: string
-  uid?: string
-  photoURL?: string
-  [key: string]: any
-}
-
-function useAuthState() {
-  const [_user, loading, error] = useAuthStateRaw(auth)
-  const [user, setUser] = useState<UnifiedUser>({})
-
-  // decorate user
-  useEffect(() => {
-    // weird that currying doesn't work here
-    setUser((prev) =>
-      produce(prev, (draft) => {
-        draft.photoURL = _user?.photoURL || iconFallback
-        draft.displayName = _user?.displayName || _user?.email || 'Anonymous'
-        draft.provider = _user?.providerId
-        draft.uid = _user?.uid
-      })
-    )
-  }, [_user])
-
-  return [user, loading, error] as const
-}
 
 function useCreateUserWithEmailAndPassword() {
   const [create, user, loading, error] =
@@ -118,7 +85,6 @@ function useSignOut() {
 }
 
 export {
-  useAuthState,
   useCreateUserWithEmailAndPassword,
   useSignInWithEmailAndPassword,
   useSignInWithGoogle,
