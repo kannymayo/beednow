@@ -87,7 +87,7 @@ export default function Home() {
 
 function HeroPlaceholder({ children }: { children: React.ReactNode }) {
   return (
-    <div className="hero bg-base-200 col-span-13 row-span-12 row-span-6">
+    <div className="hero bg-base-200 col-span-13 row-span-12">
       <div className="hero-content text-center">
         <div className="max-w-md">
           <h1 className="text-5xl font-bold uppercase">{children}</h1>

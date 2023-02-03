@@ -1,15 +1,18 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useNavigate, Outlet } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-import { useAuthContext } from '../store/AuthContext'
+import { useAuthState } from '../hooks/useUnifiedAuth'
 
 export default function Protected() {
-  const { user } = useAuthContext()
+  const [user] = useAuthState()
+  const navigate = useNavigate()
 
-  if (user?.uid) {
-    toast('You are already logged in', { type: 'info' })
-    return <Navigate to="/" />
-  }
-  // bug: would transiently render this component before user is set
+  useEffect(() => {
+    if (user?.uid) {
+      toast('You are already logged in', { type: 'info' })
+      navigate('/')
+    }
+  }, [])
   return <Outlet />
 }

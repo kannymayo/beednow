@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify'
 
 function errorToast(
-  name: string,
+  category: string,
   error: Error | null = null,
   field: string = ''
 ) {
@@ -12,7 +12,7 @@ function errorToast(
   if (error && field) {
     try {
       // @ts-ignore
-      preset(`${name}: ${error[field]}`)
+      preset(`${category}: ${error[field]}`)
     } catch (e) {
       // @ts-ignore
       preset(`Unknown: ${e.message}`)
@@ -25,7 +25,7 @@ function errorToast(
       preset(`Unknown: ${e.message}`)
     }
   } else {
-    preset(name)
+    preset(category)
   }
 }
 

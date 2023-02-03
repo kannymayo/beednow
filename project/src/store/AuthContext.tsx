@@ -33,15 +33,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   function googleSignIn() {
     const provider = new GoogleAuthProvider()
-    signInWithPopup(auth, provider)
+    return signInWithPopup(auth, provider)
   }
 
   async function createEmailAccount(email: string, password: string) {
-    return await createUserWithEmailAndPassword(auth, email, password)
+    return createUserWithEmailAndPassword(auth, email, password)
   }
 
   async function signInWithEmail(email: string, password: string) {
-    return await signInWithEmailAndPassword(auth, email, password)
+    return signInWithEmailAndPassword(auth, email, password)
   }
 
   function signOut() {

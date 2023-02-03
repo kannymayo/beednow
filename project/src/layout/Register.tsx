@@ -1,30 +1,29 @@
 import React from 'react'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import clsx from 'clsx'
+import { Link } from 'react-router-dom'
 import {
   EnvelopeIcon,
   LockClosedIcon,
   ArrowsRightLeftIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 
-import { ReactComponent as GoogleIcon } from '../assets/google-icon.svg'
 import { ReactComponent as Logo } from '../assets/logo.svg'
-import { useAuthContext } from '../store/AuthContext'
-import { errorToast } from '../utils/preset-toast'
-import clsx from 'clsx'
-import { toast } from 'react-toastify'
+import {
+  useAuthState,
+  useCreateUserWithEmailAndPassword,
+} from '../hooks/useUnifiedAuth'
+import useRedirectOnValidUser from '../hooks/useRedirectOnValidUser'
 
 export default function RegistrationPge() {
-  const [validationMsg, setValidationMsg] = React.useState('')
-  const [isValid, setIsValid] = React.useState(true)
-  const { googleSignIn, user, createEmailAccount } = useAuthContext()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const loginRedir = location.state?.loginRedir || '/'
+  const [createEmailAccount] = useCreateUserWithEmailAndPassword()
+  const [user] = useAuthState()
+  const redirUrl = useRedirectOnValidUser(user)
+  const [animationParent] = useAutoAnimate()
 
-  const redirMsg =
-    loginRedir === '/'
-      ? ''
-      : `You will now be redirected to ${loginRedir} afer registration.`
+  const [validationMsg, setValidationMsg] = React.useState('')
+  const [isDismissed, setIsDismissed] = React.useState(true)
 
   return (
     <section className="col-span-13 row-span-12 bg-slate-50 dark:bg-gray-900">
@@ -65,12 +64,15 @@ export default function RegistrationPge() {
               className="block w-full rounded-lg border bg-white px-10 py-3 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300"
             />
           </div>
-          <ClientValidationAlert
-            isOpen={!isValid}
-            onClick={() => setIsValid(true)}
-          >
-            {validationMsg}
-          </ClientValidationAlert>
+          <ul ref={animationParent}>
+            <ClientValidationAlert
+              isOpen={!isDismissed}
+              onClick={() => setIsDismissed(true)}
+            >
+              {validationMsg}
+            </ClientValidationAlert>
+          </ul>
+
           <div className="mt-6">
             <button className="w-full transform rounded-lg bg-blue-500 px-6 py-3 text-sm font-medium capitalize tracking-wide text-white transition-colors duration-300 hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">
               Sign up
@@ -79,7 +81,7 @@ export default function RegistrationPge() {
             <div className="mt-6 text-center ">
               <Link
                 to="/login"
-                state={{ loginRedir }}
+                state={{ redirUrl }}
                 className="text-sm text-blue-500 hover:underline dark:text-blue-400"
               >
                 Already have an account? Sign in
@@ -91,29 +93,20 @@ export default function RegistrationPge() {
     </section>
   )
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setIsDismissed(true)
 
     const formData = new FormData(event.currentTarget)
     const clientValidationMsg = clientValidate(formData)
     if (clientValidationMsg) {
       setValidationMsg(clientValidationMsg)
-      setIsValid(false)
+      setIsDismissed(false)
       return
     }
-    const username = formData.get('username')
-    const password = formData.get('password')
-    ;(async () => {
-      try {
-        const cred = await createEmailAccount(username, password)
-        toast(`Account: ${cred.user.email} is created. ${redirMsg}`, {
-          type: 'success',
-        })
-        navigate(loginRedir, { replace: true })
-      } catch (e) {
-        errorToast('Registration ', e as Error, 'code')
-      }
-    })()
+    const username = formData.get('username') as string
+    const password = formData.get('password') as string
+    createEmailAccount(username, password)
   }
 
   function clientValidate(data: FormData) {
@@ -135,30 +128,18 @@ function ClientValidationAlert({
   children: React.ReactNode
   onClick?: () => void
 }) {
-  return (
-    <div
-      onClick={onClick}
-      className={clsx(
-        { flex: isOpen, hidden: !isOpen },
-        'alert alert-error mt-4 cursor-pointer shadow-lg'
-      )}
-    >
-      <div>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 flex-shrink-0 stroke-current"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <span>{children}</span>
+  if (isOpen) {
+    return (
+      <div
+        onClick={onClick}
+        className="alert alert-error mt-4 flex cursor-pointer shadow-lg"
+      >
+        <div>
+          <XCircleIcon className="h-6 w-6 flex-shrink-0 stroke-current" />
+          <span>{children}</span>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
+  return <></>
 }
