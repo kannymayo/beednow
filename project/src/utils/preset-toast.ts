@@ -1,12 +1,13 @@
-import { toast } from 'react-toastify'
+import debouncedToast from './debouncedToast'
 
+// a preset toast for error messages (auth for now)
 function errorToast(
   category: string,
   error: Error | null = null,
   field: string = ''
 ) {
   const preset = (msg: string) => {
-    toast(msg, { type: 'error', autoClose: 3000 })
+    debouncedToast(msg, { type: 'error', autoClose: 3000 })
   }
 
   if (error && field) {

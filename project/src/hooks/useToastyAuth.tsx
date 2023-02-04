@@ -5,8 +5,8 @@ import {
   useSignInWithGoogle as useSignInWithGoogleRaw,
   useSignOut as useSignOutRaw,
 } from 'react-firebase-hooks/auth'
-import { toast } from 'react-toastify'
 
+import debouncedToast from '../utils/debouncedToast'
 import { errorToast } from '../utils/preset-toast'
 import { auth } from '../api/firebase'
 
@@ -19,7 +19,7 @@ function useCreateUserWithEmailAndPassword() {
       errorToast('Registration', error as Error, 'code')
     }
     if (user?.user) {
-      toast(`Account created for ${user?.user.email}.`, {
+      debouncedToast(`Account created for ${user?.user.email}.`, {
         type: 'success',
       })
     }
@@ -36,7 +36,7 @@ function useSignInWithEmailAndPassword() {
       errorToast('Login', error as Error, 'code')
     }
     if (user?.user) {
-      toast(`Logged in as ${user?.user.email}.`, {
+      debouncedToast(`Logged in as ${user?.user.email}`, {
         type: 'success',
       })
     }
@@ -53,7 +53,7 @@ function useSignInWithGoogle() {
       errorToast('Login', error as Error, 'code')
     }
     if (user?.user) {
-      toast(`Logged in as ${user?.user.displayName}.`, {
+      debouncedToast(`Logged in as ${user?.user.displayName}`, {
         type: 'success',
       })
     }
@@ -74,7 +74,7 @@ function useSignOut() {
 
   useEffect(() => {
     if (prevLoading.current && !loading) {
-      toast('Logged out', {
+      debouncedToast('Logged out', {
         type: 'success',
       })
     }

@@ -21,9 +21,7 @@ function App() {
   return (
     <StrictMode>
       <QueryClientProvider client={qc}>
-        <AtomsDevTools>
-          <Home />
-        </AtomsDevTools>
+        <Home />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
       <ToastContainer position="bottom-right" autoClose={1600} />

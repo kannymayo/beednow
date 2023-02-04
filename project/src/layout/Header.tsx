@@ -1,4 +1,3 @@
-import React from 'react'
 import clsx from 'clsx'
 import {
   ArrowDownTrayIcon,
@@ -79,9 +78,7 @@ export default function Header() {
     </div>
   )
 
-  const logInOrOutBtn = isLogin ? logoutBtn : loginBtn
-
-  const LogoLink = (
+  const logoLink = (
     <Link
       to="/"
       className="title-font flex items-center font-medium text-gray-900"
@@ -91,7 +88,7 @@ export default function Header() {
     </Link>
   )
 
-  const BtnForImportModal = (
+  const btnForImportModal = (
     <label
       htmlFor="import-modal"
       className="btn btn-sm gap-1 rounded border-none bg-transparent hover:bg-indigo-500 active:bg-indigo-600"
@@ -101,7 +98,7 @@ export default function Header() {
     </label>
   )
 
-  const BtnForFinishedModal = (
+  const btnForFinishedModal = (
     <label
       htmlFor="finished-modal"
       className="btn btn-sm gap-1 rounded border-none bg-transparent hover:bg-indigo-500 active:bg-indigo-600"
@@ -111,7 +108,20 @@ export default function Header() {
     </label>
   )
 
-  return (
+  const logInOrOutBtn = isLogin ? logoutBtn : loginBtn
+  const navItems = (
+    <nav className="flex h-full flex-wrap items-center justify-center gap-1 px-4 text-base md:ml-auto">
+      {isInRoom ? (
+        <>
+          {btnForImportModal}
+          {btnForFinishedModal}
+        </>
+      ) : null}
+      {logInOrOutBtn}
+    </nav>
+  )
+
+  const _RETURN = (
     <>
       <div className="col-span-13 col-start-auto">
         <ImportModal />
@@ -119,22 +129,16 @@ export default function Header() {
 
         <header className="body-font h-full bg-slate-400 text-gray-200">
           <div className="container mx-auto flex h-full  items-center px-12 md:flex-row">
-            {LogoLink}
-            <nav className="flex h-full flex-wrap items-center justify-center gap-1 px-4 text-base md:ml-auto">
-              {isInRoom ? (
-                <>
-                  {BtnForImportModal}
-                  {BtnForFinishedModal}
-                </>
-              ) : null}
-              {logInOrOutBtn}
-            </nav>
+            {logoLink}
+            {navItems}
           </div>
         </header>
       </div>
       <Outlet />
     </>
   )
+
+  return _RETURN
 
   async function handleSignout() {
     await signout()

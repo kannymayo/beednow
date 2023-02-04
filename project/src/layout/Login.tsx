@@ -8,7 +8,7 @@ import {
   useSignInWithEmailAndPassword,
   useSignInWithGoogle,
 } from '../hooks/useToastyAuth'
-import useRedirectOnValidUser from '../hooks/useRedirectOnValidUser'
+import { useRedirectOnValidUser } from '../hooks/navigateUX'
 import useUserAtom from '../store/useUserAtom'
 
 export default function LoginPage() {
@@ -90,7 +90,7 @@ export default function LoginPage() {
     </div>
   )
 
-  return (
+  const _RETURN = (
     <section className="col-span-13 row-span-12 bg-slate-50 dark:bg-gray-900">
       <div className="container mx-auto flex h-full items-center justify-center px-6">
         <form onSubmit={handleSubmit} className="w-full max-w-md">
@@ -107,6 +107,7 @@ export default function LoginPage() {
       </div>
     </section>
   )
+  return _RETURN
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()

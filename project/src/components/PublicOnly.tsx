@@ -1,18 +1,17 @@
-import { useEffect } from 'react'
-import { useNavigate, Outlet } from 'react-router-dom'
-import { toast } from 'react-toastify'
+import { Outlet } from 'react-router-dom'
 
 import useUserAtom from '../store/useUserAtom'
+import { useNavigateWithBackLinkAndToast } from '../hooks/navigateUX'
 
-export default function Protected() {
+export default function PublicOnly() {
   const [user] = useUserAtom()
-  const navigate = useNavigate()
 
-  useEffect(() => {
-    if (user?.uid) {
-      toast('You are already logged in', { type: 'info' })
-      navigate('/')
-    }
-  }, [])
+  useNavigateWithBackLinkAndToast(!!user?.uid, '/', [
+    'You are already logged in',
+    {
+      type: 'warning',
+    },
+  ])
+
   return <Outlet />
 }
