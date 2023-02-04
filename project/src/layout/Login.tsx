@@ -1,4 +1,5 @@
 import React from 'react'
+import clsx from 'clsx'
 import { Link } from 'react-router-dom'
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline'
 
@@ -17,6 +18,9 @@ export default function LoginPage() {
   const [signInWithGoogle] = useSignInWithGoogle()
 
   const redirUrl = useRedirectOnValidUser(user)
+  const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false)
+  const refEmailSignInBtn = React.useRef<HTMLButtonElement>(null)
+  const refGoogleSignInBtn = React.useRef<HTMLAnchorElement>(null)
 
   const loginBanner = (
     <>
@@ -53,8 +57,12 @@ export default function LoginPage() {
     </div>
   )
 
+  const emailSignInBtnCls = clsx(
+    { loading: isSubmitDisabled },
+    'btn w-full rounded-lg border-0 bg-blue-500 px-6 py-3 text-sm font-medium capitalize tracking-wide text-white transition-colors duration-300 hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50'
+  )
   const emailSignInBtn = (
-    <button className="w-full transform rounded-lg bg-blue-500 px-6 py-3 text-sm font-medium capitalize tracking-wide text-white transition-colors duration-300 hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">
+    <button ref={refEmailSignInBtn} className={emailSignInBtnCls}>
       Sign in
     </button>
   )
@@ -68,13 +76,16 @@ export default function LoginPage() {
     </>
   )
 
+  const signInWithGoogleBtnCls =
+    'btn disabled:loading btn-outline mt-4 flex transform cursor-pointer items-center justify-center rounded-lg border-2 border-slate-300 px-6 py-3 capitalize transition-colors duration-300 hover:border-slate-400 hover:bg-slate-200 hover:text-gray-600'
   const signInWithGoogleBtn = (
     <a
+      ref={refGoogleSignInBtn}
       onClick={handleGoogleSignIn}
-      className="mt-4 flex transform cursor-pointer items-center justify-center rounded-lg border px-6 py-3 text-gray-600 transition-colors duration-300 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+      className={signInWithGoogleBtnCls}
     >
       <GoogleIcon />
-      <span className="mx-2">Google</span>
+      <span className="mx-2 text-slate-700 ">Google</span>
     </a>
   )
 
@@ -109,16 +120,39 @@ export default function LoginPage() {
   )
   return _RETURN
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const formData = new FormData(event.currentTarget)
     const username = formData.get('username')
     const password = formData.get('password')
-    signInWithEmail(username as string, password as string)
+
+    setIsSubmitDisabled(true)
+    refEmailSignInBtn.current?.setAttribute('disabled', 'disabled')
+    refGoogleSignInBtn.current?.setAttribute('disabled', 'disabled')
+
+    // wait at least 1.5s
+    // also react-firebase-hooks won't throw
+    await Promise.all([
+      signInWithEmail(username as string, password as string),
+      new Promise((resolve) => setTimeout(resolve, 1500)),
+    ])
+    setIsSubmitDisabled(false)
+    refEmailSignInBtn.current?.removeAttribute('disabled')
+    refGoogleSignInBtn.current?.removeAttribute('disabled')
   }
 
-  function handleGoogleSignIn() {
-    signInWithGoogle()
+  async function handleGoogleSignIn() {
+    setIsSubmitDisabled(true)
+    refEmailSignInBtn.current?.setAttribute('disabled', 'disabled')
+    refGoogleSignInBtn.current?.setAttribute('disabled', 'disabled')
+
+    await Promise.all([
+      signInWithGoogle(),
+      new Promise((resolve) => setTimeout(resolve, 1500)),
+    ])
+    setIsSubmitDisabled(false)
+    refEmailSignInBtn.current?.removeAttribute('disabled')
+    refGoogleSignInBtn.current?.removeAttribute('disabled')
   }
 }

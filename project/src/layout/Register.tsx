@@ -1,4 +1,4 @@
-import React from 'react'
+import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import {
   EnvelopeIcon,
@@ -19,8 +19,10 @@ export default function RegistrationPge() {
   const redirUrl = useRedirectOnValidUser(user)
   const [animationParent] = useAutoAnimate()
 
-  const [validationMsg, setValidationMsg] = React.useState('')
-  const [isDismissed, setIsDismissed] = React.useState(true)
+  const [validationMsg, setValidationMsg] = useState('')
+  const [isDismissed, setIsDismissed] = useState(true)
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(false)
+  const refSignUpBtn = useRef<HTMLButtonElement>(null)
 
   const formHeader = (
     <>
@@ -83,7 +85,10 @@ export default function RegistrationPge() {
 
   const signUpBtnOrRgstr = (
     <div className="mt-6">
-      <button className="w-full transform rounded-lg bg-blue-500 px-6 py-3 text-sm font-medium capitalize tracking-wide text-white transition-colors duration-300 hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">
+      <button
+        ref={refSignUpBtn}
+        className="disabled:loading btn w-full transform rounded-lg bg-blue-500 px-6 py-3 text-sm font-medium capitalize tracking-wide text-white transition-colors duration-300 hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+      >
         Sign up
       </button>
 
@@ -129,7 +134,15 @@ export default function RegistrationPge() {
     }
     const username = formData.get('username') as string
     const password = formData.get('password') as string
-    createEmailAccount(username, password)
+
+    setIsSubmitDisabled(true)
+    refSignUpBtn.current?.setAttribute('disabled', 'disabled')
+    await Promise.all([
+      createEmailAccount(username, password),
+      new Promise((resolve) => setTimeout(resolve, 1500)),
+    ])
+    setIsSubmitDisabled(false)
+    refSignUpBtn.current?.removeAttribute('disabled')
   }
 
   function clientValidate(data: FormData) {
