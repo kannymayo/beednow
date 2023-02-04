@@ -16,9 +16,6 @@ function useRedirectOnValidUser(_user: UnifiedUser) {
     if (_user?.uid) {
       const redirMsg = redirUrl === '/' ? '' : `Redirecting to ${redirUrl}`
       navigate(redirUrl)
-      if (redirMsg) {
-        debouncedToast(redirMsg, { type: 'info' })
-      }
     }
   }, [_user])
 
@@ -28,7 +25,7 @@ function useRedirectOnValidUser(_user: UnifiedUser) {
 function useNavigateWithBackLinkAndToast(
   condition: boolean,
   targetPath: string,
-  toastArgs: Parameters<typeof toastForTyping>
+  toastArgs?: Parameters<typeof toastForTyping>
 ) {
   const location = useLocation()
   const navigate = useNavigate()
@@ -39,7 +36,7 @@ function useNavigateWithBackLinkAndToast(
         state: { redirUrl: location.pathname },
         replace: true,
       })
-      debouncedToast(...toastArgs)
+      if (toastArgs) debouncedToast(...toastArgs)
     }
   }, [])
 }
