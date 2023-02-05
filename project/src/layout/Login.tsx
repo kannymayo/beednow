@@ -1,10 +1,10 @@
-import React from 'react'
+import { useRef, useState } from 'react'
 import clsx from 'clsx'
 import { Link } from 'react-router-dom'
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline'
 
 import { ReactComponent as GoogleIcon } from '../assets/google-icon.svg'
-import { ReactComponent as Logo } from '../assets/logo.svg'
+
 import {
   useSignInWithEmailAndPassword,
   useSignInWithGoogle,
@@ -18,17 +18,12 @@ export default function LoginPage() {
   const [signInWithGoogle] = useSignInWithGoogle()
 
   const redirUrl = useRedirectOnValidUser(user)
-  const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false)
-  const refEmailSignInBtn = React.useRef<HTMLButtonElement>(null)
-  const refGoogleSignInBtn = React.useRef<HTMLAnchorElement>(null)
+  const [isBtnDisabled, setIsSubmitDisabled] = useState(false)
 
   const loginBanner = (
-    <>
-      <Logo className="h-7 w-auto sm:h-8" />
-      <h1 className="mt-3 text-2xl font-semibold capitalize text-gray-800 sm:text-3xl">
-        sign In
-      </h1>
-    </>
+    <h1 className="mt-3 text-2xl font-semibold capitalize text-slate-900 sm:text-3xl">
+      sign In
+    </h1>
   )
 
   const emailField = (
@@ -39,7 +34,7 @@ export default function LoginPage() {
         type="email"
         placeholder="Email address"
         required
-        className="block w-full rounded-lg border bg-white py-3 px-11 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300"
+        className=" input input-bordered w-full px-10"
       />
     </div>
   )
@@ -52,41 +47,37 @@ export default function LoginPage() {
         type="password"
         placeholder="Password"
         required
-        className="block w-full rounded-lg border bg-white px-10 py-3 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300"
+        className="input input-bordered w-full px-10"
       />
     </div>
   )
 
   const emailSignInBtnCls = clsx(
-    { loading: isSubmitDisabled },
-    'btn w-full rounded-lg border-0 bg-blue-500 px-6 py-3 text-sm font-medium capitalize tracking-wide text-white transition-colors duration-300 hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50'
+    'disabled:loading btn w-full rounded-lg border-0 btn-primary px-6 py-3 text-sm font-medium capitalize tracking-wide'
   )
   const emailSignInBtn = (
-    <button ref={refEmailSignInBtn} className={emailSignInBtnCls}>
+    <button className={emailSignInBtnCls} disabled={isBtnDisabled}>
       Sign in
     </button>
   )
 
   const dividerForAlternative = (
-    <>
-      <div className="divider"></div>
-      <p className="mt-4 text-center text-gray-600 dark:text-gray-400">
-        or sign in with
-      </p>
-    </>
+    <p className="mt-4 text-center text-gray-600 dark:text-gray-400">
+      or sign in with
+    </p>
   )
 
   const signInWithGoogleBtnCls =
-    'btn disabled:loading btn-outline mt-4 flex transform cursor-pointer items-center justify-center rounded-lg border-2 border-slate-300 px-6 py-3 capitalize transition-colors duration-300 hover:border-slate-400 hover:bg-slate-200 hover:text-gray-600'
+    'btn disabled:loading btn-outline mt-4 flex items-center justify-center rounded-lg border-2 border-slate-300 px-6 py-3 capitalize transition-colors duration-300 hover:border-slate-400 hover:bg-slate-200 hover:text-gray-600 w-full'
   const signInWithGoogleBtn = (
-    <a
-      ref={refGoogleSignInBtn}
+    <button
       onClick={handleGoogleSignIn}
       className={signInWithGoogleBtnCls}
+      disabled={isBtnDisabled}
     >
       <GoogleIcon />
       <span className="mx-2 text-slate-700 ">Google</span>
-    </a>
+    </button>
   )
 
   const registerLink = (
@@ -102,20 +93,21 @@ export default function LoginPage() {
   )
 
   const _RETURN = (
-    <section className="col-span-13 row-span-12 bg-slate-50 dark:bg-gray-900">
-      <div className="container mx-auto flex h-full items-center justify-center px-6">
-        <form onSubmit={handleSubmit} className="w-full max-w-md">
-          {loginBanner}
-          {emailField}
-          {passwordField}
-          <div className="mt-6">
-            {emailSignInBtn}
-            {dividerForAlternative}
-            {signInWithGoogleBtn}
-            {registerLink}
-          </div>
-        </form>
-      </div>
+    <section className="col-span-13 row-span-12 flex-1 bg-slate-50 dark:bg-gray-900">
+      <form
+        onSubmit={handleSubmit}
+        className="mx-auto flex h-full max-w-md flex-col items-stretch justify-start px-6"
+      >
+        {loginBanner}
+        {emailField}
+        {passwordField}
+        <div className="mt-6">
+          {emailSignInBtn}
+          {dividerForAlternative}
+          {signInWithGoogleBtn}
+          {registerLink}
+        </div>
+      </form>
     </section>
   )
   return _RETURN
@@ -128,8 +120,6 @@ export default function LoginPage() {
     const password = formData.get('password')
 
     setIsSubmitDisabled(true)
-    refEmailSignInBtn.current?.setAttribute('disabled', 'disabled')
-    refGoogleSignInBtn.current?.setAttribute('disabled', 'disabled')
 
     // wait at least 1.5s
     // also react-firebase-hooks won't throw
@@ -138,21 +128,15 @@ export default function LoginPage() {
       new Promise((resolve) => setTimeout(resolve, 1500)),
     ])
     setIsSubmitDisabled(false)
-    refEmailSignInBtn.current?.removeAttribute('disabled')
-    refGoogleSignInBtn.current?.removeAttribute('disabled')
   }
 
   async function handleGoogleSignIn() {
     setIsSubmitDisabled(true)
-    refEmailSignInBtn.current?.setAttribute('disabled', 'disabled')
-    refGoogleSignInBtn.current?.setAttribute('disabled', 'disabled')
 
     await Promise.all([
       signInWithGoogle(),
       new Promise((resolve) => setTimeout(resolve, 1500)),
     ])
     setIsSubmitDisabled(false)
-    refEmailSignInBtn.current?.removeAttribute('disabled')
-    refGoogleSignInBtn.current?.removeAttribute('disabled')
   }
 }

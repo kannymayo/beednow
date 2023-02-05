@@ -19,7 +19,7 @@ function useCreateUserWithEmailAndPassword() {
       errorToast('Registration', error as Error, 'code')
     }
     if (user?.user) {
-      debouncedToast(`Account created for ${user?.user.email}.`, {
+      debouncedToast(`Welcome, ${user?.user.email}.`, {
         type: 'success',
       })
     }
@@ -36,7 +36,7 @@ function useSignInWithEmailAndPassword() {
       errorToast('Login', error as Error, 'code')
     }
     if (user?.user) {
-      debouncedToast(`Logged in as ${user?.user.email}`, {
+      debouncedToast(`Welcome back! ${user?.user.email}`, {
         type: 'success',
       })
     }
@@ -53,7 +53,7 @@ function useSignInWithGoogle() {
       errorToast('Login', error as Error, 'code')
     }
     if (user?.user) {
-      debouncedToast(`Logged in as ${user?.user.displayName}`, {
+      debouncedToast(`Welcome back! ${user?.user.displayName}`, {
         type: 'success',
       })
     }

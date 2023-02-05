@@ -6,7 +6,7 @@ import { useNavigateWithBackLinkAndToast } from '../hooks/navigateUX'
 export default function Protected() {
   const [user] = useUserAtom()
 
-  useNavigateWithBackLinkAndToast(!user?.uid, '/login')
+  useNavigateWithBackLinkAndToast(!user?.uid, '/')
 
   return <Outlet />
 }

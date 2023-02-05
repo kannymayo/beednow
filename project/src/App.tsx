@@ -24,7 +24,12 @@ function App() {
         <Home />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-      <ToastContainer position="bottom-right" autoClose={1600} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={1600}
+        newestOnTop
+        pauseOnFocusLoss={false}
+      />
     </StrictMode>
   )
 }

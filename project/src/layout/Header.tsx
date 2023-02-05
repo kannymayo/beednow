@@ -21,16 +21,6 @@ export default function Header() {
   const isInRoom = !!useMatch('/room/:id')?.params?.id
   const isLogin = !!user.uid
 
-  const loginBtnCls = clsx(
-    'mt-4 inline-flex items-center rounded border-0 bg-indigo-500 py-1 px-3 text-base hover:bg-indigo-600 focus:outline-none md:mt-0'
-  )
-  const loginBtn = (
-    <Link to="/login" className={loginBtnCls}>
-      Sign In
-      <ArrowLeftOnRectangleIcon className="ml-1 h-6 w-6" />
-    </Link>
-  )
-
   const avatar = (
     <div className="avatar mask mask-circle h-10 w-10 shrink-0">
       <img src={user.photoURL} />
@@ -108,7 +98,7 @@ export default function Header() {
     </label>
   )
 
-  const logInOrOutBtn = isLogin ? logoutBtn : loginBtn
+  const logInOrOutBtn = isLogin ? logoutBtn : null
   const navItems = (
     <nav className="flex h-full flex-wrap items-center justify-center gap-1 px-4 text-base md:ml-auto">
       {isInRoom ? (
@@ -128,7 +118,7 @@ export default function Header() {
         <BiddingsFinishedModal />
 
         <header className="body-font h-full bg-slate-400 text-gray-200">
-          <div className="container mx-auto flex h-full  items-center px-12 md:flex-row">
+          <div className="container mx-auto flex h-full  max-w-2xl items-center md:flex-row lg:max-w-3xl xl:max-w-5xl">
             {logoLink}
             {navItems}
           </div>

@@ -21,8 +21,7 @@ export default function RegistrationPge() {
 
   const [validationMsg, setValidationMsg] = useState('')
   const [isDismissed, setIsDismissed] = useState(true)
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(false)
-  const refSignUpBtn = useRef<HTMLButtonElement>(null)
+  const [isBtnDisabled, setIsBtnDisabled] = useState(false)
 
   const formHeader = (
     <>
@@ -41,7 +40,7 @@ export default function RegistrationPge() {
         name="username"
         type="email"
         placeholder="Email address"
-        className="block w-full rounded-lg border bg-white py-3 px-11 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300"
+        className="input input-bordered w-full px-10"
       />
     </div>
   )
@@ -54,7 +53,7 @@ export default function RegistrationPge() {
         name="password"
         type="password"
         placeholder="Password"
-        className="block w-full rounded-lg border bg-white px-10 py-3 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300"
+        className="input input-bordered w-full px-10"
       />
     </div>
   )
@@ -67,7 +66,7 @@ export default function RegistrationPge() {
         name="confirm"
         type="password"
         placeholder="Confirm password"
-        className="block w-full rounded-lg border bg-white px-10 py-3 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300"
+        className="input input-bordered w-full px-10"
       />
     </div>
   )
@@ -86,15 +85,15 @@ export default function RegistrationPge() {
   const signUpBtnOrRgstr = (
     <div className="mt-6">
       <button
-        ref={refSignUpBtn}
-        className="disabled:loading btn w-full transform rounded-lg bg-blue-500 px-6 py-3 text-sm font-medium capitalize tracking-wide text-white transition-colors duration-300 hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+        disabled={isBtnDisabled}
+        className="disabled:loading btn btn-primary   w-full  rounded-lg font-medium capitalize tracking-wide"
       >
         Sign up
       </button>
 
       <div className="mt-6 text-center ">
         <Link
-          to="/login"
+          to="/"
           state={{ redirUrl }}
           className="text-sm text-blue-500 hover:underline dark:text-blue-400"
         >
@@ -135,14 +134,13 @@ export default function RegistrationPge() {
     const username = formData.get('username') as string
     const password = formData.get('password') as string
 
-    setIsSubmitDisabled(true)
-    refSignUpBtn.current?.setAttribute('disabled', 'disabled')
+    setIsBtnDisabled(true)
+
     await Promise.all([
       createEmailAccount(username, password),
       new Promise((resolve) => setTimeout(resolve, 1500)),
     ])
-    setIsSubmitDisabled(false)
-    refSignUpBtn.current?.removeAttribute('disabled')
+    setIsBtnDisabled(false)
   }
 
   function clientValidate(data: FormData) {

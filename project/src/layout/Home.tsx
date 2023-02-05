@@ -10,7 +10,6 @@ import Protected from '../components/Protected'
 import PublicOnly from '../components/PublicOnly'
 import EnterRoom from './EnterRoom'
 import Header from './Header'
-import Login from './Login'
 import BiddingsPending from './main/BiddingsPending'
 import BiddingsWatchlist from './main/BiddingsWatchlist'
 import BidAction from './main/BidAction'
@@ -24,7 +23,6 @@ const router = createBrowserRouter(
     <Route element={<Header />}>
       <Route path="/" element={<EnterRoom />} />
       <Route element={<PublicOnly />}>
-        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<RegistrationPge />} />
       </Route>
       <Route element={<Protected />}>
