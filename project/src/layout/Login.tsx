@@ -69,9 +69,7 @@ export default function LoginPage({
   )
 
   const dividerForAlternative = (
-    <p className="mt-4 text-center text-gray-600 dark:text-gray-400">
-      or sign in with
-    </p>
+    <p className="mt-4 text-center text-slate-900">or sign in with</p>
   )
 
   const signInWithGoogleBtnCls =
@@ -89,7 +87,7 @@ export default function LoginPage({
 
   const topCls = clsx(
     { 'opacity-50 pointer-events-none': isFadingIn },
-    'flex-1 basis-1 bg-slate-50 dark:bg-gray-900'
+    'flex-1 basis-1'
   )
   const _RETURN = (
     <section className={topCls}>

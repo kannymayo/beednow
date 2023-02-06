@@ -6,13 +6,12 @@ import useForm from '../../hooks/form'
 import allBidsAtom from '../../store/bid-item'
 
 export default function BiddingsPending() {
-  const [showScrollToTop, setShowScrollToTop] = useState<Boolean>(false)
+  const [animationParent] = useAutoAnimate<HTMLUListElement>()
   const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
-
-  const refScrollingContainer = React.useRef<HTMLDivElement>(null)
   const [allBids, setAllBids] = useAtom(allBidsAtom)
 
-  const [animationParent] = useAutoAnimate<HTMLUListElement>()
+  const [showScrollToTop, setShowScrollToTop] = useState<Boolean>(false)
+  const refScrollingContainer = React.useRef<HTMLDivElement>(null)
 
   const displayedItems = useMemo(() => {
     if (formValues) {

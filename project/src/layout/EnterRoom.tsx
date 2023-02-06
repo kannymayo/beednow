@@ -5,9 +5,14 @@ import { GlobeAltIcon } from '@heroicons/react/24/outline'
 import { ReactComponent as Logo } from '../assets/logo.svg'
 import Login from './Login'
 import Register from './Register'
+import TaggedRooms from './TaggedRooms'
+import useUserAtom from '../store/useUserAtom'
+import { useCreateRoom } from '../api/useRooms'
 
 export default function EnterRoom() {
   const navigate = useNavigate()
+  const [user] = useUserAtom()
+  const createNewRoom = useCreateRoom()
 
   const [isFadingIn, setIsFadingIn] = useState(false)
   const [isBtnDisabled, setIsBtnDisabled] = useState(false)
@@ -15,13 +20,13 @@ export default function EnterRoom() {
   const [roomId, setRoomId] = useState('')
 
   const headerSearchRoom = (
-    <h1 className="ml-auto mt-3 w-fit text-2xl font-semibold capitalize text-slate-900 sm:text-3xl">
+    <h1 className="mt-3 w-fit text-2xl font-semibold capitalize text-slate-900 sm:text-3xl">
       Join a room
     </h1>
   )
 
   const formSearchRoom = (
-    <div className="input-group mt-8 flex items-center">
+    <div className="input-group mt-6 flex items-center">
       <input
         size={6}
         type="text"
@@ -40,6 +45,16 @@ export default function EnterRoom() {
         Search
       </button>
     </div>
+  )
+
+  const btnCreateRoom = (
+    <button
+      onClick={handleCreateRoom}
+      disabled={isBtnDisabled}
+      className="disabled:loading btn btn-primary font-medium capitalize tracking-wide"
+    >
+      Create a Room
+    </button>
   )
 
   const sectionReg = (
@@ -80,17 +95,22 @@ export default function EnterRoom() {
     <div className="col-span-13 row-span-12 flex items-stretch justify-center bg-slate-50 px-24 py-24  2xl:px-72">
       {/* Enter Room */}
       <section className="flex-1 basis-1">
-        <div className="mx-auto flex w-full max-w-md flex-col px-6">
+        <div className="mx-auto flex w-full max-w-md flex-col gap-2 px-6">
           {headerSearchRoom}
           {formSearchRoom}
+          {user?.uid && (
+            <>
+              <div className=" text-center">or </div>
+              {btnCreateRoom}
+            </>
+          )}
         </div>
       </section>
       <div className="divider divider-horizontal">
         <Logo className="h-20 w-20" />
       </div>
       {/* Login/Reg/Room linked */}
-
-      {isAtLogin ? sectionLogin : sectionReg}
+      {user?.uid ? <TaggedRooms /> : isAtLogin ? sectionLogin : sectionReg}
     </div>
   )
 
@@ -107,5 +127,10 @@ export default function EnterRoom() {
 
   function toggleIsBtnDisabled() {
     setIsBtnDisabled((prev) => !prev)
+  }
+
+  function handleCreateRoom() {
+    const roomId = createNewRoom()
+    navigate(`/room/${roomId}`)
   }
 }

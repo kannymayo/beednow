@@ -6,9 +6,10 @@ import {
   UseQueryOptions,
 } from 'react-query'
 
-const fetchItem: QueryFunction<ItemFromAPI, [string, number]> = async ({
-  queryKey,
-}) => {
+// why typing fetchItem to return a Promise<ItemFromAPI> doesn't work?
+type ItemQueryFn = QueryFunction<ItemFromAPI, [string, number]>
+
+const fetchItem: ItemQueryFn = async ({ queryKey }) => {
   const [_key, itemId] = queryKey
   const url = `https://nether.wowhead.com/tooltip/item/${itemId}?dataEnv=8&locale=0`
 
