@@ -1,6 +1,4 @@
-import { useRef, useState } from 'react'
 import clsx from 'clsx'
-import { Link } from 'react-router-dom'
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline'
 
 import { ReactComponent as GoogleIcon } from '../assets/google-icon.svg'
@@ -12,13 +10,22 @@ import {
 import { useRedirectOnValidUser } from '../hooks/navigateUX'
 import useUserAtom from '../store/useUserAtom'
 
-export default function LoginPage() {
+export default function LoginPage({
+  children,
+  isBtnDisabled,
+  toggleIsBtnDisabled,
+  isFadingIn,
+}: {
+  children: React.ReactNode
+  isBtnDisabled: boolean
+  toggleIsBtnDisabled: () => void
+  isFadingIn: boolean
+}) {
   const [user] = useUserAtom()
   const [signInWithEmail] = useSignInWithEmailAndPassword()
   const [signInWithGoogle] = useSignInWithGoogle()
 
   const redirUrl = useRedirectOnValidUser(user)
-  const [isBtnDisabled, setIsSubmitDisabled] = useState(false)
 
   const loginBanner = (
     <h1 className="mt-3 text-2xl font-semibold capitalize text-slate-900 sm:text-3xl">
@@ -80,20 +87,12 @@ export default function LoginPage() {
     </button>
   )
 
-  const registerLink = (
-    <div className="mt-6 text-center ">
-      <Link
-        to="/register"
-        state={{ redirUrl }}
-        className="text-sm text-blue-500 hover:underline dark:text-blue-400"
-      >
-        Don’t have an account yet? Sign up
-      </Link>
-    </div>
+  const topCls = clsx(
+    { 'opacity-50 pointer-events-none': isFadingIn },
+    'flex-1 basis-1 bg-slate-50 dark:bg-gray-900'
   )
-
   const _RETURN = (
-    <section className="col-span-13 row-span-12 flex-1 bg-slate-50 dark:bg-gray-900">
+    <section className={topCls}>
       <form
         onSubmit={handleSubmit}
         className="mx-auto flex h-full max-w-md flex-col items-stretch justify-start px-6"
@@ -105,7 +104,7 @@ export default function LoginPage() {
           {emailSignInBtn}
           {dividerForAlternative}
           {signInWithGoogleBtn}
-          {registerLink}
+          {children}
         </div>
       </form>
     </section>
@@ -119,7 +118,7 @@ export default function LoginPage() {
     const username = formData.get('username')
     const password = formData.get('password')
 
-    setIsSubmitDisabled(true)
+    toggleIsBtnDisabled()
 
     // wait at least 1.5s
     // also react-firebase-hooks won't throw
@@ -127,16 +126,16 @@ export default function LoginPage() {
       signInWithEmail(username as string, password as string),
       new Promise((resolve) => setTimeout(resolve, 1500)),
     ])
-    setIsSubmitDisabled(false)
+    toggleIsBtnDisabled()
   }
 
   async function handleGoogleSignIn() {
-    setIsSubmitDisabled(true)
+    toggleIsBtnDisabled()
 
     await Promise.all([
       signInWithGoogle(),
       new Promise((resolve) => setTimeout(resolve, 1500)),
     ])
-    setIsSubmitDisabled(false)
+    toggleIsBtnDisabled()
   }
 }

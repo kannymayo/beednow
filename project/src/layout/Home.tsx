@@ -7,7 +7,6 @@ import {
 } from 'react-router-dom'
 
 import Protected from '../components/Protected'
-import PublicOnly from '../components/PublicOnly'
 import EnterRoom from './EnterRoom'
 import Header from './Header'
 import BiddingsPending from './main/BiddingsPending'
@@ -16,15 +15,11 @@ import BidAction from './main/BidAction'
 import BidChat from './main/BidChat'
 import BidHistory from './main/BidHistory'
 import BidItem from './main/BidItem'
-import RegistrationPge from './Register'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Header />}>
       <Route path="/" element={<EnterRoom />} />
-      <Route element={<PublicOnly />}>
-        <Route path="/register" element={<RegistrationPge />} />
-      </Route>
       <Route element={<Protected />}>
         <Route path="/room">
           <Route path=":roomId" element={<Room />} />

@@ -1,5 +1,4 @@
-import { useState, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import {
   EnvelopeIcon,
   LockClosedIcon,
@@ -7,13 +6,23 @@ import {
   XCircleIcon,
 } from '@heroicons/react/24/outline'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
+import clsx from 'clsx'
 
-import { ReactComponent as Logo } from '../assets/logo.svg'
 import useUserAtom from '../store/useUserAtom'
 import { useCreateUserWithEmailAndPassword } from '../hooks/useToastyAuth'
 import { useRedirectOnValidUser } from '../hooks/navigateUX'
 
-export default function RegistrationPge() {
+export default function Register({
+  children,
+  isBtnDisabled,
+  toggleIsBtnDisabled,
+  isFadingIn,
+}: {
+  children: React.ReactNode
+  isBtnDisabled: boolean
+  toggleIsBtnDisabled: () => void
+  isFadingIn: boolean
+}) {
   const [createEmailAccount] = useCreateUserWithEmailAndPassword()
   const [user] = useUserAtom()
   const redirUrl = useRedirectOnValidUser(user)
@@ -21,15 +30,11 @@ export default function RegistrationPge() {
 
   const [validationMsg, setValidationMsg] = useState('')
   const [isDismissed, setIsDismissed] = useState(true)
-  const [isBtnDisabled, setIsBtnDisabled] = useState(false)
 
   const formHeader = (
-    <>
-      <Logo className="h-7 w-auto sm:h-8" />
-      <h1 className="mt-3 text-2xl font-semibold capitalize text-gray-800 sm:text-3xl">
-        register
-      </h1>
-    </>
+    <h1 className="mt-3 text-2xl font-semibold capitalize text-gray-800 sm:text-3xl">
+      register
+    </h1>
   )
 
   const emailField = (
@@ -90,32 +95,24 @@ export default function RegistrationPge() {
       >
         Sign up
       </button>
-
-      <div className="mt-6 text-center ">
-        <Link
-          to="/"
-          state={{ redirUrl }}
-          className="text-sm text-blue-500 hover:underline dark:text-blue-400"
-        >
-          Already have an account? Sign in
-        </Link>
-      </div>
+      {children}
     </div>
   )
 
+  const topCls = clsx(
+    { 'opacity-50 pointer-events-none': isFadingIn },
+    'flex-1 flex-col justify-start'
+  )
   const _RETURN = (
-    <section className="col-span-13 row-span-12 bg-slate-50 dark:bg-gray-900">
-      <div className="container mx-auto flex h-full items-center justify-center px-6">
-        <form onSubmit={handleSubmit} className="w-full max-w-md">
-          {formHeader}
-
-          {emailField}
-          {passwordField}
-          {confirmPwdField}
-          {animatedValidationMsg}
-          {signUpBtnOrRgstr}
-        </form>
-      </div>
+    <section className={topCls}>
+      <form onSubmit={handleSubmit} className="mx-auto w-full max-w-md px-6">
+        {formHeader}
+        {emailField}
+        {passwordField}
+        {confirmPwdField}
+        {animatedValidationMsg}
+        {signUpBtnOrRgstr}
+      </form>
     </section>
   )
   return _RETURN
@@ -134,13 +131,13 @@ export default function RegistrationPge() {
     const username = formData.get('username') as string
     const password = formData.get('password') as string
 
-    setIsBtnDisabled(true)
+    toggleIsBtnDisabled()
 
     await Promise.all([
       createEmailAccount(username, password),
       new Promise((resolve) => setTimeout(resolve, 1500)),
     ])
-    setIsBtnDisabled(false)
+    toggleIsBtnDisabled()
   }
 
   function clientValidate(data: FormData) {
@@ -166,7 +163,7 @@ function ClientValidationAlert({
     return (
       <div
         onClick={onClick}
-        className="alert alert-error mt-4 flex cursor-pointer shadow-lg"
+        className="alert alert-error mt-4 flex cursor-pointer rounded-lg shadow-lg"
       >
         <div>
           <XCircleIcon className="h-6 w-6 flex-shrink-0 stroke-current" />
