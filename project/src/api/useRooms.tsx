@@ -25,14 +25,24 @@ function useTaggedRooms() {
     where('joinedBy', 'array-contains', user?.uid)
   )
 
-  const hostedRooms = useFirestoreQueryData(['rooms'], qryHostedRoom, {
-    idField: '_id',
-    subscribe: true,
-  })
-  const joinedRooms = useFirestoreQueryData(['rooms'], qryJoinedRoom, {
-    idField: '_id',
-    subscribe: true,
-  })
+  const hostedRooms = useFirestoreQueryData(
+    ['rooms', 'hosted'],
+    qryHostedRoom,
+    {
+      idField: '_id',
+      subscribe: true,
+    }
+  )
+  const joinedRooms = useFirestoreQueryData(
+    ['rooms', 'joined'],
+    qryJoinedRoom,
+    {
+      idField: '_id',
+      subscribe: true,
+    }
+  )
+  console.log('hosted', hostedRooms.data)
+  console.log('joined', joinedRooms.data)
 
   return [hostedRooms, joinedRooms]
 }
