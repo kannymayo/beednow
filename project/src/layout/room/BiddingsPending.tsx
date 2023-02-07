@@ -1,30 +1,22 @@
-import React, { useMemo, useEffect, useState } from 'react'
-import { useAtom } from 'jotai'
+import { useMemo, useEffect, useState, useRef } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 import useForm from '@/hooks/form'
-import allBidsAtom from '@/store/bid-item'
+import { useGetItems, ItemQueryData } from '@/api/useItems'
 
 export default function BiddingsPending() {
   const [animationParent] = useAutoAnimate<HTMLUListElement>()
   const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
-  const [allBids, setAllBids] = useAtom(allBidsAtom)
+  const items = useGetItems()
 
   const [showScrollToTop, setShowScrollToTop] = useState<Boolean>(false)
-  const refScrollingContainer = React.useRef<HTMLDivElement>(null)
+  const refScrollingContainer = useRef<HTMLDivElement>(null)
+
+  console.log(items.data)
 
   const displayedItems = useMemo(() => {
-    if (formValues) {
-      const filteredItems = allBids.filter((item) =>
-        item.details.name
-          .toLowerCase()
-          .includes(formValues.searchPhrase.toLowerCase().trim())
-      )
-      return filteredItems
-    } else {
-      return allBids
-    }
-  }, [formValues.searchPhrase, allBids])
+    return filterAndSortItems(items as ItemQuery, formValues.searchPhrase)
+  }, [formValues.searchPhrase, items])
 
   // Listen on DOM child's scroll event
   useEffect(() => {
@@ -90,9 +82,9 @@ export default function BiddingsPending() {
 
       {/* List of items */}
       <ul className="px-1" ref={animationParent}>
-        {displayedItems &&
+        {displayedItems?.map &&
           displayedItems.map((item) => (
-            <li key={item.uuid}>
+            <li key={item.id}>
               <div className="card card-side bg-base-200  my-1 rounded-md py-0">
                 <figure className="flex-shrink-0">
                   <a
@@ -125,4 +117,20 @@ export default function BiddingsPending() {
       </ul>
     </div>
   )
+
+  type ItemQuery =
+    | {
+        data: ItemQueryData[]
+      }
+    | undefined
+  function filterAndSortItems(items: ItemQuery, searchPhrase: string) {
+    if (!items) return []
+    if (!searchPhrase) return items.data
+    const filteredItems = items.data.filter((item) =>
+      item.details.name
+        .toLowerCase()
+        .includes(searchPhrase.toLowerCase().trim())
+    )
+    return filteredItems as ItemQueryData[] | []
+  }
 }

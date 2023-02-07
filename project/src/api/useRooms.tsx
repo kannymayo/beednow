@@ -7,11 +7,12 @@ import {
 } from 'firebase/firestore'
 import {
   useFirestoreQueryData,
-  useFirestoreCollectionMutation,
+  useFirestoreDocumentData,
   useFirestoreDocumentMutation,
 } from '@react-query-firebase/firestore'
 
 import useUserAtom from '@/store/useUserAtom'
+import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { db } from './firebase'
 
 function useTaggedRooms() {
@@ -62,4 +63,12 @@ function useCreateRoom() {
   }
 }
 
-export { useTaggedRooms, useCreateRoom }
+function useGetRoom() {
+  const [roomId] = useRoomIdAtom()
+  const ref = doc(db, 'rooms', roomId)
+  const room = useFirestoreDocumentData(['rooms', roomId], ref)
+
+  return room
+}
+
+export { useTaggedRooms, useCreateRoom, useGetRoom }

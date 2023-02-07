@@ -5,20 +5,18 @@ import clsx from 'clsx'
 import produce from 'immer'
 import { useAtom } from 'jotai'
 
-import {
-  useItemDetailsMultiple,
-  ItemFromAPI,
-} from '../../../api/useItemDetails'
-import { readGeneralExport } from '../../../utils/read-export'
+import { useItemDetailsMultiple, ItemFromAPI } from '@/api/useItemDetails'
+import { readGeneralExport } from '@/utils/read-export'
 import allBidsAtom from '@/store/bid-item'
+import { useAddItem } from '@/api/useItems'
 
 import ImportableItemGroup from './importableItemGroup'
 
 export default function ImportModal() {
+  const [, setAllBids] = useAtom(allBidsAtom)
   const [isOpen, setIsOpen] = useState(false)
   const refTextarea = useRef<HTMLTextAreaElement>(null)
-
-  const [, setAllBids] = useAtom(allBidsAtom)
+  const addItem = useAddItem()
 
   const [itemOccurrencesGrouped, itemOccurrencesGroupedDispatch] = useReducer(
     iocGroupedReducer,
@@ -156,6 +154,7 @@ export default function ImportModal() {
     const selectedItems = Object.values(itemOccurrencesGrouped)
       .flat()
       .filter((item) => item.formState.selected)
+
     setAllBids(
       produce((draft) => {
         draft.unshift(
@@ -166,6 +165,13 @@ export default function ImportModal() {
         )
       })
     )
+    // add items for mutation
+    selectedItems.forEach((item) => {
+      addItem({
+        name: item.details.name,
+        details: item.details,
+      })
+    })
     closeModal()
     const msg = `Added ${selectedItems.length} item${
       selectedItems.length > 1 ? 's' : ''

@@ -20,11 +20,11 @@ export type ItemFromAPI = {
 
   bindOn: string
   itemLevel: number
-  phase: string
+  phase?: string
   requireLevel?: number
   usableClasses?: string[]
 
-  type: string
+  type?: string
   slot?: string
 
   weaponProps?: {
@@ -380,17 +380,18 @@ export default function deepRead(
     ].filter(Boolean)
 
     return {
-      phase: item.phase,
+      ...(item.phase && { phase: item.phase }),
       itemLevel: item.itemLevel,
       bindOn: item.bindOn,
-      requireLevel: item.requireLevel,
-      type: item.type,
-      slot: item.slot,
+      ...(item.requireLevel && { requireLevel: item.requireLevel }),
+      ...(item.phase && { phase: item.phase }),
+      ...(item.type && { type: item.type }),
+      ...(item.slot && { slot: item.slot }),
       // ts went crazy here, so I had to do this
       ...((equipEffects.length > 0 && { equipEffects: equipEffects }) as {
         equipEffects: string[]
       }),
-      usableClasses: item.usableClasses,
+      ...(item.usableClasses && { usableClasses: item.usableClasses }),
 
       ...(Object.keys(weaponProps).length > 0 && { weaponProps }),
       ...(Object.keys(primaryStats).length > 0 && { primaryStats }),
