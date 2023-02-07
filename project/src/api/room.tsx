@@ -15,7 +15,7 @@ import useUserAtom from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { db } from './firebase'
 
-function useTaggedRooms() {
+function useGetTaggedRooms() {
   const [user] = useUserAtom()
   const qryHostedRoom = query(
     collection(db, 'rooms'),
@@ -30,7 +30,7 @@ function useTaggedRooms() {
     ['rooms', 'hosted'],
     qryHostedRoom,
     {
-      idField: '_id',
+      idField: 'id',
       subscribe: true,
     }
   )
@@ -38,7 +38,7 @@ function useTaggedRooms() {
     ['rooms', 'joined'],
     qryJoinedRoom,
     {
-      idField: '_id',
+      idField: 'id',
       subscribe: true,
     }
   )
@@ -64,11 +64,25 @@ function useCreateRoom() {
 }
 
 function useGetRoom() {
+  const _useDocData = useFirestoreDocumentData
   const [roomId] = useRoomIdAtom()
+
+  if (!roomId) return null
   const ref = doc(db, 'rooms', roomId)
-  const room = useFirestoreDocumentData(['rooms', roomId], ref)
+  const room = _useDocData(['rooms', roomId], ref)
 
   return room
 }
 
-export { useTaggedRooms, useCreateRoom, useGetRoom }
+function useIsSelfHosted() {
+  const _useGetRoom = useGetRoom
+  const [user] = useUserAtom()
+  const [roomId] = useRoomIdAtom()
+
+  if (!user || !roomId) return false
+  const room = _useGetRoom()
+
+  return room?.data?.hostedBy === user?.uid
+}
+
+export { useGetTaggedRooms, useCreateRoom, useGetRoom, useIsSelfHosted }

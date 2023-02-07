@@ -6,7 +6,7 @@ import {
 import { UseQueryResult } from 'react-query'
 
 import { useRoomIdAtom } from '@/store/useRoomAtom'
-import { ItemFromAPI } from '@/api/useItemDetails'
+import { ItemFromAPI } from '@/api/item-details'
 import { db } from './firebase'
 
 function useAddItem() {
@@ -26,6 +26,8 @@ function useAddItem() {
 
 function useGetItems() {
   const [roomId] = useRoomIdAtom()
+
+  // FIXIT: roomId could still be empty at this point
   const ref = collection(db, 'rooms', roomId, 'items')
   const items = useFirestoreQueryData(['rooms', roomId, 'items'], ref, {
     idField: 'id',

@@ -3,20 +3,18 @@ import React, { useState, useEffect, useRef, useMemo, useReducer } from 'react'
 import { toast } from 'react-toastify'
 import clsx from 'clsx'
 import produce from 'immer'
-import { useAtom } from 'jotai'
 
-import { useItemDetailsMultiple, ItemFromAPI } from '@/api/useItemDetails'
+import { useQueryItemDetailsMultiple, ItemFromAPI } from '@/api/item-details'
 import { readGeneralExport } from '@/utils/read-export'
-import allBidsAtom from '@/store/bid-item'
-import { useAddItem } from '@/api/useItems'
+import { useAddItem } from '@/api/items'
 
 import ImportableItemGroup from './importableItemGroup'
 
 export default function ImportModal() {
-  const [, setAllBids] = useAtom(allBidsAtom)
+  const addItem = useAddItem()
+
   const [isOpen, setIsOpen] = useState(false)
   const refTextarea = useRef<HTMLTextAreaElement>(null)
-  const addItem = useAddItem()
 
   const [itemOccurrencesGrouped, itemOccurrencesGroupedDispatch] = useReducer(
     iocGroupedReducer,
@@ -31,7 +29,7 @@ export default function ImportModal() {
     Object.entries(itemOccurrencesGrouped).flat(2).length - validItemUniqueCount
 
   // async query
-  const itemDetailsQryRslts = useItemDetailsMultiple(idList)
+  const itemDetailsQryRslts = useQueryItemDetailsMultiple(idList)
   const itemOccurrences = useMemo(() => {
     const withQuries = annotateWithQueries(
       createSkeleton(idList),
@@ -155,16 +153,6 @@ export default function ImportModal() {
       .flat()
       .filter((item) => item.formState.selected)
 
-    setAllBids(
-      produce((draft) => {
-        draft.unshift(
-          ...selectedItems.map((el) => ({
-            uuid: crypto.randomUUID(),
-            details: el.details,
-          }))
-        )
-      })
-    )
     // add items for mutation
     selectedItems.forEach((item) => {
       addItem({
@@ -254,7 +242,7 @@ function annotateWithIOCSGrouped(
 
 function annotateWithQueries(
   itemOccurrences: ItemOccurrencesMapped,
-  queryResults: ReturnType<typeof useItemDetailsMultiple>
+  queryResults: ReturnType<typeof useQueryItemDetailsMultiple>
 ) {
   for (const [idSeq, body] of Object.entries(itemOccurrences)) {
     const id = JSON.parse(idSeq)[0]

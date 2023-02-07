@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { toast as toastForTyping } from 'react-toastify'
 
 import debouncedToast from '@/utils/debouncedToast'
-import { UnifiedUser } from '@/store/useUserAtom'
+import useUserAtom, { UnifiedUser } from '@/store/useUserAtom'
 
 function useRedirectOnValidUser(_user: UnifiedUser) {
   const navigate = useNavigate()
@@ -23,22 +23,22 @@ function useRedirectOnValidUser(_user: UnifiedUser) {
 }
 
 function useNavigateWithBackLinkAndToast(
-  condition: boolean,
-  targetPath: string,
   toastArgs?: Parameters<typeof toastForTyping>
 ) {
+  const [user] = useUserAtom()
   const location = useLocation()
-  const navigate = useNavigate()
+  let shouldIntercept = false
+  let interceptedComponent = null
 
-  useEffect(() => {
-    if (condition) {
-      navigate(targetPath, {
-        state: { redirUrl: location.pathname },
-        replace: true,
-      })
-      if (toastArgs) debouncedToast(...toastArgs)
-    }
-  }, [])
+  if (!user.uid) {
+    shouldIntercept = true
+    interceptedComponent = (
+      <Navigate to="/" state={{ redirUrl: location.pathname }} replace={true} />
+    )
+    if (toastArgs) debouncedToast(...toastArgs)
+  }
+
+  return [shouldIntercept, interceptedComponent]
 }
 
 export { useRedirectOnValidUser, useNavigateWithBackLinkAndToast }

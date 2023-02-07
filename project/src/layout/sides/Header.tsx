@@ -4,11 +4,12 @@ import {
   DocumentCheckIcon,
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline'
-import { useMatch, Link, useNavigate, Outlet } from 'react-router-dom'
+import { Link, useNavigate, Outlet } from 'react-router-dom'
 
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { useSignOut } from '@/hooks/useToastyAuth'
 import useUserAtom from '@/store/useUserAtom'
+import { useIsSelfHosted } from '@/api/room'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
 
@@ -17,8 +18,8 @@ export default function Header() {
   const [signout] = useSignOut()
   const navigate = useNavigate()
   // use loader and react query for this
-  const isInRoom = !!useMatch('/room/:id')?.params?.id
   const isLogin = !!user.uid
+  const isSelfHosted = useIsSelfHosted()
 
   const avatar = (
     <div className="avatar mask mask-circle h-10 w-10 shrink-0">
@@ -100,7 +101,7 @@ export default function Header() {
   const logInOrOutBtn = isLogin ? logoutBtn : null
   const navItems = (
     <nav className="flex h-full flex-wrap items-center justify-center gap-1 px-4 text-base md:ml-auto">
-      {isInRoom ? (
+      {isSelfHosted ? (
         <>
           {btnForImportModal}
           {btnForFinishedModal}
@@ -113,8 +114,12 @@ export default function Header() {
   const _RETURN = (
     <>
       <div className="col-span-13 col-start-auto">
-        <ImportModal />
-        <BiddingsFinishedModal />
+        {isSelfHosted ? (
+          <>
+            <ImportModal />
+            <BiddingsFinishedModal />
+          </>
+        ) : null}
 
         <header className="body-font h-full bg-slate-400 text-gray-200">
           <div className="container mx-auto flex h-full  max-w-2xl items-center md:flex-row lg:max-w-3xl xl:max-w-5xl">

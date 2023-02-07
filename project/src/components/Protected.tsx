@@ -5,8 +5,11 @@ import { useNavigateWithBackLinkAndToast } from '@/hooks/navigateUX'
 
 export default function Protected() {
   const [user] = useUserAtom()
+  console.log('Protected', user)
 
-  useNavigateWithBackLinkAndToast(!user?.uid, '/')
+  const [shouldIntercept, interceptedComponent] =
+    useNavigateWithBackLinkAndToast()
 
+  if (shouldIntercept) return interceptedComponent
   return <Outlet />
 }

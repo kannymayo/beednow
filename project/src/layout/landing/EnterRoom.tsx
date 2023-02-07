@@ -4,7 +4,7 @@ import { GlobeAltIcon } from '@heroicons/react/24/outline'
 
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import useUserAtom from '@/store/useUserAtom'
-import { useCreateRoom } from '@/api/useRooms'
+import { useCreateRoom } from '@/api/room'
 import Login from './Login'
 import Register from './Register'
 import TaggedRooms from './TaggedRooms'

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { useRoomIdAtom } from '@/store/useRoomAtom'
-import { useGetRoom } from '@/api/useRooms'
+import { useGetRoom } from '@/api/room'
 import BiddingsPending from './BiddingsPending'
 import BiddingsWatchlist from './BiddingsWatchlist'
 import BidAction from './BidAction'

@@ -21,12 +21,12 @@ const fetchItem: ItemQueryFn = async ({ queryKey }) => {
   return parse(jsonRes, itemId)
 }
 
-function useItemDetails(id: number) {
+function useQueryItemDetails(id: number) {
   const query = useQuery(['itemDetails', id], fetchItem)
   return query
 }
 
-function useItemDetailsMultiple(ids: number[]) {
+function useQueryItemDetailsMultiple(ids: number[]) {
   // don't use a query selector, it will parse on every render
   // ? maybe due to the selector function identity changing
   // yet we can't useMemo to fix the identify as the function needs
@@ -44,5 +44,5 @@ function useItemDetailsMultiple(ids: number[]) {
   return queries
 }
 
-export { useItemDetails, useItemDetailsMultiple }
+export { useQueryItemDetails, useQueryItemDetailsMultiple }
 export type { ItemFromAPI, BidItem }
