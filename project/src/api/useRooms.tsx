@@ -41,8 +41,6 @@ function useTaggedRooms() {
       subscribe: true,
     }
   )
-  console.log('hosted', hostedRooms.data)
-  console.log('joined', joinedRooms.data)
 
   return [hostedRooms, joinedRooms]
 }

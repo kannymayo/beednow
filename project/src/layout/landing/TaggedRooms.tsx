@@ -1,9 +1,9 @@
 import clsx from 'clsx'
 import { useState } from 'react'
 
-import useUserAtom from '../store/useUserAtom'
-import { useTaggedRooms } from '../api/useRooms'
-import RoomCard from './RoomCard'
+import useUserAtom from '../../store/useUserAtom'
+import { useTaggedRooms } from '../../api/useRooms'
+import RoomCard from './room-card/RoomCard'
 
 export default function TaggedRooms() {
   const [user] = useUserAtom()
@@ -11,6 +11,7 @@ export default function TaggedRooms() {
 
   const [activeTab, setActiveTab] = useState('hosted')
   const displayedRooms = activeTab === 'hosted' ? hostedRooms : joinedRooms
+  // should remove hostedRooms from joinedRooms
 
   const tabHostedCls = clsx(
     { 'tab-active': activeTab === 'hosted' },

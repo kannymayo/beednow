@@ -3,15 +3,14 @@ import {
   ArrowDownTrayIcon,
   DocumentCheckIcon,
   ArrowRightOnRectangleIcon,
-  ArrowLeftOnRectangleIcon,
 } from '@heroicons/react/24/outline'
 import { useMatch, Link, useNavigate, Outlet } from 'react-router-dom'
 
-import { ReactComponent as Logo } from '../assets/logo.svg'
-import { useSignOut } from '../hooks/useToastyAuth'
+import { ReactComponent as Logo } from '../../assets/logo.svg'
+import { useSignOut } from '/src/hooks/useToastyAuth'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
-import useUserAtom from '../store/useUserAtom'
+import useUserAtom from '../../store/useUserAtom'
 
 export default function Header() {
   const [user] = useUserAtom()

@@ -1,14 +1,14 @@
 import clsx from 'clsx'
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline'
 
-import { ReactComponent as GoogleIcon } from '../assets/google-icon.svg'
+import { ReactComponent as GoogleIcon } from '../../assets/google-icon.svg'
 
 import {
   useSignInWithEmailAndPassword,
   useSignInWithGoogle,
-} from '../hooks/useToastyAuth'
-import { useRedirectOnValidUser } from '../hooks/navigateUX'
-import useUserAtom from '../store/useUserAtom'
+} from '../../hooks/useToastyAuth'
+import { useRedirectOnValidUser } from '../../hooks/navigateUX'
+import useUserAtom from '../../store/useUserAtom'
 
 export default function LoginPage({
   children,
