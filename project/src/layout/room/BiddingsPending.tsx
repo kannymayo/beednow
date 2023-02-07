@@ -2,8 +2,8 @@ import React, { useMemo, useEffect, useState } from 'react'
 import { useAtom } from 'jotai'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 
-import useForm from '../../hooks/form'
-import allBidsAtom from '../../store/bid-item'
+import useForm from '@/hooks/form'
+import allBidsAtom from '@/store/bid-item'
 
 export default function BiddingsPending() {
   const [animationParent] = useAutoAnimate<HTMLUListElement>()

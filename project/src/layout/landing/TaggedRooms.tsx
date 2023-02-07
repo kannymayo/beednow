@@ -1,8 +1,8 @@
 import clsx from 'clsx'
 import { useState } from 'react'
 
-import useUserAtom from '../../store/useUserAtom'
-import { useTaggedRooms } from '../../api/useRooms'
+import useUserAtom from '@/store/useUserAtom'
+import { useTaggedRooms } from '@/api/useRooms'
 import RoomCard from './room-card/RoomCard'
 
 export default function TaggedRooms() {

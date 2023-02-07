@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { toast as toastForTyping } from 'react-toastify'
 
-import debouncedToast from '../utils/debouncedToast'
-import { UnifiedUser } from '../store/useUserAtom'
+import debouncedToast from '@/utils/debouncedToast'
+import { UnifiedUser } from '@/store/useUserAtom'
 
 function useRedirectOnValidUser(_user: UnifiedUser) {
   const navigate = useNavigate()

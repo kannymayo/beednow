@@ -10,7 +10,7 @@ import {
   ItemFromAPI,
 } from '../../../api/useItemDetails'
 import { readGeneralExport } from '../../../utils/read-export'
-import allBidsAtom from '../../../store/bid-item'
+import allBidsAtom from '@/store/bid-item'
 
 import ImportableItemGroup from './importableItemGroup'
 

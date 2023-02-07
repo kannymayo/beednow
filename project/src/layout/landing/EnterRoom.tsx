@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
 import { GlobeAltIcon } from '@heroicons/react/24/outline'
-import { ReactComponent as Logo } from '../../assets/logo.svg'
+
+import { ReactComponent as Logo } from '@/assets/logo.svg'
+import useUserAtom from '@/store/useUserAtom'
+import { useCreateRoom } from '@/api/useRooms'
 import Login from './Login'
 import Register from './Register'
 import TaggedRooms from './TaggedRooms'
-import useUserAtom from '../../store/useUserAtom'
-import { useCreateRoom } from '../../api/useRooms'
 
 export default function EnterRoom() {
   const navigate = useNavigate()

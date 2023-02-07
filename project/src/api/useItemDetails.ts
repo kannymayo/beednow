@@ -1,10 +1,10 @@
-import parse, { ItemFromAPI, BidItem } from '../utils/parse-wow-tooltip'
 import {
   QueryFunction,
   useQueries,
   useQuery,
   UseQueryOptions,
 } from 'react-query'
+import parse, { ItemFromAPI, BidItem } from '@/utils/parse-wow-tooltip'
 
 // why typing fetchItem to return a Promise<ItemFromAPI> doesn't work?
 type ItemQueryFn = QueryFunction<ItemFromAPI, [string, number]>

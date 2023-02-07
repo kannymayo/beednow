@@ -6,7 +6,7 @@ import {
   RouterProvider,
 } from 'react-router-dom'
 
-import Protected from '../components/Protected'
+import Protected from '@/components/Protected'
 import EnterRoom from './landing/EnterRoom'
 import Header from './sides/Header'
 import Room from './room/Room'

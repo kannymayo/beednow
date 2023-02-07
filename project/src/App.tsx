@@ -6,7 +6,7 @@ import { ToastContainer } from 'react-toastify'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 
-import Home from './layout/Home'
+import Home from '@/layout/Home'
 
 const qc = new QueryClient({
   defaultOptions: {

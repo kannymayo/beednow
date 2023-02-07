@@ -8,9 +8,9 @@ import {
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 import clsx from 'clsx'
 
-import useUserAtom from '../../store/useUserAtom'
-import { useCreateUserWithEmailAndPassword } from '../../hooks/useToastyAuth'
-import { useRedirectOnValidUser } from '../../hooks/navigateUX'
+import useUserAtom from '@/store/useUserAtom'
+import { useCreateUserWithEmailAndPassword } from '@/hooks/useToastyAuth'
+import { useRedirectOnValidUser } from '@/hooks/navigateUX'
 
 export default function Register({
   children,

@@ -3,7 +3,7 @@ import clsx from 'clsx'
 
 import { ItemOccurrence, IOCGroupedAction } from './BiddingImporter'
 import ImportableItem from './ImportableItem'
-import TristateCheckBox from '../../../components/TristateCheckBox'
+import TristateCheckBox from '@/components/TristateCheckBox'
 
 export default function ImportableItemGroup({
   group,

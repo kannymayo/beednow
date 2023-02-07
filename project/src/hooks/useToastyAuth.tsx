@@ -6,9 +6,9 @@ import {
   useSignOut as useSignOutRaw,
 } from 'react-firebase-hooks/auth'
 
-import debouncedToast from '../utils/debouncedToast'
-import { errorToast } from '../utils/preset-toast'
-import { auth } from '../api/firebase'
+import debouncedToast from '@/utils/debouncedToast'
+import { errorToast } from '@/utils/preset-toast'
+import { auth } from '@/api/firebase'
 
 function useCreateUserWithEmailAndPassword() {
   const [create, user, loading, error] =

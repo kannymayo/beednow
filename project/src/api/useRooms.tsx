@@ -11,7 +11,7 @@ import {
   useFirestoreDocumentMutation,
 } from '@react-query-firebase/firestore'
 
-import useUserAtom from '../store/useUserAtom'
+import useUserAtom from '@/store/useUserAtom'
 import { db } from './firebase'
 
 function useTaggedRooms() {

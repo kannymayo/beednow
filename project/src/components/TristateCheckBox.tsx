@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 
 export default function TristateCheckBox({
   status,
@@ -9,7 +9,7 @@ export default function TristateCheckBox({
   onChange: any
   className?: string
 }) {
-  const ref = React.useRef<HTMLInputElement>(null)
+  const ref = useRef<HTMLInputElement>(null)
 
   // For DOM operations to make sense, the operation must happen after render()
   useEffect(() => {
