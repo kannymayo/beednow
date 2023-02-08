@@ -1,26 +1,32 @@
+import { useEffect } from 'react'
 import clsx from 'clsx'
 import {
   ArrowDownTrayIcon,
   DocumentCheckIcon,
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline'
-import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom'
+import { Link, useNavigate, Outlet } from 'react-router-dom'
+import { useQueryClient } from 'react-query'
 
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { useSignOut } from '@/hooks/useToastyAuth'
 import useUserAtom from '@/store/useUserAtom'
-import { useIsSelfHosted } from '@/api/room'
+import { useIsSelfHosted, useQueryGetRoom } from '@/api/room'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
 
 export default function WithHeader() {
+  const roomInfo = useQueryGetRoom().data
   const [user] = useUserAtom()
   const [signout] = useSignOut()
   const navigate = useNavigate()
+  const qc = useQueryClient()
 
   // use loader and react query for this
   const isLogin = !!user.uid
   const isSelfHosted = useIsSelfHosted()
+
+  useUpdateTitle(roomInfo?.name || '')
 
   const avatar = (
     <div className="avatar mask mask-circle h-10 w-10 shrink-0">
@@ -75,7 +81,7 @@ export default function WithHeader() {
       className="title-font flex items-center font-medium text-gray-900"
     >
       <Logo />
-      <span className="ml-3 text-xl">BeedNow</span>
+      <span className="ml-3 text-xl">{roomInfo?.name || 'BeedNow'}</span>
     </Link>
   )
 
@@ -142,5 +148,11 @@ export default function WithHeader() {
   async function handleSignout() {
     await signout()
     navigate('/')
+  }
+
+  function useUpdateTitle(title: string) {
+    useEffect(() => {
+      if (title) document.title = `BeedNow: ${title}` || 'BeedNow'
+    }, [title])
   }
 }

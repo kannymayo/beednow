@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { useQuery, useQueryClient } from 'react-query'
 import {
   collection,
   query,
@@ -7,11 +9,11 @@ import {
   getDoc,
   getDocs,
   setDoc,
+  onSnapshot,
 } from 'firebase/firestore'
 
 import useUserAtom from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
-import { useQuery } from 'react-query'
 import { db } from './firebase'
 
 function useQueryGetTaggedRooms() {
@@ -71,7 +73,9 @@ interface Room {
     nanoseconds: number
   }
 }
+
 function useQueryGetRoom() {
+  const qc = useQueryClient()
   const [roomId] = useRoomIdAtom()
   const query = useQuery(
     ['rooms', roomId],
@@ -84,6 +88,19 @@ function useQueryGetRoom() {
       enabled: !!roomId,
     }
   )
+
+  // subscribe to document changes
+  useEffect(() => {
+    if (!roomId) return
+    const ref = doc(db, 'rooms', roomId)
+    const unsubscribe = onSnapshot(ref, (docSnapshot) => {
+      qc.setQueryData(['rooms', roomId], {
+        ...docSnapshot.data(),
+        id: docSnapshot.id,
+      })
+    })
+    return () => unsubscribe()
+  }, [])
   return query
 }
 

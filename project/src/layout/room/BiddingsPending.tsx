@@ -11,10 +11,10 @@ export default function BiddingsPending() {
     useSignalScrolledTooDeep()
   const [animationParent] = useAutoAnimate<HTMLUListElement>()
   const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
-  const bidItems = useQueryGetItems().data
+  const bidItems = useQueryGetItems().data || []
 
   const displayedItems = useMemo(() => {
-    return filterAndSortItems(bidItems as ItemQuery, formValues.searchPhrase)
+    return filterAndSortItems(bidItems, formValues.searchPhrase)
   }, [formValues.searchPhrase, bidItems])
 
   return (
@@ -65,19 +65,14 @@ export default function BiddingsPending() {
     </div>
   )
 
-  type ItemQuery =
-    | {
-        data: ItemQueryData[]
-      }
-    | undefined
-  function filterAndSortItems(items: ItemQuery, searchPhrase: string) {
+  function filterAndSortItems(items: ItemQueryData[], searchPhrase: string) {
     if (!items) return []
-    if (!searchPhrase) return items.data
-    const filteredItems = items.data.filter((item) =>
+    if (!searchPhrase) return items
+    const filteredItems = items.filter((item) =>
       item.details.name
         .toLowerCase()
         .includes(searchPhrase.toLowerCase().trim())
     )
-    return filteredItems as ItemQueryData[] | []
+    return filteredItems
   }
 }
