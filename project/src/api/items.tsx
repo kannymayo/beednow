@@ -1,23 +1,21 @@
-import { collection, serverTimestamp } from 'firebase/firestore'
 import {
-  useFirestoreQueryData,
-  useFirestoreCollectionMutation,
-} from '@react-query-firebase/firestore'
-import { UseQueryResult } from 'react-query'
-
+  collection,
+  serverTimestamp,
+  getDocs,
+  addDoc,
+} from 'firebase/firestore'
+import { useQueryClient, useQuery } from 'react-query'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { ItemFromAPI } from '@/api/item-details'
 import { db } from './firebase'
 
 function useAddItem() {
   const [roomId] = useRoomIdAtom()
-  const ref = collection(db, 'rooms', roomId, 'items')
-  const mutation = useFirestoreCollectionMutation(ref)
-
   return add
 
-  function add(item: { details: ItemFromAPI; [any: string]: any }) {
-    mutation.mutate({
+  async function add(item: { details: ItemFromAPI; [any: string]: any }) {
+    const ref = collection(db, 'rooms', roomId, 'items')
+    await addDoc(ref, {
       ...item,
       createdAt: serverTimestamp(),
     })
@@ -25,24 +23,20 @@ function useAddItem() {
 }
 
 function useQueryGetItems() {
+  const qc = useQueryClient()
   const [roomId] = useRoomIdAtom()
-  let ref
-  if (roomId) {
-    ref = collection(db, 'rooms', roomId, 'items')
-  }
-  const items = useFirestoreQueryData(
+  const query = useQuery(
     ['rooms', roomId, 'items'],
-    ref,
-    {
-      idField: 'id',
-      subscribe: true,
+    async () => {
+      const ref = collection(db, 'rooms', roomId, 'items')
+      const querySnapshot = await getDocs(ref)
+      return querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
     },
     {
-      enabled: !!roomId && ref !== undefined,
+      enabled: !!roomId,
     }
   )
-
-  return items as UseQueryResult<ItemQueryData[]>
+  return query
 }
 
 interface ItemQueryData {

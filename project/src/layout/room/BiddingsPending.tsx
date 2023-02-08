@@ -11,7 +11,7 @@ export default function BiddingsPending() {
     useSignalScrolledTooDeep()
   const [animationParent] = useAutoAnimate<HTMLUListElement>()
   const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
-  const bidItems = useQueryGetItems()
+  const bidItems = useQueryGetItems().data
 
   const displayedItems = useMemo(() => {
     return filterAndSortItems(bidItems as ItemQuery, formValues.searchPhrase)

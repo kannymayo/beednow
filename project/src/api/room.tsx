@@ -4,57 +4,56 @@ import {
   serverTimestamp,
   where,
   doc,
+  getDoc,
+  getDocs,
+  setDoc,
 } from 'firebase/firestore'
-import {
-  useFirestoreQueryData,
-  useFirestoreDocumentData,
-  useFirestoreDocumentMutation,
-} from '@react-query-firebase/firestore'
 
 import useUserAtom from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
+import { useQuery } from 'react-query'
 import { db } from './firebase'
 
 function useQueryGetTaggedRooms() {
   const [user] = useUserAtom()
-  const qryHostedRoom = query(
-    collection(db, 'rooms'),
-    where('hostedBy', '==', user?.uid)
-  )
-  const qryJoinedRoom = query(
-    collection(db, 'rooms'),
-    where('joinedBy', 'array-contains', user?.uid)
-  )
-
-  const hostedRooms = useFirestoreQueryData(
+  const queryHostedRoom = useQuery(
     ['rooms', 'hosted'],
-    qryHostedRoom,
+    async () => {
+      const qry = query(
+        collection(db, 'rooms'),
+        where('hostedBy', '==', user?.uid)
+      )
+      const querySnapshot = await getDocs(qry)
+      return querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+    },
     {
-      idField: 'id',
-      subscribe: true,
+      enabled: !!user?.uid,
     }
   )
-  const joinedRooms = useFirestoreQueryData(
+  const queryJoinedRoom = useQuery(
     ['rooms', 'joined'],
-    qryJoinedRoom,
+    async () => {
+      const qry = query(
+        collection(db, 'rooms'),
+        where('joinedBy', 'array-contains', user?.uid)
+      )
+      const querySnapshot = await getDocs(qry)
+      return querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+    },
     {
-      idField: 'id',
-      subscribe: true,
+      enabled: !!user?.uid,
     }
   )
-
-  return [hostedRooms, joinedRooms]
+  return [queryHostedRoom, queryJoinedRoom]
 }
 
 function useCreateRoom() {
   const [user] = useUserAtom()
-  const ref = doc(collection(db, 'rooms'))
-  const mutation = useFirestoreDocumentMutation(ref)
-
   return create
 
-  function create() {
-    mutation.mutate({
+  async function create() {
+    const ref = doc(collection(db, 'rooms'))
+    await setDoc(ref, {
       name: 'New Room',
       hostedBy: user.uid,
       createdAt: serverTimestamp(),
@@ -63,29 +62,37 @@ function useCreateRoom() {
   }
 }
 
+interface Room {
+  id: string
+  name: string
+  hostedBy: string
+  createdAt: {
+    seconds: number
+    nanoseconds: number
+  }
+}
 function useQueryGetRoom() {
   const [roomId] = useRoomIdAtom()
-  let ref
-  if (roomId) {
-    ref = doc(collection(db, 'rooms'), roomId)
-  }
-  const room = useFirestoreDocumentData(['rooms', roomId], ref, undefined, {
-    enabled: !!roomId,
-  })
-
-  if (!room) return null
-  if (room.error) {
-    console.warn('invalid room id')
-  }
-  return room
+  const query = useQuery(
+    ['rooms', roomId],
+    async () => {
+      const ref = doc(collection(db, 'rooms'), roomId)
+      const docSnapshot = await getDoc(ref)
+      return { ...docSnapshot.data(), id: docSnapshot.id } as Room
+    },
+    {
+      enabled: !!roomId,
+    }
+  )
+  return query
 }
 
 function useIsSelfHosted() {
   const [user] = useUserAtom()
   const room = useQueryGetRoom()?.data
-
   if (!user.uid || !room) return false
-  return room?.data?.hostedBy === user?.uid
+
+  return room?.hostedBy === user?.uid
 }
 
 export {
