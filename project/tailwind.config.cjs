@@ -5,12 +5,16 @@ module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
-      gridTemplateRows: { 12: '50px, repeat(9, minmax(0, 1fr)), 40px, 40px' },
-      gridTemplateColumns: {
-        13: 'minmax(300px, 2fr),repeat(12, minmax(0, 1fr))',
+      gridTemplateRows: {
+        '2-header-body': '50px, minmax(0, 1fr)',
+        '3-2details-1list': '1fr, 1fr,80px',
       },
-      gridColumn: { 'span-13': 'span 13 / span 13' },
-      gridRow: { 'span-12': 'span 12 / span 12' },
+      gridTemplateColumns: {
+        '3-1list-2details': 'minmax(200px,2fr), repeat(2,3fr)',
+      },
+      screens: {
+        '4xl': '2048px',
+      },
     },
   },
   plugins: [

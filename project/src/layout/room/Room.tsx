@@ -21,25 +21,25 @@ export default function Room() {
   }, [])
 
   return (
-    <>
-      <div className=" col-span-1 col-start-1 row-[2_/_span_11] ">
+    <div className=" 4xl:px-96 grid-cols-3-1list-2details grid-rows-3-2details-1list grid 2xl:px-48">
+      <div className="col-span-1 row-span-3">
         <BiddingsPending />
       </div>
-      <div className="col-span-8 col-start-5 row-[span_2_/_13]">
+      <div className=" col-start-2 row-start-3">
         <BiddingsWatchlist />
       </div>
-      <div className="col-span-6 col-start-2 row-[2_/_span_4]">
+      <div className="col-start-2 row-start-1">
         <BidHistory />
       </div>
-      <div className="col-span-6 col-start-8 row-[span_5_/_11]">
+      <div className="col-start-3 row-start-2">
         <BidAction />
       </div>
-      <div className="col-span-6 col-start-8 row-[2_/_span_4]">
+      <div className="col-start-3 row-start-1">
         <BidChat />
       </div>
-      <div className="col-span-6 col-start-2 row-[span_5_/_11]">
+      <div className="col-start-2 row-start-2">
         <BidItem />
       </div>
-    </>
+    </div>
   )
 }

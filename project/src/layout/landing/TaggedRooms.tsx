@@ -42,7 +42,7 @@ export default function TaggedRooms() {
 
         <ul className="grid-row grid grid-cols-2 gap-2 overflow-y-auto">
           {displayedRooms?.data?.map((room) => (
-            <RoomCard details={room as any} key={room._id} />
+            <RoomCard details={room as any} key={room.id} />
           ))}
         </ul>
       </div>

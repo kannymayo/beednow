@@ -91,8 +91,8 @@ export default function EnterRoom() {
     </Login>
   )
 
-  return (
-    <div className="col-span-13 row-span-12 flex items-stretch justify-center bg-slate-50 px-24 py-24  2xl:px-72">
+  const _RETURN = (
+    <div className="flex items-stretch justify-center bg-slate-50 px-24 py-24  2xl:px-72">
       {/* Enter Room */}
       <section className="flex-1 basis-1">
         <div className="mx-auto flex w-full max-w-md flex-col gap-2 px-6">
@@ -113,6 +113,8 @@ export default function EnterRoom() {
       {user?.uid ? <TaggedRooms /> : isAtLogin ? sectionLogin : sectionReg}
     </div>
   )
+
+  return _RETURN
 
   function findRoom() {
     if (!roomId) return

@@ -38,7 +38,7 @@ function useNavigateWithBackLinkAndToast(
     if (toastArgs) debouncedToast(...toastArgs)
   }
 
-  return [shouldIntercept, interceptedComponent]
+  return [shouldIntercept, interceptedComponent] as const
 }
 
 export { useRedirectOnValidUser, useNavigateWithBackLinkAndToast }

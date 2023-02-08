@@ -13,7 +13,7 @@ import { useIsSelfHosted } from '@/api/room'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
 
-export default function Header() {
+export default function WithHeader() {
   const [user] = useUserAtom()
   const [signout] = useSignOut()
   const navigate = useNavigate()
@@ -111,25 +111,29 @@ export default function Header() {
     </nav>
   )
 
-  const _RETURN = (
+  const header = (
     <>
-      <div className="col-span-13 col-start-auto">
-        {isSelfHosted ? (
-          <>
-            <ImportModal />
-            <BiddingsFinishedModal />
-          </>
-        ) : null}
+      {isSelfHosted ? (
+        <>
+          <ImportModal />
+          <BiddingsFinishedModal />
+        </>
+      ) : null}
 
-        <header className="body-font h-full bg-slate-400 text-gray-200">
-          <div className="container mx-auto flex h-full  max-w-2xl items-center md:flex-row lg:max-w-3xl xl:max-w-5xl">
-            {logoLink}
-            {navItems}
-          </div>
-        </header>
-      </div>
-      <Outlet />
+      <header className="body-font h-full bg-slate-400 text-gray-200">
+        <div className="container mx-auto flex h-full  max-w-2xl items-center md:flex-row lg:max-w-3xl xl:max-w-5xl">
+          {logoLink}
+          {navItems}
+        </div>
+      </header>
     </>
+  )
+
+  const _RETURN = (
+    <div className="grid-rows-2-header-body grid h-full min-h-[500px] w-full min-w-[768px]">
+      {header}
+      <Outlet />
+    </div>
   )
 
   return _RETURN
