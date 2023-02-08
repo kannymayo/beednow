@@ -4,7 +4,7 @@ import {
   DocumentCheckIcon,
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline'
-import { Link, useNavigate, Outlet } from 'react-router-dom'
+import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom'
 
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { useSignOut } from '@/hooks/useToastyAuth'
@@ -17,6 +17,7 @@ export default function WithHeader() {
   const [user] = useUserAtom()
   const [signout] = useSignOut()
   const navigate = useNavigate()
+
   // use loader and react query for this
   const isLogin = !!user.uid
   const isSelfHosted = useIsSelfHosted()

@@ -27,12 +27,18 @@ function useAddItem() {
 function useGetItems() {
   const [roomId] = useRoomIdAtom()
 
-  // FIXIT: roomId could still be empty at this point
   const ref = collection(db, 'rooms', roomId, 'items')
-  const items = useFirestoreQueryData(['rooms', roomId, 'items'], ref, {
-    idField: 'id',
-    subscribe: true,
-  })
+  const items = useFirestoreQueryData(
+    ['rooms', roomId, 'items'],
+    ref,
+    {
+      idField: 'id',
+      subscribe: true,
+    },
+    {
+      enabled: !!roomId,
+    }
+  )
 
   return items as UseQueryResult<ItemQueryData[]>
 }

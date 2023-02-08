@@ -1,7 +1,4 @@
-import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
-
-import { useRoomIdAtom } from '@/store/useRoomAtom'
+import { useRoomIdAtomMaster } from '@/store/useRoomAtom'
 import { useGetRoom } from '@/api/room'
 import BiddingsPending from './BiddingsPending'
 import BiddingsWatchlist from './BiddingsWatchlist'
@@ -11,14 +8,8 @@ import BidHistory from './BidHistory'
 import BidItem from './BidItem'
 
 export default function Room() {
-  const [, setRoomId] = useRoomIdAtom()
-  const { pathname } = useLocation()
+  const roomId = useRoomIdAtomMaster('roomId')
   const room = useGetRoom()
-
-  useEffect(() => {
-    const id = pathname.split('/')[2]
-    setRoomId(id)
-  }, [])
 
   return (
     <div className=" 4xl:px-96 grid-cols-3-1list-2details grid-rows-3-2details-1list grid 2xl:px-48">
