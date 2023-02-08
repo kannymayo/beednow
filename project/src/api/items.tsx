@@ -24,10 +24,12 @@ function useAddItem() {
   }
 }
 
-function useGetItems() {
+function useQueryGetItems() {
   const [roomId] = useRoomIdAtom()
-
-  const ref = collection(db, 'rooms', roomId, 'items')
+  let ref
+  if (roomId) {
+    ref = collection(db, 'rooms', roomId, 'items')
+  }
   const items = useFirestoreQueryData(
     ['rooms', roomId, 'items'],
     ref,
@@ -36,7 +38,7 @@ function useGetItems() {
       subscribe: true,
     },
     {
-      enabled: !!roomId,
+      enabled: !!roomId && ref !== undefined,
     }
   )
 
@@ -52,5 +54,5 @@ interface ItemQueryData {
   details: ItemFromAPI
 }
 
-export { useAddItem, useGetItems }
+export { useAddItem, useQueryGetItems }
 export type { ItemQueryData }

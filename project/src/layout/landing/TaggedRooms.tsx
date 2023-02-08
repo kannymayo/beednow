@@ -2,12 +2,12 @@ import clsx from 'clsx'
 import { useState } from 'react'
 
 import useUserAtom from '@/store/useUserAtom'
-import { useGetTaggedRooms } from '@/api/room'
+import { useQueryGetTaggedRooms } from '@/api/room'
 import RoomCard from './room-card/RoomCard'
 
 export default function TaggedRooms() {
   const [user] = useUserAtom()
-  const [hostedRooms, joinedRooms] = useGetTaggedRooms()
+  const [hostedRooms, joinedRooms] = useQueryGetTaggedRooms()
 
   const [activeTab, setActiveTab] = useState('hosted')
   const displayedRooms = activeTab === 'hosted' ? hostedRooms : joinedRooms

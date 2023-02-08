@@ -3,7 +3,7 @@ import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 import useForm from '@/hooks/form'
 import useSignalScrolledTooDeep from '@/hooks/useSignalScrolledTooDeep'
-import { useGetItems, ItemQueryData } from '@/api/items'
+import { useQueryGetItems, ItemQueryData } from '@/api/items'
 import BiddingItem from './common/BiddingItem'
 
 export default function BiddingsPending() {
@@ -11,7 +11,7 @@ export default function BiddingsPending() {
     useSignalScrolledTooDeep()
   const [animationParent] = useAutoAnimate<HTMLUListElement>()
   const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
-  const bidItems = useGetItems()
+  const bidItems = useQueryGetItems()
 
   const displayedItems = useMemo(() => {
     return filterAndSortItems(bidItems as ItemQuery, formValues.searchPhrase)

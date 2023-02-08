@@ -15,7 +15,7 @@ import useUserAtom from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { db } from './firebase'
 
-function useGetTaggedRooms() {
+function useQueryGetTaggedRooms() {
   const [user] = useUserAtom()
   const qryHostedRoom = query(
     collection(db, 'rooms'),
@@ -63,26 +63,34 @@ function useCreateRoom() {
   }
 }
 
-function useGetRoom() {
-  const _useDocData = useFirestoreDocumentData
+function useQueryGetRoom() {
   const [roomId] = useRoomIdAtom()
+  let ref
+  if (roomId) {
+    ref = doc(collection(db, 'rooms'), roomId)
+  }
+  const room = useFirestoreDocumentData(['rooms', roomId], ref, undefined, {
+    enabled: !!roomId,
+  })
 
-  if (!roomId) return null
-  const ref = doc(db, 'rooms', roomId)
-  const room = _useDocData(['rooms', roomId], ref)
-
+  if (!room) return null
+  if (room.error) {
+    console.warn('invalid room id')
+  }
   return room
 }
 
 function useIsSelfHosted() {
-  const _useGetRoom = useGetRoom
   const [user] = useUserAtom()
-  const [roomId] = useRoomIdAtom()
+  const room = useQueryGetRoom()?.data
 
-  if (!user || !roomId) return false
-  const room = _useGetRoom()
-
+  if (!user.uid || !room) return false
   return room?.data?.hostedBy === user?.uid
 }
 
-export { useGetTaggedRooms, useCreateRoom, useGetRoom, useIsSelfHosted }
+export {
+  useQueryGetTaggedRooms,
+  useCreateRoom,
+  useQueryGetRoom,
+  useIsSelfHosted,
+}

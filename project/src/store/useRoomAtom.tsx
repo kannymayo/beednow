@@ -13,7 +13,7 @@ function useRoomIdAtom() {
 // supposed to be a singleton, how to enforce?
 function useRoomIdAtomMaster(dynamicSegmentName: string) {
   const param = useParams()
-  const [roomId, setRoomId] = useRoomIdAtom()
+  const [roomId, setRoomId] = useAtom(roomIdAtom)
   useEffect(() => {
     setRoomId(param[dynamicSegmentName] || '')
 
