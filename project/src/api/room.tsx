@@ -1,10 +1,11 @@
 import {
   collection,
   serverTimestamp,
-  where,
   doc,
   setDoc,
+  addDoc,
 } from 'firebase/firestore'
+import { useState } from 'react'
 
 import useUserAtom from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
@@ -12,25 +13,36 @@ import {
   useQueryGetDoc,
   useQueryGetCollection,
 } from '@/hooks/firebase-react-query-hooks'
+import { getRandomName } from '@/utils/random-name'
 import { db } from './firebase'
+
+interface Room {
+  id: string
+  name: string
+  hostedBy: string
+  createdAt: {
+    seconds: number
+    nanoseconds: number
+  }
+}
 
 function useQueryGetTaggedRooms() {
   const [user] = useUserAtom()
 
-  const queryHostedRoom = useQueryGetCollection<Room>(
-    ['rooms', 'hosted'],
-    [db, 'rooms'],
-    [where('hostedBy', '==', user?.uid)],
+  const queryHostedRoom = useQueryGetCollection<Room[]>(
+    ['users', 'hosted'],
+    [db, 'users', user?.uid, 'hosted'],
+    [],
     { subscribe: false },
     {
       enabled: !!user?.uid,
     }
   )
 
-  const queryJoinedRoom = useQueryGetCollection<Room>(
-    ['rooms', 'joined'],
-    [db, 'rooms'],
-    [where('joinedBy', 'array-contains', user?.uid)],
+  const queryJoinedRoom = useQueryGetCollection<Room[]>(
+    ['users', 'joined'],
+    [db, 'users', user?.uid, 'joined'],
+    [],
     { subscribe: false },
     {
       enabled: !!user?.uid,
@@ -47,7 +59,7 @@ function useCreateRoom() {
   async function create() {
     const ref = doc(collection(db, 'rooms'))
     await setDoc(ref, {
-      name: 'New Room',
+      name: getRandomName(),
       hostedBy: user.uid,
       createdAt: serverTimestamp(),
     })
@@ -55,26 +67,47 @@ function useCreateRoom() {
   }
 }
 
-interface Room {
-  id: string
-  name: string
-  hostedBy: string
-  createdAt: {
-    seconds: number
-    nanoseconds: number
+/**
+ * TODO: check user ban list
+ */
+function useUpdateRoomsJoined() {
+  const [user] = useUserAtom()
+  return updateRoomsJoined
+
+  async function updateRoomsJoined(roomId: string) {
+    if (!user.uid) throw Error('No logged-in user yet.')
+    // no checking if room exists (should be server side or no one's business)
+    const refRoomJoined = doc(db, 'users', user.uid, 'roomsJoined', roomId)
+    await setDoc(refRoomJoined, {
+      lastJoinedAt: serverTimestamp(),
+    })
   }
 }
 
-function useQueryGetRoom() {
+function useQueryGetCurrentRoom() {
   const [roomId] = useRoomIdAtom()
   return useQueryGetDoc<Room>(['rooms', roomId], [db, 'rooms', roomId], {
     subscribe: true,
   })
 }
 
+function useReactiveQueryGetRoom(isSubscribed: boolean = false) {
+  const [roomId, setRoomId] = useState('')
+  const query = useQueryGetDoc<Room>(
+    ['rooms', roomId],
+    [db, 'rooms', roomId],
+    {
+      subscribe: isSubscribed,
+    },
+    { enabled: !!roomId }
+  )
+
+  return [query, setRoomId] as const
+}
+
 function useIsSelfHosted() {
   const [user] = useUserAtom()
-  const room = useQueryGetRoom()?.data
+  const room = useQueryGetCurrentRoom()?.data
   if (!user.uid || !room) return false
 
   return room?.hostedBy === user?.uid
@@ -82,7 +115,11 @@ function useIsSelfHosted() {
 
 export {
   useQueryGetTaggedRooms,
+  useQueryGetCurrentRoom,
   useCreateRoom,
-  useQueryGetRoom,
   useIsSelfHosted,
+  useUpdateRoomsJoined,
+  useReactiveQueryGetRoom,
 }
+
+export type { Room }

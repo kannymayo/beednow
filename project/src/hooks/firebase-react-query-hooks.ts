@@ -44,16 +44,22 @@ function useQueryGetDoc<TQueryData>(
   if (docSegments.every(Boolean)) {
     ref = doc(...docSegments)
   }
+
   const query = useQuery(
     queryKey,
     async () => {
       // use dummy document snapshot, if no valid doc ref could be formed
       let _doc
+      let isEmpty = false
       if (ref) {
         _doc = await getDoc(ref)
+        isEmpty = Object.keys(_doc.data() || []).length === 0
       } else {
         _doc = await Promise.resolve({ data: () => undefined, id: undefined })
+        isEmpty = true
       }
+      // avoid returning empty document with an id
+      if (isEmpty) return {}
       return {
         ..._doc.data(),
         ...(_doc.id && { id: _doc.id }),
@@ -90,7 +96,7 @@ function useQueryGetDoc<TQueryData>(
  */
 function useQueryGetCollection<TQueryData>(
   queryKey: string[],
-  collectionSegments: [Firestore, string, ...string[]],
+  collectionSegments: [Firestore, string, ...(string | undefined)[]],
   queryConstraints: QueryConstraint[],
   options: { subscribe: boolean } = { subscribe: false },
   queryOptions?: UseQueryOptions
@@ -109,11 +115,15 @@ function useQueryGetCollection<TQueryData>(
     async () => {
       // use dummy query snapshot, if no valid doc ref could be formed
       let _docs
+      let isEmpty = false
       if (refQuery) {
         _docs = await getDocs(refQuery)
+        isEmpty = _docs.empty
       } else {
         _docs = await Promise.resolve({ docs: [] })
+        isEmpty = true
       }
+      if (isEmpty) return []
       return _docs.docs.map((doc) => {
         return {
           ...doc?.data(),

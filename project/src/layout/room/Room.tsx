@@ -1,5 +1,5 @@
 import { useRoomIdAtomMaster } from '@/store/useRoomAtom'
-import { useQueryGetRoom } from '@/api/room'
+import { useQueryGetCurrentRoom } from '@/api/room'
 import BiddingsPending from './BiddingsPending'
 import BiddingsWatchlist from './BiddingsWatchlist'
 import BidAction from './BidAction'
@@ -9,7 +9,7 @@ import BidItem from './BidItem'
 
 export default function Room() {
   const roomId = useRoomIdAtomMaster('roomId')
-  const room = useQueryGetRoom()
+  const room = useQueryGetCurrentRoom()
 
   return (
     <div className=" 4xl:px-96 grid-cols-3-1list-2details grid-rows-3-2details-1list grid 2xl:px-48">

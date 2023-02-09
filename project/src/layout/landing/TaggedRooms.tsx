@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 import useUserAtom from '@/store/useUserAtom'
 import { useQueryGetTaggedRooms } from '@/api/room'
-import RoomCard from './room-card/RoomCard'
+import RoomCard from './room-preview/RoomCard'
 
 export default function TaggedRooms() {
   const [user] = useUserAtom()

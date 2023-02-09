@@ -11,12 +11,12 @@ import { useQueryClient } from 'react-query'
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { useSignOut } from '@/hooks/useToastyAuth'
 import useUserAtom from '@/store/useUserAtom'
-import { useIsSelfHosted, useQueryGetRoom } from '@/api/room'
+import { useIsSelfHosted, useQueryGetCurrentRoom } from '@/api/room'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
 
 export default function WithHeader() {
-  const roomInfo = useQueryGetRoom().data
+  const roomInfo = useQueryGetCurrentRoom().data
   const [user] = useUserAtom()
   const [signout] = useSignOut()
   const navigate = useNavigate()

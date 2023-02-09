@@ -4,20 +4,22 @@ import { GlobeAltIcon } from '@heroicons/react/24/outline'
 
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import useUserAtom from '@/store/useUserAtom'
-import { useCreateRoom } from '@/api/room'
+import { useCreateRoom, useReactiveQueryGetRoom } from '@/api/room'
 import Login from './Login'
 import Register from './Register'
 import TaggedRooms from './TaggedRooms'
+import RoomListItem from './room-preview/RoomListItem'
 
 export default function EnterRoom() {
   const navigate = useNavigate()
   const [user] = useUserAtom()
   const createNewRoom = useCreateRoom()
+  const [queryRoom, setServerRoomId] = useReactiveQueryGetRoom()
 
   const [isFadingIn, setIsFadingIn] = useState(false)
   const [isBtnDisabled, setIsBtnDisabled] = useState(false)
   const [isAtLogin, setIsAtLogin] = useState(true)
-  const [roomId, setRoomId] = useState('')
+  const [inputRoomId, setInputRoomId] = useState('')
 
   const headerSearchRoom = (
     <h1 className="mt-3 w-fit text-2xl font-semibold capitalize text-slate-900 sm:text-3xl">
@@ -32,15 +34,15 @@ export default function EnterRoom() {
         type="text"
         placeholder="Room ID"
         className="input input-bordered flex-1 px-10"
-        value={roomId}
-        onChange={(e) => setRoomId(e.target.value)}
+        value={inputRoomId}
+        onChange={handleChangeRoomId}
       />
       <GlobeAltIcon className="absolute mx-2 block h-6 w-6" />
 
       <button
         disabled={isBtnDisabled}
         className="btn disabled:loading btn-primary rounded-lg font-medium capitalize tracking-wide"
-        onClick={findRoom}
+        onClick={handleSearchRoom}
       >
         Search
       </button>
@@ -91,19 +93,30 @@ export default function EnterRoom() {
     </Login>
   )
 
+  const resultSearchRoom = (
+    <div className="my-4 flex-1 rounded-lg border-2 bg-white">
+      {queryRoom.data?.id && <RoomListItem room={queryRoom.data} />}
+    </div>
+  )
+
   const _RETURN = (
     <div className="flex items-stretch justify-center bg-slate-50 px-24 py-24  2xl:px-72">
       {/* Enter Room */}
       <section className="flex-1 basis-1">
-        <div className="mx-auto flex w-full max-w-md flex-col gap-2 px-6">
-          {headerSearchRoom}
-          {formSearchRoom}
-          {user?.uid && (
-            <>
-              <div className=" text-center">or </div>
-              {btnCreateRoom}
-            </>
-          )}
+        <div className="mx-auto flex h-full w-full max-w-md flex-col justify-between gap-2 px-6">
+          <div className="flex-grid flex flex-1 flex-col">
+            {headerSearchRoom}
+            {formSearchRoom}
+            {resultSearchRoom}
+          </div>
+          <div className="flex flex-col justify-end">
+            {user?.uid && (
+              <>
+                <div className="divider">or </div>
+                {btnCreateRoom}
+              </>
+            )}
+          </div>
         </div>
       </section>
       <div className="divider divider-horizontal">
@@ -116,10 +129,17 @@ export default function EnterRoom() {
 
   return _RETURN
 
-  function findRoom() {
-    if (!roomId) return
-    navigate(`/room/${roomId}`)
+  function handleChangeRoomId(e: React.ChangeEvent<HTMLInputElement>) {
+    const roomId = (e.target.value || '').trim()
+    setInputRoomId(roomId)
+
+    if (roomId.length !== 20) return
+    if (!/^[a-zA-Z0-9]{20}$/.test(roomId)) return
+    setServerRoomId(roomId)
   }
+
+  // force a search
+  function handleSearchRoom() {}
 
   function switchLoginReg() {
     setIsAtLogin((prev) => !prev)
