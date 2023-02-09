@@ -1,12 +1,6 @@
-import { useEffect } from 'react'
-import {
-  collection,
-  serverTimestamp,
-  getDocs,
-  addDoc,
-  onSnapshot,
-} from 'firebase/firestore'
-import { useQueryClient, useQuery, UseQueryResult } from 'react-query'
+import { collection, serverTimestamp, addDoc } from 'firebase/firestore'
+
+import { useQueryGetCollection } from '@/hooks/firebase-react-query-hooks'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { ItemFromAPI } from '@/api/item-details'
 import { db } from './firebase'
@@ -25,32 +19,17 @@ function useAddItem() {
 }
 
 function useQueryGetItems() {
-  const qc = useQueryClient()
   const [roomId] = useRoomIdAtom()
-  const query = useQuery(
+
+  return useQueryGetCollection<ItemQueryData[]>(
     ['rooms', roomId, 'items'],
-    async () => {
-      const ref = collection(db, 'rooms', roomId, 'items')
-      const querySnapshot = await getDocs(ref)
-      return querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-    },
+    [db, 'rooms', roomId, 'items'],
+    [],
+    { subscribe: true },
     {
       enabled: !!roomId,
     }
   )
-  // subscribe to collection changes
-  useEffect(() => {
-    if (!roomId) return
-    const ref = collection(db, 'rooms', roomId, 'items')
-    const unsubscribe = onSnapshot(ref, (querySnapshot) => {
-      qc.setQueryData(
-        ['rooms', roomId, 'items'],
-        querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-      )
-    })
-    return () => unsubscribe()
-  }, [])
-  return query as UseQueryResult<ItemQueryData[]>
 }
 
 interface ItemQueryData {

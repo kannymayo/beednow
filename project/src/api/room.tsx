@@ -1,51 +1,42 @@
-import { useEffect } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
 import {
   collection,
-  query,
   serverTimestamp,
   where,
   doc,
-  getDoc,
-  getDocs,
   setDoc,
-  onSnapshot,
 } from 'firebase/firestore'
 
 import useUserAtom from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
+import {
+  useQueryGetDoc,
+  useQueryGetCollection,
+} from '@/hooks/firebase-react-query-hooks'
 import { db } from './firebase'
 
 function useQueryGetTaggedRooms() {
   const [user] = useUserAtom()
-  const queryHostedRoom = useQuery(
+
+  const queryHostedRoom = useQueryGetCollection<Room>(
     ['rooms', 'hosted'],
-    async () => {
-      const qry = query(
-        collection(db, 'rooms'),
-        where('hostedBy', '==', user?.uid)
-      )
-      const querySnapshot = await getDocs(qry)
-      return querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-    },
+    [db, 'rooms'],
+    [where('hostedBy', '==', user?.uid)],
+    { subscribe: false },
     {
       enabled: !!user?.uid,
     }
   )
-  const queryJoinedRoom = useQuery(
+
+  const queryJoinedRoom = useQueryGetCollection<Room>(
     ['rooms', 'joined'],
-    async () => {
-      const qry = query(
-        collection(db, 'rooms'),
-        where('joinedBy', 'array-contains', user?.uid)
-      )
-      const querySnapshot = await getDocs(qry)
-      return querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-    },
+    [db, 'rooms'],
+    [where('joinedBy', 'array-contains', user?.uid)],
+    { subscribe: false },
     {
       enabled: !!user?.uid,
     }
   )
+
   return [queryHostedRoom, queryJoinedRoom]
 }
 
@@ -75,33 +66,10 @@ interface Room {
 }
 
 function useQueryGetRoom() {
-  const qc = useQueryClient()
   const [roomId] = useRoomIdAtom()
-  const query = useQuery(
-    ['rooms', roomId],
-    async () => {
-      const ref = doc(collection(db, 'rooms'), roomId)
-      const docSnapshot = await getDoc(ref)
-      return { ...docSnapshot.data(), id: docSnapshot.id } as Room
-    },
-    {
-      enabled: !!roomId,
-    }
-  )
-
-  // subscribe to document changes
-  useEffect(() => {
-    if (!roomId) return
-    const ref = doc(db, 'rooms', roomId)
-    const unsubscribe = onSnapshot(ref, (docSnapshot) => {
-      qc.setQueryData(['rooms', roomId], {
-        ...docSnapshot.data(),
-        id: docSnapshot.id,
-      })
-    })
-    return () => unsubscribe()
-  }, [])
-  return query
+  return useQueryGetDoc<Room>(['rooms', roomId], [db, 'rooms', roomId], {
+    subscribe: true,
+  })
 }
 
 function useIsSelfHosted() {

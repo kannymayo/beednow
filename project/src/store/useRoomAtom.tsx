@@ -1,9 +1,8 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { useAtom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
+import { useAtom, atom } from 'jotai'
 
-const roomIdAtom = atomWithStorage<string>('roomId', '')
+const roomIdAtom = atom<string>('')
 
 function useRoomIdAtom() {
   const [roomId, setRoomId] = useAtom(roomIdAtom)
