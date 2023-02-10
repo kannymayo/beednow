@@ -2,16 +2,25 @@ import clsx from 'clsx'
 import { useState } from 'react'
 
 import useUserAtom from '@/store/useUserAtom'
-import { useQueryGetTaggedRooms } from '@/api/room'
+import { useQueryGetRoomActivities } from '@/api/room'
 import RoomCard from './room-preview/RoomCard'
 
 export default function TaggedRooms() {
   const [user] = useUserAtom()
-  const [hostedRooms, joinedRooms] = useQueryGetTaggedRooms()
-
   const [activeTab, setActiveTab] = useState('hosted')
-  const displayedRooms = activeTab === 'hosted' ? hostedRooms : joinedRooms
-  // should remove hostedRooms from joinedRooms
+  const [roomActivities] = useQueryGetRoomActivities({
+    enabled: !!user?.uid,
+    subscribe: true,
+  })
+
+  const activitiesJoin = roomActivities.data?.filter(
+    (activity) => activity?.type === 'joined'
+  )
+  const activitiesHost = roomActivities.data?.filter(
+    (activity) => activity?.type === 'hosted'
+  )
+  const displayedActivities =
+    activeTab === 'hosted' ? activitiesHost : activitiesJoin
 
   const tabHostedCls = clsx(
     { 'tab-active': activeTab === 'hosted' },
@@ -41,8 +50,8 @@ export default function TaggedRooms() {
         {tabRoomsCategories}
 
         <ul className="grid-row grid grid-cols-2 gap-2 overflow-y-auto">
-          {displayedRooms?.data?.map((room) => (
-            <RoomCard details={room as any} key={room.id} />
+          {displayedActivities?.map((RoomActivity) => (
+            <RoomCard roomId={RoomActivity.id} key={RoomActivity.id} />
           ))}
         </ul>
       </div>
