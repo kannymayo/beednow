@@ -24,7 +24,6 @@ function useQueryGetItems() {
   return useQueryFirebase<ItemQueryData[]>({
     segments: ['rooms', roomId, 'items'],
     isSubscribed: true,
-    isEnabled: !!roomId,
   })
 }
 

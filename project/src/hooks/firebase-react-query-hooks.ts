@@ -19,6 +19,7 @@ import {
 } from 'firebase/firestore'
 
 import { db } from '@/api/firebase'
+import { isVoid } from '@/utils/is-void'
 
 /**
  * App-wide set of query keys that have listeners attached.
@@ -77,10 +78,17 @@ function useQueryFirebaseDoc<TQueryData>({
   queryOptions?: any
 }) {
   const qc = useQueryClient()
+  let shouldEnable = false
+  let refDoc: DocumentReference | null
+  try {
+    if (segments.some(isVoid)) throw new Error('Contains invalid segment.')
+    refDoc = doc(db, segments[0], ...segments.slice(1))
+    shouldEnable = true
+  } catch (e) {}
   const query = useQuery({
     queryKey: segments,
     queryFn: queryFnDoc,
-    enabled: isEnabled,
+    enabled: isEnabled && shouldEnable,
     ...queryOptions,
   })
 
@@ -88,17 +96,11 @@ function useQueryFirebaseDoc<TQueryData>({
   const key = JSON.stringify(segments)
   // subscribe to doc changes
   useEffect(() => {
-    // end early if no ref or no subscribe or listener already attached
     if (!isSubscribed) return
-    if (!isEnabled) return
+    if (!refDoc) return
+    if (!isEnabled || !shouldEnable) return
     if (listenerAttached.has(key)) return
     const queryKey = segments
-    let refDoc: DocumentReference | null
-    try {
-      refDoc = doc(db, segments[0], ...segments.slice(1))
-    } catch (e) {
-      return
-    }
 
     listenerAttached.add(key)
     const unsubscribe = onSnapshot(refDoc, (snapshotDoc) => {
@@ -126,10 +128,17 @@ function useQueryFirebaseCollection<TQueryData>({
   queryConstraints?: QueryConstraint[]
 }) {
   const qc = useQueryClient()
+  let shouldEnable = false
+  let refCollection: CollectionReference | null
+  try {
+    if (segments.some(isVoid)) throw new Error('Contains invalid segment.')
+    refCollection = collection(db, segments[0], ...segments.slice(1))
+    shouldEnable = true
+  } catch (e) {}
   const query = useQuery({
     queryKey: segments,
     queryFn: queryFnCollection,
-    enabled: isEnabled,
+    enabled: isEnabled && shouldEnable,
     ...queryOptions,
     meta: {
       queryConstraints: queryConstraints,
@@ -141,16 +150,11 @@ function useQueryFirebaseCollection<TQueryData>({
   // subscribe to doc changes
   useEffect(() => {
     // end early if no ref or no subscribe or listener already attached
+    if (!refCollection) return
     if (!isSubscribed) return
-    if (!isEnabled) return
+    if (!isEnabled || !shouldEnable) return
     if (listenerAttached.has(key)) return
     const queryKey = segments
-    let refCollection: CollectionReference | null
-    try {
-      refCollection = collection(db, segments[0], ...segments.slice(1))
-    } catch (e) {
-      return
-    }
 
     listenerAttached.add(key)
     const unsubscribe = onSnapshot(refCollection, (snapshotQuery) => {

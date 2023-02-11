@@ -47,7 +47,6 @@ function useQueryGetRoomActivities({
   const query = useQueryFirebase({
     segments: queryKey,
     isSubscribed: subscribe,
-    isEnabled: enabled,
   })
 
   return [query, queryKey] as const
@@ -154,7 +153,6 @@ function useQueryGetCurrentRoom() {
   const query = useQueryFirebase<Room>({
     segments: ['rooms', roomId],
     isSubscribed: true,
-    isEnabled: !!roomId,
   })
   return query
 }
@@ -164,7 +162,6 @@ function useQueryGetRoom(roomId: string = '', isSubscribed: boolean = false) {
   const query = useQueryFirebase<Room>({
     segments: queryKey,
     isSubscribed,
-    isEnabled: !!roomId,
   })
 
   return [query, queryKey] as const
