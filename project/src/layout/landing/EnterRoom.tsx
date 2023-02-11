@@ -4,7 +4,7 @@ import { GlobeAltIcon } from '@heroicons/react/24/outline'
 
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import useUserAtom from '@/store/useUserAtom'
-import { useCreateRoom, useReactiveQueryGetRoom } from '@/api/room'
+import { useCreateRoom, useQueryGetRoom } from '@/api/room'
 import Login from './Login'
 import Register from './Register'
 import TaggedRooms from './TaggedRooms'
@@ -14,7 +14,8 @@ export default function EnterRoom() {
   const navigate = useNavigate()
   const [user] = useUserAtom()
   const createNewRoom = useCreateRoom()
-  const [queryRoom, setServerRoomId] = useReactiveQueryGetRoom()
+  const [cleanRoomId, setCleanRoomId] = useState('')
+  const [queryRoom] = useQueryGetRoom(cleanRoomId)
 
   const [isFadingIn, setIsFadingIn] = useState(false)
   const [isBtnDisabled, setIsBtnDisabled] = useState(false)
@@ -135,7 +136,7 @@ export default function EnterRoom() {
 
     if (roomId.length !== 20) return
     if (!/^[a-zA-Z0-9]{20}$/.test(roomId)) return
-    setServerRoomId(roomId)
+    setCleanRoomId(roomId)
   }
 
   // force a search

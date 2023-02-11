@@ -3,7 +3,7 @@ import {
   useQueries,
   useQuery,
   UseQueryOptions,
-} from 'react-query'
+} from '@tanstack/react-query'
 import parse, { ItemFromAPI, BidItem } from '@/utils/parse-wow-tooltip'
 
 // why typing fetchItem to return a Promise<ItemFromAPI> doesn't work?
@@ -33,14 +33,14 @@ function useQueryItemDetailsMultiple(ids: number[]) {
   // to access the scope variable id.
   const queries = useQueries<
     UseQueryOptions<ItemFromAPI, unknown, ItemFromAPI, [string, number]>[]
-  >(
-    ids.map((id) => {
+  >({
+    queries: ids.map((id) => {
       return {
         queryKey: ['itemDetails', id],
         queryFn: fetchItem,
       }
-    })
-  )
+    }),
+  })
   return queries
 }
 

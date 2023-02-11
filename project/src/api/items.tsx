@@ -1,6 +1,6 @@
 import { collection, serverTimestamp, addDoc } from 'firebase/firestore'
 
-import { useQueryGetCollection } from '@/hooks/firebase-react-query-hooks'
+import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { ItemFromAPI } from '@/api/item-details'
 import { db } from './firebase'
@@ -21,15 +21,11 @@ function useAddItem() {
 function useQueryGetItems() {
   const [roomId] = useRoomIdAtom()
 
-  return useQueryGetCollection<ItemQueryData[]>(
-    ['rooms', roomId, 'items'],
-    [db, 'rooms', roomId, 'items'],
-    [],
-    { subscribe: true },
-    {
-      enabled: !!roomId,
-    }
-  )
+  return useQueryFirebase<ItemQueryData[]>({
+    segments: ['rooms', roomId, 'items'],
+    isSubscribed: true,
+    isEnabled: !!roomId,
+  })
 }
 
 interface ItemQueryData {

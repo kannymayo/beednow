@@ -4,7 +4,7 @@ import {
   useQueryClient,
   UseQueryOptions,
   UseQueryResult,
-} from 'react-query'
+} from '@tanstack/react-query'
 import {
   collection,
   Query,
@@ -15,8 +15,10 @@ import {
   getDocs,
   onSnapshot,
   DocumentReference,
-  Firestore,
+  CollectionReference,
 } from 'firebase/firestore'
+
+import { db } from '@/api/firebase'
 
 /**
  * App-wide set of query keys that have listeners attached.
@@ -32,58 +34,77 @@ const listenerAttached = new Set<string>()
  *
  *@generic TQueryData - the type of the data wrapped in a standard UseQueryResult object (data, error, isLoading, etc.)
  */
-function useQueryGetDoc<TQueryData>(
-  queryKey: string[],
-  docSegments: [Firestore, string, ...string[]],
-  options: { subscribe: boolean } = { subscribe: false },
+function useQueryFirebase<TQueryData>({
+  segments,
+  isSubscribed = false,
+  isEnabled = true,
+  queryOptions, // other options
+  queryConstraints = [],
+}: {
+  segments: string[]
+  isSubscribed?: boolean
+  isEnabled?: boolean
   queryOptions?: UseQueryOptions
-) {
-  const qc = useQueryClient()
-  // assign doc ref only if all segments are truthy
-  let ref: DocumentReference | undefined = undefined
-  if (docSegments.every(Boolean)) {
-    ref = doc(...docSegments)
+  queryConstraints?: QueryConstraint[]
+}) {
+  if (segments.length % 2 === 0) {
+    return useQueryFirebaseDoc<TQueryData>({
+      segments,
+      isSubscribed,
+      isEnabled,
+      queryOptions,
+    })
+  } else {
+    return useQueryFirebaseCollection<TQueryData>({
+      segments,
+      isSubscribed,
+      isEnabled,
+      queryOptions,
+      queryConstraints,
+    })
   }
+}
 
-  const query = useQuery(
-    queryKey,
-    async () => {
-      // use dummy document snapshot, if no valid doc ref could be formed
-      let _doc
-      let isEmpty = false
-      if (ref) {
-        _doc = await getDoc(ref)
-        isEmpty = Object.keys(_doc.data() || []).length === 0
-      } else {
-        _doc = await Promise.resolve({ data: () => undefined, id: undefined })
-        isEmpty = true
-      }
-      // avoid returning empty document with an id
-      if (isEmpty) return {}
-      return {
-        ..._doc.data(),
-        ...(_doc.id && { id: _doc.id }),
-      }
-    },
-    // crazy, why do I have to look into the source of useQuery to figure out what the type of queryOptions is?
-    queryOptions as Omit<UseQueryOptions, 'queryKey' | 'queryFn'>
-  )
+function useQueryFirebaseDoc<TQueryData>({
+  segments,
+  isSubscribed = false,
+  isEnabled = true,
+  queryOptions, // other options
+}: {
+  segments: string[]
+  isSubscribed?: boolean
+  isEnabled?: boolean
+  queryOptions?: any
+}) {
+  const qc = useQueryClient()
+  const query = useQuery({
+    queryKey: segments,
+    queryFn: queryFnDoc,
+    enabled: isEnabled,
+    ...queryOptions,
+  })
+
+  // for triggering useEffect
+  const key = JSON.stringify(segments)
   // subscribe to doc changes
-  const key = JSON.stringify(queryKey)
   useEffect(() => {
     // end early if no ref or no subscribe or listener already attached
-    if (!ref) return
-    if (!options.subscribe) return
+    if (!isSubscribed) return
+    if (!isEnabled) return
     if (listenerAttached.has(key)) return
+    const queryKey = segments
+    let refDoc: DocumentReference | null
+    try {
+      refDoc = doc(db, segments[0], ...segments.slice(1))
+    } catch (e) {
+      return
+    }
 
-    console.log('[doc] adding listener')
     listenerAttached.add(key)
-    const unsubscribe = onSnapshot(ref, (_doc) => {
-      console.log('[doc] listener fired')
-      qc.setQueryData(queryKey, { ..._doc.data(), id: _doc.id })
+    const unsubscribe = onSnapshot(refDoc, (snapshotDoc) => {
+      qc.setQueryData(queryKey, { ...snapshotDoc.data(), id: snapshotDoc.id })
     })
     return () => {
-      console.log('[doc] removing listener')
       listenerAttached.delete(key)
       unsubscribe()
     }
@@ -91,75 +112,110 @@ function useQueryGetDoc<TQueryData>(
   return query as UseQueryResult<TQueryData>
 }
 
-/**
- * Collection(Query) version of useQueryGetDoc.
- */
-function useQueryGetCollection<TQueryData>(
-  queryKey: string[],
-  collectionSegments: [Firestore, string, ...(string | undefined)[]],
-  queryConstraints: QueryConstraint[],
-  options: { subscribe: boolean } = { subscribe: false },
-  queryOptions?: UseQueryOptions
-) {
+function useQueryFirebaseCollection<TQueryData>({
+  segments,
+  isSubscribed = false,
+  isEnabled = true,
+  queryOptions, // other options
+  queryConstraints,
+}: {
+  segments: string[]
+  isSubscribed?: boolean
+  isEnabled?: boolean
+  queryOptions?: any
+  queryConstraints?: QueryConstraint[]
+}) {
   const qc = useQueryClient()
-  // assign query ref only if all segments are truthy
-  let refQuery: Query | undefined = undefined
-  if (collectionSegments.every(Boolean)) {
-    const db = collectionSegments[0]
-    const path = collectionSegments[1]
-    const pathSegments = collectionSegments.slice(2) as string[]
-    refQuery = query(collection(db, path, ...pathSegments), ...queryConstraints)
-  }
-  const _query = useQuery(
-    queryKey,
-    async () => {
-      // use dummy query snapshot, if no valid doc ref could be formed
-      let _docs
-      let isEmpty = false
-      if (refQuery) {
-        _docs = await getDocs(refQuery)
-        isEmpty = _docs.empty
-      } else {
-        _docs = await Promise.resolve({ docs: [] })
-        isEmpty = true
-      }
-      if (isEmpty) return []
-      return _docs.docs.map((doc) => {
-        return {
-          ...doc?.data(),
-          id: doc?.id,
-        }
-      })
+  const query = useQuery({
+    queryKey: segments,
+    queryFn: queryFnCollection,
+    enabled: isEnabled,
+    ...queryOptions,
+    meta: {
+      queryConstraints: queryConstraints,
     },
-    queryOptions as Omit<UseQueryOptions, 'queryKey' | 'queryFn'>
-  )
+  })
+
+  // for triggering useEffect
+  const key = JSON.stringify(segments)
   // subscribe to doc changes
-  const key = JSON.stringify(queryKey)
   useEffect(() => {
     // end early if no ref or no subscribe or listener already attached
-    if (!refQuery) return
-    if (!options.subscribe) return
+    if (!isSubscribed) return
+    if (!isEnabled) return
     if (listenerAttached.has(key)) return
+    const queryKey = segments
+    let refCollection: CollectionReference | null
+    try {
+      refCollection = collection(db, segments[0], ...segments.slice(1))
+    } catch (e) {
+      return
+    }
 
     listenerAttached.add(key)
-    console.log('[collection] adding listener')
-    const unsubscribe = onSnapshot(refQuery, (_docs) => {
-      console.log('[collection] listener fired')
+    const unsubscribe = onSnapshot(refCollection, (snapshotQuery) => {
       qc.setQueryData(
         queryKey,
-        _docs.docs.map((doc) => {
+        snapshotQuery.docs.map((doc) => {
           return { ...doc?.data(), id: doc?.id }
         })
       )
     })
-    // deps array huge problem! or unsub
     return () => {
-      console.log('[collection] removing listener')
       listenerAttached.delete(key)
       unsubscribe()
     }
   }, [key])
-  return _query as UseQueryResult<TQueryData>
+  return query as UseQueryResult<TQueryData>
 }
 
-export { useQueryGetDoc, useQueryGetCollection }
+async function queryFnDoc({ queryKey }: { queryKey: string[] }) {
+  // Work towards an early throw, but likely we won't end up this path
+  // when isEnabled is properly set
+  // Alternatively, we could attempt to form a doc reference even earlier
+  // and that would eliminate the need for setting isEnabled. But a bit
+  // messy?
+  const segments = queryKey
+  let refDoc: DocumentReference | null
+  try {
+    refDoc = doc(db, segments[0], ...segments.slice(1))
+  } catch (e) {
+    refDoc = null
+  }
+  if (!refDoc)
+    throw Error(
+      `Malformed segments, could not form a valid doc reference. ${queryKey}`
+    )
+  // process doc
+  const snapshotDoc = await getDoc(refDoc)
+  return { ...snapshotDoc.data(), id: snapshotDoc.id }
+}
+
+async function queryFnCollection({
+  queryKey,
+  meta,
+}: {
+  queryKey: string[]
+  meta: { queryConstraints: QueryConstraint[] }
+}) {
+  // work towards an early throw
+  const segments = queryKey
+  const queryConstraints = meta.queryConstraints
+  let refFirebaseQuery: Query | null
+  try {
+    refFirebaseQuery = query(
+      collection(db, segments[0], ...segments.slice(1)),
+      ...queryConstraints
+    )
+  } catch (e) {
+    refFirebaseQuery = null
+  }
+  if (!refFirebaseQuery) throw Error('Malformed collection/query')
+  // process query
+  const snapshotQry = await getDocs(refFirebaseQuery)
+  return snapshotQry.docs.map((doc) => {
+    return { ...doc?.data(), id: doc?.id }
+  })
+}
+
+export { useQueryFirebase }

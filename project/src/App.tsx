@@ -3,16 +3,18 @@ import 'react-toastify/dist/ReactToastify.css'
 import { StrictMode } from 'react'
 import { useAtomsDevtools } from 'jotai-devtools'
 import { ToastContainer } from 'react-toastify'
-import { QueryClient, QueryClientProvider } from 'react-query'
-import { ReactQueryDevtools } from 'react-query/devtools'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import Home from '@/layout/Home'
 
 const qc = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false,
-      staleTime: Infinity,
+      retry: 1,
+      cacheTime: 1 * 60 * 60 * 1000,
+      staleTime: 1 * 60 * 60 * 1000,
+      refetchOnMount: false,
     },
   },
 })

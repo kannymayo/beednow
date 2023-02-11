@@ -1,20 +1,16 @@
+import { useState } from 'react'
 import {
-  collection,
   serverTimestamp,
+  collection,
   doc,
   setDoc,
   updateDoc,
-  addDoc,
   getDoc,
 } from 'firebase/firestore'
-import { useState } from 'react'
 
 import useUserAtom from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
-import {
-  useQueryGetDoc,
-  useQueryGetCollection,
-} from '@/hooks/firebase-react-query-hooks'
+import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { getRandomName } from '@/utils/random-name'
 import { db } from './firebase'
 
@@ -46,14 +42,14 @@ function useQueryGetRoomActivities({
   subscribe?: boolean
 }) {
   const [user] = useUserAtom()
-  const queryKey = ['users', 'roomActivities']
-  const query = useQueryGetCollection<RoomActivity[]>(
-    queryKey,
-    [db, 'users', user?.uid, 'roomActivities'],
-    [],
-    { subscribe },
-    { enabled }
-  )
+  const queryKey = ['users', user?.uid || '', 'roomActivities']
+
+  const query = useQueryFirebase({
+    segments: queryKey,
+    isSubscribed: subscribe,
+    isEnabled: enabled,
+  })
+
   return [query, queryKey] as const
 }
 
@@ -108,7 +104,7 @@ function useJoinRoom() {
 /**
  * TODO: check user ban list
  */
-function useUpdateRoomAcvitity() {
+function _useUpdateRoomAcvitity() {
   const [user] = useUserAtom()
   return [updateRoomActivity]
 
@@ -136,7 +132,7 @@ function useUpdateRoomAcvitity() {
 }
 
 function useUpdateRoomJoined() {
-  const [updateRoomActivity] = useUpdateRoomAcvitity()
+  const [updateRoomActivity] = _useUpdateRoomAcvitity()
   return [updateRoomJoined]
 
   function updateRoomJoined(roomId: string) {
@@ -145,7 +141,7 @@ function useUpdateRoomJoined() {
 }
 
 function useUpdateRoomHosted() {
-  const [updateRoomActivity] = useUpdateRoomAcvitity()
+  const [updateRoomActivity] = _useUpdateRoomAcvitity()
   return [updateRoomHosted]
 
   function updateRoomHosted(roomId: string) {
@@ -155,24 +151,23 @@ function useUpdateRoomHosted() {
 
 function useQueryGetCurrentRoom() {
   const [roomId] = useRoomIdAtom()
-  return useQueryGetDoc<Room>(['rooms', roomId], [db, 'rooms', roomId], {
-    subscribe: true,
+  const query = useQueryFirebase<Room>({
+    segments: ['rooms', roomId],
+    isSubscribed: true,
+    isEnabled: !!roomId,
   })
+  return query
 }
 
-function useReactiveQueryGetRoom(isSubscribed: boolean = false) {
-  const [roomId, setRoomId] = useState('')
+function useQueryGetRoom(roomId: string = '', isSubscribed: boolean = false) {
   const queryKey = ['rooms', roomId]
-  const query = useQueryGetDoc<Room>(
-    queryKey,
-    [db, 'rooms', roomId],
-    {
-      subscribe: isSubscribed,
-    },
-    { enabled: !!roomId }
-  )
+  const query = useQueryFirebase<Room>({
+    segments: queryKey,
+    isSubscribed,
+    isEnabled: !!roomId,
+  })
 
-  return [query, setRoomId, queryKey] as const
+  return [query, queryKey] as const
 }
 
 function useIsSelfHosted() {
@@ -187,7 +182,7 @@ export {
   useCreateRoom,
   useJoinRoom,
   useIsSelfHosted,
-  useReactiveQueryGetRoom,
+  useQueryGetRoom,
   useQueryGetRoomActivities,
   useQueryGetCurrentRoom,
 }
