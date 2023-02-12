@@ -1,7 +1,6 @@
 import './App.css'
 import 'react-toastify/dist/ReactToastify.css'
 import { StrictMode } from 'react'
-import { useAtomsDevtools } from 'jotai-devtools'
 import { ToastContainer } from 'react-toastify'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -34,11 +33,6 @@ function App() {
       />
     </StrictMode>
   )
-}
-
-function AtomsDevTools({ children }: { children: any }) {
-  useAtomsDevtools('jotai')
-  return children
 }
 
 export default App
