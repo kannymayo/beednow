@@ -1,19 +1,21 @@
-import { collection, serverTimestamp, addDoc } from 'firebase/firestore'
+import { serverTimestamp } from 'firebase/firestore'
 
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { ItemFromAPI } from '@/api/item-details'
-import { db } from './firebase'
+import { upcreateFirebaseDocWithAutoId } from './helper/firebase-CRUD-throwable'
 
 function useAddItem() {
   const [roomId] = useRoomIdAtom()
-  return add
+  return addItem
 
-  async function add(item: { details: ItemFromAPI; [any: string]: any }) {
-    const ref = collection(db, 'rooms', roomId, 'items')
-    await addDoc(ref, {
-      ...item,
-      createdAt: serverTimestamp(),
+  async function addItem(item: { details: ItemFromAPI; [any: string]: any }) {
+    return await upcreateFirebaseDocWithAutoId({
+      segments: ['rooms', roomId, 'items'],
+      data: {
+        ...item,
+        createdAt: serverTimestamp(),
+      },
     })
   }
 }

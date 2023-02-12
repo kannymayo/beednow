@@ -1,18 +1,14 @@
-import { useState } from 'react'
-import {
-  serverTimestamp,
-  collection,
-  doc,
-  setDoc,
-  updateDoc,
-  getDoc,
-} from 'firebase/firestore'
+import { serverTimestamp } from 'firebase/firestore'
 
 import useUserAtom from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
+import {
+  upcreateFirebaseDoc,
+  upcreateFirebaseDocWithAutoId,
+  getFirebaseDoc,
+} from './helper/firebase-CRUD-throwable'
 import { getRandomName } from '@/utils/random-name'
-import { db } from './firebase'
 
 interface FirebaseServerTimestamp {
   seconds: number
@@ -42,11 +38,12 @@ function useQueryGetRoomActivities({
   subscribe?: boolean
 }) {
   const [user] = useUserAtom()
-  const queryKey = ['users', user?.uid || '', 'roomActivities']
+  const queryKey = ['users', user?.uid, 'roomActivities']
 
   const query = useQueryFirebase({
     segments: queryKey,
     isSubscribed: subscribe,
+    isEnabled: enabled,
   })
 
   return [query, queryKey] as const
@@ -54,48 +51,50 @@ function useQueryGetRoomActivities({
 
 function useCreateRoom() {
   const [user] = useUserAtom()
-  const [updateRoomHosted] = useUpdateRoomHosted()
+  const [updateRoomActivitiy] = useUpdateRoomAcvitity()
   return create
 
   async function create() {
-    try {
-      // room doc
-      const ref = doc(collection(db, 'rooms'))
-      await setDoc(ref, {
+    const roomId = await upcreateFirebaseDocWithAutoId({
+      segments: ['rooms'],
+      data: {
         name: getRandomName(),
         hostedBy: user.uid,
         createdAt: serverTimestamp(),
-      })
-      // user's roomActivities collection
-      return updateRoomHosted(ref.id)
-    } catch (e) {
-      throw e
-    }
+      },
+    })
+    await updateRoomActivitiy(roomId, 'hosted')
   }
 }
 
 function useJoinRoom() {
   const [user] = useUserAtom()
-  const [updateRoomJoined] = useUpdateRoomJoined()
-  return [join]
+  const [updateRoomAcvitity] = useUpdateRoomAcvitity()
+  return [joinRoom]
 
-  async function join(roomId: string) {
-    try {
-      // update room doc
-      const refRoom = doc(db, 'rooms', roomId)
-      const snapshotRoom = await getDoc(refRoom)
-      const room = snapshotRoom.data() as Room
-      // in reality it wouldn't trigger for lack of pre-condition
-      if (!user.uid) throw Error('No logged-in user yet.')
-      if (!room.joinedBy?.includes(user.uid)) {
-        await updateDoc(refRoom, {
+  async function joinRoom(roomId: string) {
+    // retrieve room info
+    if (!user.uid) throw Error('No logged-in user yet.')
+    const room = await getFirebaseDoc<Room>({
+      segments: ['rooms', roomId],
+    })
+    if (!room) throw Error('The room does not exist.')
+
+    // add user to room if not already in
+    if (!room?.joinedBy?.includes(user.uid)) {
+      await upcreateFirebaseDoc({
+        segments: ['rooms', roomId],
+        data: {
           joinedBy: [...(room.joinedBy || []), user.uid],
-        })
-      }
-      // update user's roomActivities collection
-      return updateRoomJoined(roomId)
-    } catch (e) {
-      throw e
+        },
+      })
+    }
+
+    // update user's own record of room activity
+    if (room?.hostedBy === user.uid) {
+      return await updateRoomAcvitity(roomId, 'hosted')
+    } else {
+      return await updateRoomAcvitity(roomId, 'joined')
     }
   }
 }
@@ -103,48 +102,21 @@ function useJoinRoom() {
 /**
  * TODO: check user ban list
  */
-function _useUpdateRoomAcvitity() {
+function useUpdateRoomAcvitity() {
   const [user] = useUserAtom()
   return [updateRoomActivity]
 
-  async function updateRoomActivity(roomId: string, activityType?: string) {
-    if (!user.uid) throw Error('No logged-in user yet.')
-    // no checking if room exists (should be server side or no one's business)
-    const refRoomActivities = doc(
-      db,
-      'users',
-      user.uid,
-      'roomActivities',
-      roomId
-    )
-    if (!activityType) {
-      await setDoc(refRoomActivities, {
-        lastModified: serverTimestamp(),
-      })
-    } else {
-      await setDoc(refRoomActivities, {
+  async function updateRoomActivity(
+    roomId: string | undefined,
+    activityType: RoomActivity['type'] = 'joined'
+  ) {
+    return upcreateFirebaseDoc({
+      segments: ['users', user.uid, 'roomActivities', roomId],
+      data: {
         type: activityType,
         lastModified: serverTimestamp(),
-      })
-    }
-  }
-}
-
-function useUpdateRoomJoined() {
-  const [updateRoomActivity] = _useUpdateRoomAcvitity()
-  return [updateRoomJoined]
-
-  function updateRoomJoined(roomId: string) {
-    return updateRoomActivity(roomId, 'joined')
-  }
-}
-
-function useUpdateRoomHosted() {
-  const [updateRoomActivity] = _useUpdateRoomAcvitity()
-  return [updateRoomHosted]
-
-  function updateRoomHosted(roomId: string) {
-    return updateRoomActivity(roomId, 'hosted')
+      },
+    })
   }
 }
 
@@ -177,6 +149,7 @@ function useIsSelfHosted() {
 
 export {
   useCreateRoom,
+  useUpdateRoomAcvitity,
   useJoinRoom,
   useIsSelfHosted,
   useQueryGetRoom,

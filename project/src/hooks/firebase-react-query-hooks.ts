@@ -42,7 +42,7 @@ function useQueryFirebase<TQueryData>({
   queryOptions, // other options
   queryConstraints = [],
 }: {
-  segments: string[]
+  segments: (string | undefined)[]
   isSubscribed?: boolean
   isEnabled?: boolean
   queryOptions?: UseQueryOptions
@@ -72,7 +72,7 @@ function useQueryFirebaseDoc<TQueryData>({
   isEnabled = true,
   queryOptions, // other options
 }: {
-  segments: string[]
+  segments: (string | undefined)[]
   isSubscribed?: boolean
   isEnabled?: boolean
   queryOptions?: any
@@ -82,7 +82,9 @@ function useQueryFirebaseDoc<TQueryData>({
   let refDoc: DocumentReference | null
   try {
     if (segments.some(isVoid)) throw new Error('Contains invalid segment.')
-    refDoc = doc(db, segments[0], ...segments.slice(1))
+    const _segments = segments as string[]
+    refDoc = doc(db, _segments[0], ..._segments.slice(1))
+
     shouldEnable = true
   } catch (e) {}
   const query = useQuery({
@@ -121,7 +123,7 @@ function useQueryFirebaseCollection<TQueryData>({
   queryOptions, // other options
   queryConstraints,
 }: {
-  segments: string[]
+  segments: (undefined | string)[]
   isSubscribed?: boolean
   isEnabled?: boolean
   queryOptions?: any
@@ -132,7 +134,9 @@ function useQueryFirebaseCollection<TQueryData>({
   let refCollection: CollectionReference | null
   try {
     if (segments.some(isVoid)) throw new Error('Contains invalid segment.')
-    refCollection = collection(db, segments[0], ...segments.slice(1))
+    const _segments = segments as string[]
+    refCollection = collection(db, _segments[0], ..._segments.slice(1))
+
     shouldEnable = true
   } catch (e) {}
   const query = useQuery({
