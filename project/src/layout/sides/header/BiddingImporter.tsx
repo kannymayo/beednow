@@ -6,7 +6,7 @@ import produce from 'immer'
 
 import { useQueryItemDetailsMultiple, ItemFromAPI } from '@/api/item-details'
 import { readGeneralExport } from '@/utils/read-export'
-import { useAddItem } from '@/api/items'
+import { useAddItem } from '@/api/bidding'
 
 import ImportableItemGroup from './importableItemGroup'
 

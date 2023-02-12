@@ -3,12 +3,12 @@ import { serverTimestamp } from 'firebase/firestore'
 import useUserAtom from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
+import { getRandomName } from '@/utils/random-name'
 import {
   upcreateFirebaseDoc,
   upcreateFirebaseDocWithAutoId,
   getFirebaseDoc,
 } from './helper/firebase-CRUD-throwable'
-import { getRandomName } from '@/utils/random-name'
 
 interface FirebaseServerTimestamp {
   seconds: number
@@ -22,6 +22,7 @@ interface Room {
   joinedBy: string[]
   attendees: string[] // realtime
   createdAt: FirebaseServerTimestamp
+  biddings?: string // collection
 }
 
 interface RoomActivity {
@@ -40,7 +41,7 @@ function useQueryGetRoomActivities({
   const [user] = useUserAtom()
   const queryKey = ['users', user?.uid, 'roomActivities']
 
-  const query = useQueryFirebase({
+  const query = useQueryFirebase<RoomActivity[]>({
     segments: queryKey,
     isSubscribed: subscribe,
     isEnabled: enabled,
@@ -72,7 +73,7 @@ function useJoinRoom() {
   const [updateRoomAcvitity] = useUpdateRoomAcvitity()
   return [joinRoom]
 
-  async function joinRoom(roomId: string) {
+  async function joinRoom(roomId: string | undefined) {
     // retrieve room info
     if (!user.uid) throw Error('No logged-in user yet.')
     const room = await getFirebaseDoc<Room>({

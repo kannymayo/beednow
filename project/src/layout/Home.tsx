@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom'
 
 import Protected from '@/components/Protected'
-import EnterRoom from './landing/EnterRoom'
+import EnterRoom from './landing/LandingPage'
 import WithHeader from './sides/WithHeader'
 import Room from './room/Room'
 

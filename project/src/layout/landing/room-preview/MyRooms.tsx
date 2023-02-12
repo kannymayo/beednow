@@ -3,9 +3,9 @@ import { useState } from 'react'
 
 import useUserAtom from '@/store/useUserAtom'
 import { useQueryGetRoomActivities } from '@/api/room'
-import RoomCard from './room-preview/RoomCard'
+import RoomListItem from './RoomListItem'
 
-export default function TaggedRooms() {
+export default function MyRooms() {
   const [user] = useUserAtom()
   const [activeTab, setActiveTab] = useState('hosted')
   const [roomActivities] = useQueryGetRoomActivities({
@@ -49,9 +49,9 @@ export default function TaggedRooms() {
         </h1>
         {tabRoomsCategories}
 
-        <ul className="grid-row grid grid-cols-2 gap-2 overflow-y-auto">
+        <ul className="  overflow-y-auto">
           {displayedActivities?.map((RoomActivity) => (
-            <RoomCard roomId={RoomActivity.id} key={RoomActivity.id} />
+            <RoomListItem roomId={RoomActivity.id} key={RoomActivity.id} />
           ))}
         </ul>
       </div>

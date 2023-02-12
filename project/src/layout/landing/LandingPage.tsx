@@ -4,18 +4,17 @@ import { GlobeAltIcon } from '@heroicons/react/24/outline'
 
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import useUserAtom from '@/store/useUserAtom'
-import { useCreateRoom, useQueryGetRoom } from '@/api/room'
+import { useCreateRoom } from '@/api/room'
 import Login from './Login'
 import Register from './Register'
-import TaggedRooms from './TaggedRooms'
-import RoomListItem from './room-preview/RoomListItem'
+import MyRooms from './room-preview/MyRooms'
+import RoomPreview from './room-preview/RoomPreview'
 
 export default function EnterRoom() {
   const navigate = useNavigate()
   const [user] = useUserAtom()
   const createNewRoom = useCreateRoom()
-  const [cleanRoomId, setCleanRoomId] = useState('')
-  const [queryRoom] = useQueryGetRoom(cleanRoomId)
+  const [, setCleanRoomId] = useState('')
 
   const [isFadingIn, setIsFadingIn] = useState(false)
   const [isBtnDisabled, setIsBtnDisabled] = useState(false)
@@ -39,14 +38,6 @@ export default function EnterRoom() {
         onChange={handleChangeRoomId}
       />
       <GlobeAltIcon className="absolute mx-2 block h-6 w-6" />
-
-      <button
-        disabled={isBtnDisabled}
-        className="btn disabled:loading btn-primary rounded-lg font-medium capitalize tracking-wide"
-        onClick={handleSearchRoom}
-      >
-        Search
-      </button>
     </div>
   )
 
@@ -96,7 +87,7 @@ export default function EnterRoom() {
 
   const resultSearchRoom = (
     <div className="my-4 flex-1 rounded-lg border-2 bg-white">
-      {queryRoom.data?.id && <RoomListItem room={queryRoom.data} />}
+      <RoomPreview />
     </div>
   )
 
@@ -124,7 +115,7 @@ export default function EnterRoom() {
         <Logo className="h-20 w-20" />
       </div>
       {/* Login/Reg/Room linked */}
-      {user?.uid ? <TaggedRooms /> : isAtLogin ? sectionLogin : sectionReg}
+      {user?.uid ? <MyRooms /> : isAtLogin ? sectionLogin : sectionReg}
     </div>
   )
 
@@ -138,9 +129,6 @@ export default function EnterRoom() {
     if (!/^[a-zA-Z0-9]{20}$/.test(roomId)) return
     setCleanRoomId(roomId)
   }
-
-  // force a search
-  function handleSearchRoom() {}
 
   function switchLoginReg() {
     setIsAtLogin((prev) => !prev)

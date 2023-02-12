@@ -1,6 +1,6 @@
-import { ItemQueryData } from '@/api/items'
+import { Bidding } from '@/api/bidding'
 
-export default function ({ item }: { item: ItemQueryData }) {
+export default function ({ item }: { item: Bidding }) {
   const icon = (
     <figure className="flex-shrink-0">
       <a

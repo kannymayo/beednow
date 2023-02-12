@@ -11,7 +11,7 @@ function useAddItem() {
 
   async function addItem(item: { details: ItemFromAPI; [any: string]: any }) {
     return await upcreateFirebaseDocWithAutoId({
-      segments: ['rooms', roomId, 'items'],
+      segments: ['rooms', roomId, 'biddings'],
       data: {
         ...item,
         createdAt: serverTimestamp(),
@@ -20,16 +20,14 @@ function useAddItem() {
   }
 }
 
-function useQueryGetItems() {
-  const [roomId] = useRoomIdAtom()
-
-  return useQueryFirebase<ItemQueryData[]>({
-    segments: ['rooms', roomId, 'items'],
+function useQueryGetBiddings(roomId: string | undefined) {
+  return useQueryFirebase<Bidding[]>({
+    segments: ['rooms', roomId, 'biddings'],
     isSubscribed: true,
   })
 }
 
-interface ItemQueryData {
+interface Bidding {
   id: string
   createdAt: {
     seconds: number
@@ -38,5 +36,5 @@ interface ItemQueryData {
   details: ItemFromAPI
 }
 
-export { useAddItem, useQueryGetItems }
-export type { ItemQueryData }
+export { useAddItem, useQueryGetBiddings }
+export type { Bidding }
