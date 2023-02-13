@@ -5,7 +5,7 @@ import { ToastContainer } from 'react-toastify'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
-import Home from '@/layout/Home'
+import Routes from '@/layout/Routes'
 
 const qc = new QueryClient({
   defaultOptions: {
@@ -23,7 +23,7 @@ function App() {
   return (
     <StrictMode>
       <QueryClientProvider client={qc}>
-        <Home />
+        <Routes />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
       <ToastContainer

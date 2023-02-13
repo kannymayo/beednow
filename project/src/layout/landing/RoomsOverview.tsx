@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 import useUserAtom from '@/store/useUserAtom'
 import { useQueryGetRoomActivities } from '@/api/room'
-import RoomListItem from './RoomListItem'
+import RoomListItem from './room-preview/RoomListItem'
 
 export default function MyRooms() {
   const [user] = useUserAtom()
