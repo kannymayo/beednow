@@ -68,7 +68,7 @@ export default function EnterRoom() {
       toggleIsBtnDisabled={toggleIsBtnDisabled}
       isFadingIn={isFadingIn}
     >
-      <div className="mt-6 text-center ">
+      <div className="mt-6 text-center">
         <a
           onClick={switchLoginReg}
           className="link link-info link-hover text-sm"
