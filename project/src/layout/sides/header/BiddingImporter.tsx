@@ -46,7 +46,7 @@ interface ItemOccurrencesGrouped {
 }
 
 function ImportModal() {
-  const addItem = useAddItem()
+  const [addItem] = useAddItem()
 
   const [isOpen, setIsOpen] = useState(false)
   const refTextarea = useRef<HTMLTextAreaElement>(null)
