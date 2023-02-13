@@ -32,7 +32,7 @@ function useUserAtom() {
       }
     },
   })
-  const isLoggedIn = !_loading && !_error
+  const isLoggedIn = !_loading && !_error && !!user?.uid
 
   return [user, isLoggedIn] as const
 }
