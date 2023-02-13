@@ -12,7 +12,5 @@
     "**/.yarn": true,
     "**/.pnp.*": true
   },
-  "prettier.prettierPath": "./project/.yarn/sdks/prettier/index.js",
-  "typescript.tsdk": "./project/.yarn/sdks/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "gitlens.currentLine.enabled": false
 }
