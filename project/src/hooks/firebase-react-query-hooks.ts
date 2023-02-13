@@ -196,6 +196,7 @@ async function queryFnDoc({ queryKey }: { queryKey: string[] }) {
     )
   // process doc
   const snapshotDoc = await getDoc(refDoc)
+  if (!snapshotDoc.exists()) throw new Error('Doc does not exist.')
   return { ...snapshotDoc.data(), id: snapshotDoc.id }
 }
 
@@ -221,6 +222,8 @@ async function queryFnCollection({
   if (!refFirebaseQuery) throw Error('Malformed collection/query')
   // process query
   const snapshotQry = await getDocs(refFirebaseQuery)
+  if (snapshotQry.empty) throw new Error('Query is empty.')
+
   return snapshotQry.docs.map((doc) => {
     return { ...doc?.data(), id: doc?.id }
   })

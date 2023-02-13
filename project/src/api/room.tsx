@@ -65,6 +65,7 @@ function useCreateRoom() {
       },
     })
     await updateRoomActivitiy(roomId, 'hosted')
+    return roomId
   }
 }
 
@@ -130,11 +131,20 @@ function useQueryGetCurrentRoom() {
   return query
 }
 
-function useQueryGetRoom(roomId: string = '', isSubscribed: boolean = false) {
+function useQueryGetRoom({
+  roomId = '',
+  isSubscribed = false,
+  queryOptions,
+}: {
+  roomId?: string
+  isSubscribed?: boolean
+  queryOptions?: Parameters<typeof useQueryFirebase>[0]['queryOptions']
+}) {
   const queryKey = ['rooms', roomId]
   const query = useQueryFirebase<Room>({
     segments: queryKey,
     isSubscribed,
+    queryOptions,
   })
 
   return [query, queryKey] as const

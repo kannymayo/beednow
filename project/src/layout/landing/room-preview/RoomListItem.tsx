@@ -4,8 +4,15 @@ import { useQueryGetRoom } from '@/api/room'
 import { useRoomPreviewAtom } from '@/store/useRoomAtom'
 
 export default function RoomListItem({ roomId }: { roomId: string }) {
-  const [queryRoom] = useQueryGetRoom(roomId)
+  const [queryRoom] = useQueryGetRoom({
+    roomId,
+  })
   const [, setRoom] = useRoomPreviewAtom()
+
+  // queryFn can throw if Firestore has inconsistent data
+  if (queryRoom.isError) {
+    return <></>
+  }
 
   let roomName, hostedBy, joinedBy, createdAt, date
   if (queryRoom.isSuccess) {

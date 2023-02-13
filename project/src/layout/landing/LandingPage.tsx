@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GlobeAltIcon } from '@heroicons/react/24/outline'
 
 import { ReactComponent as Logo } from '@/assets/logo.svg'
+import { useCreateRoom, useQueryGetRoom } from '@/api/room'
 import useUserAtom from '@/store/useUserAtom'
-import { useCreateRoom } from '@/api/room'
+import { useRoomPreviewAtom } from '@/store/useRoomAtom'
 import Login from './Login'
 import Register from './Register'
 import MyRooms from './room-preview/MyRooms'
@@ -14,12 +15,22 @@ export default function EnterRoom() {
   const navigate = useNavigate()
   const [user] = useUserAtom()
   const createNewRoom = useCreateRoom()
-  const [, setCleanRoomId] = useState('')
+  const [potentialRoomId, setPotentialRoomId] = useState('')
+  const [queryRoom] = useQueryGetRoom({
+    roomId: potentialRoomId,
+  })
+  const [, setRoomPreview] = useRoomPreviewAtom()
 
   const [isFadingIn, setIsFadingIn] = useState(false)
   const [isBtnDisabled, setIsBtnDisabled] = useState(false)
   const [isAtLogin, setIsAtLogin] = useState(true)
   const [inputRoomId, setInputRoomId] = useState('')
+
+  useEffect(() => {
+    if (queryRoom.data) {
+      setRoomPreview(queryRoom.data)
+    }
+  }, [queryRoom.isSuccess, queryRoom.data])
 
   const headerSearchRoom = (
     <h1 className="mt-3 w-fit text-2xl font-semibold capitalize text-slate-900 sm:text-3xl">
@@ -127,7 +138,7 @@ export default function EnterRoom() {
 
     if (roomId.length !== 20) return
     if (!/^[a-zA-Z0-9]{20}$/.test(roomId)) return
-    setCleanRoomId(roomId)
+    setPotentialRoomId(roomId)
   }
 
   function switchLoginReg() {
@@ -140,8 +151,8 @@ export default function EnterRoom() {
     setIsBtnDisabled((prev) => !prev)
   }
 
-  function handleCreateRoom() {
-    const roomId = createNewRoom()
+  async function handleCreateRoom() {
+    const roomId = await createNewRoom()
     navigate(`/room/${roomId}`)
   }
 }

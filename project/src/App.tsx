@@ -10,10 +10,11 @@ import Home from '@/layout/Home'
 const qc = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      retry: 0,
       cacheTime: 1 * 60 * 60 * 1000,
       staleTime: 1 * 60 * 60 * 1000,
       refetchOnMount: false,
+      retryOnMount: false,
     },
   },
 })
