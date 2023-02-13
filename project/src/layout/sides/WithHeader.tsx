@@ -6,26 +6,22 @@ import {
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline'
 import { Link, useNavigate, Outlet } from 'react-router-dom'
-import { useQueryClient } from '@tanstack/react-query'
 
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { useSignOut } from '@/hooks/useToastyAuth'
-import useUserAtom from '@/store/useUserAtom'
+import { useUserAtom } from '@/store/useUserAtom'
 import { useIsSelfHosted, useQueryGetCurrentRoom } from '@/api/room'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
 
 export default function WithHeader() {
-  const roomInfo = useQueryGetCurrentRoom().data
-  const [user] = useUserAtom()
+  const [queryCurrentRoom] = useQueryGetCurrentRoom()
+  const [user, isLoggedIn] = useUserAtom()
   const [signout] = useSignOut()
+  const [isSelfHosted] = useIsSelfHosted()
   const navigate = useNavigate()
-  const qc = useQueryClient()
 
-  // use loader and react query for this
-  const isLogin = !!user.uid
-  const isSelfHosted = useIsSelfHosted()
-
+  const { data: roomInfo } = queryCurrentRoom
   useUpdateTitle(roomInfo?.name || '')
 
   const avatar = (
@@ -105,7 +101,7 @@ export default function WithHeader() {
     </label>
   )
 
-  const logInOrOutBtn = isLogin ? logoutBtn : null
+  const logInOrOutBtn = isLoggedIn ? logoutBtn : null
   const navItems = (
     <nav className="flex h-full flex-wrap items-center justify-center gap-1 px-4 text-base md:ml-auto">
       {isSelfHosted ? (

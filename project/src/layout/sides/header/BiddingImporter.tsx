@@ -7,10 +7,45 @@ import produce from 'immer'
 import { useQueryItemDetailsMultiple, ItemFromAPI } from '@/api/item-details'
 import { readGeneralExport } from '@/utils/read-export'
 import { useAddItem } from '@/api/bidding'
-
 import ImportableItemGroup from './importableItemGroup'
 
-export default function ImportModal() {
+interface IOCGroupedAction {
+  type: 'toggle-single' | 'toggle-group' | 'sync'
+  payload: {
+    id?: number
+    seq?: number
+    IOCs?: ItemOccurrencesMapped
+  }
+}
+interface CommonFields {
+  _count: number
+  details?: ItemFromAPI
+  qry?: {
+    isLoading: boolean
+    isError: boolean
+    isSuccess: boolean
+  }
+  _processingFlags?: {
+    isMatchError?: boolean
+  }
+  formState?: {
+    selected: boolean
+  }
+}
+
+interface ItemOccurrencesMapped {
+  [idSeq: string]: CommonFields
+}
+
+interface ItemOccurrence extends CommonFields {
+  _idSeq: string
+}
+
+interface ItemOccurrencesGrouped {
+  [id: number]: ItemOccurrence[]
+}
+
+function ImportModal() {
   const addItem = useAddItem()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -351,38 +386,6 @@ function iocGroupedReducer(
     }
   })
 }
-export interface IOCGroupedAction {
-  type: 'toggle-single' | 'toggle-group' | 'sync'
-  payload: {
-    id?: number
-    seq?: number
-    IOCs?: ItemOccurrencesMapped
-  }
-}
-interface CommonFields {
-  _count: number
-  details?: ItemFromAPI
-  qry?: {
-    isLoading: boolean
-    isError: boolean
-    isSuccess: boolean
-  }
-  _processingFlags?: {
-    isMatchError?: boolean
-  }
-  formState?: {
-    selected: boolean
-  }
-}
 
-interface ItemOccurrencesMapped {
-  [idSeq: string]: CommonFields
-}
-
-export interface ItemOccurrence extends CommonFields {
-  _idSeq: string
-}
-
-export interface ItemOccurrencesGrouped {
-  [id: number]: ItemOccurrence[]
-}
+export default ImportModal
+export type { IOCGroupedAction, ItemOccurrence, ItemOccurrencesGrouped }

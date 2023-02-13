@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-export default function useSignalScrolledTooDeep() {
+function useSignalScrolledTooDeep() {
   const [scrolledTooDeep, setScrolledTooDeep] = useState<Boolean>(false)
   const refScrollingContainer = useRef<HTMLDivElement>(null)
 
@@ -29,3 +29,5 @@ export default function useSignalScrolledTooDeep() {
 
   return [scrolledTooDeep, refScrollingContainer, scrollToTop] as const
 }
+
+export { useSignalScrolledTooDeep }

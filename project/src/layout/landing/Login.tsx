@@ -7,7 +7,7 @@ import {
   useSignInWithGoogle,
 } from '@/hooks/useToastyAuth'
 import { useRedirectOnValidUser } from '@/hooks/navigateUX'
-import useUserAtom from '@/store/useUserAtom'
+import { useUserAtom } from '@/store/useUserAtom'
 
 export default function LoginPage({
   children,
@@ -23,8 +23,7 @@ export default function LoginPage({
   const [user] = useUserAtom()
   const [signInWithEmail] = useSignInWithEmailAndPassword()
   const [signInWithGoogle] = useSignInWithGoogle()
-
-  const redirUrl = useRedirectOnValidUser(user)
+  const [redirUrl] = useRedirectOnValidUser(user)
 
   const loginBanner = (
     <h1 className="mt-3 text-2xl font-semibold capitalize text-slate-900 sm:text-3xl">

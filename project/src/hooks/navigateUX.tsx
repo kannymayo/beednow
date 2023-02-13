@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { toast as toastForTyping } from 'react-toastify'
 
-import debouncedToast from '@/utils/debouncedToast'
-import useUserAtom, { UnifiedUser } from '@/store/useUserAtom'
+import { debouncedToast } from '@/utils/debouncedToast'
+import { useUserAtom, UnifiedUser } from '@/store/useUserAtom'
 
 function useRedirectOnValidUser(_user: UnifiedUser) {
   const navigate = useNavigate()
@@ -19,18 +19,18 @@ function useRedirectOnValidUser(_user: UnifiedUser) {
     }
   }, [_user])
 
-  return redirUrl
+  return [redirUrl]
 }
 
 function useNavigateWithBackLinkAndToast(
   toastArgs?: Parameters<typeof toastForTyping>
 ) {
-  const [user] = useUserAtom()
+  const [user, isLoggedIn] = useUserAtom()
   const location = useLocation()
   let shouldIntercept = false
   let interceptedComponent = null
 
-  if (!user.uid) {
+  if (!isLoggedIn) {
     shouldIntercept = true
     interceptedComponent = (
       <Navigate to="/" state={{ redirUrl: location.pathname }} replace={true} />

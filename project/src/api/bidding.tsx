@@ -7,7 +7,7 @@ import { upcreateFirebaseDocWithAutoId } from './helper/firebase-CRUD-throwable'
 
 function useAddItem() {
   const [roomId] = useRoomIdAtom()
-  return addItem
+  return [addItem]
 
   async function addItem(item: { details: ItemFromAPI; [any: string]: any }) {
     return await upcreateFirebaseDocWithAutoId({
@@ -21,10 +21,11 @@ function useAddItem() {
 }
 
 function useQueryGetBiddings(roomId: string | undefined) {
-  return useQueryFirebase<Bidding[]>({
+  const query = useQueryFirebase<Bidding[]>({
     segments: ['rooms', roomId, 'biddings'],
     isSubscribed: true,
   })
+  return [query]
 }
 
 interface Bidding {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export default function useForm<Type>(
+function useForm<Type>(
   initialValues: Type
 ): [Type, (event: React.ChangeEvent<HTMLInputElement>) => void] {
   const [values, setV] = useState(initialValues)
@@ -15,3 +15,5 @@ export default function useForm<Type>(
     },
   ]
 }
+
+export { useForm }

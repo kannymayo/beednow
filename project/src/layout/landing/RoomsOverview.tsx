@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { useState } from 'react'
 
-import useUserAtom from '@/store/useUserAtom'
+import { useUserAtom } from '@/store/useUserAtom'
 import { useQueryGetRoomActivities } from '@/api/room'
 import RoomListItem from './room-preview/RoomListItem'
 

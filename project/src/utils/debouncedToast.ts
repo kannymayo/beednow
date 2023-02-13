@@ -23,4 +23,4 @@ function shouldMute(identifier: string, duration = 300) {
   return _isSpamming
 }
 
-export default debouncedToast
+export { debouncedToast }

@@ -4,7 +4,7 @@ import { GlobeAltIcon } from '@heroicons/react/24/outline'
 
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { useCreateRoom, useQueryGetRoom } from '@/api/room'
-import useUserAtom from '@/store/useUserAtom'
+import { useUserAtom } from '@/store/useUserAtom'
 import { useRoomPreviewAtom } from '@/store/useRoomAtom'
 import Login from './landing/Login'
 import Register from './landing/Register'
@@ -14,7 +14,7 @@ import RoomPreview from './landing/RoomPreview'
 export default function EnterRoom() {
   const navigate = useNavigate()
   const [user] = useUserAtom()
-  const createNewRoom = useCreateRoom()
+  const [createNewRoom] = useCreateRoom()
   const [potentialRoomId, setPotentialRoomId] = useState('')
   const [queryRoom] = useQueryGetRoom({
     roomId: potentialRoomId,

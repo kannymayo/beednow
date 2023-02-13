@@ -1,6 +1,6 @@
 import { serverTimestamp } from 'firebase/firestore'
 
-import useUserAtom from '@/store/useUserAtom'
+import { useUserAtom } from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { getRandomName } from '@/utils/random-name'
@@ -53,7 +53,7 @@ function useQueryGetRoomActivities({
 function useCreateRoom() {
   const [user] = useUserAtom()
   const [updateRoomActivitiy] = useUpdateRoomAcvitity()
-  return create
+  return [create]
 
   async function create() {
     const roomId = await upcreateFirebaseDocWithAutoId({
@@ -70,30 +70,31 @@ function useCreateRoom() {
 }
 
 function useJoinRoom() {
-  const [user] = useUserAtom()
+  const [user, isLoggedIn] = useUserAtom()
   const [updateRoomAcvitity] = useUpdateRoomAcvitity()
   return [joinRoom]
 
   async function joinRoom(roomId: string | undefined) {
     // retrieve room info
-    if (!user.uid) throw Error('No logged-in user yet.')
+    if (!isLoggedIn) throw Error('No logged-in user yet.')
     const room = await getFirebaseDoc<Room>({
       segments: ['rooms', roomId],
     })
     if (!room) throw Error('The room does not exist.')
 
     // add user to room if not already in
-    if (!room?.joinedBy?.includes(user.uid)) {
+    const uid = user.uid as string // undefined causes error earlier
+    if (!room?.joinedBy?.includes(uid)) {
       await upcreateFirebaseDoc({
         segments: ['rooms', roomId],
         data: {
-          joinedBy: [...(room.joinedBy || []), user.uid],
+          joinedBy: [...(room.joinedBy || []), uid],
         },
       })
     }
 
     // update user's own record of room activity
-    if (room?.hostedBy === user.uid) {
+    if (room?.hostedBy === uid) {
       return await updateRoomAcvitity(roomId, 'hosted')
     } else {
       return await updateRoomAcvitity(roomId, 'joined')
@@ -128,7 +129,7 @@ function useQueryGetCurrentRoom() {
     segments: ['rooms', roomId],
     isSubscribed: true,
   })
-  return query
+  return [query]
 }
 
 function useQueryGetRoom({
@@ -151,11 +152,12 @@ function useQueryGetRoom({
 }
 
 function useIsSelfHosted() {
-  const [user] = useUserAtom()
-  const room = useQueryGetCurrentRoom()?.data
-  if (!user.uid || !room) return false
+  const [user, isLoggedIn] = useUserAtom()
+  const [query] = useQueryGetCurrentRoom()
+  const room = query?.data
+  if (!isLoggedIn || !room) return [false]
 
-  return room?.hostedBy === user?.uid
+  return [room?.hostedBy === user?.uid]
 }
 
 export {

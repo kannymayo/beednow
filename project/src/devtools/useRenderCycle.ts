@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 
-export default function useRenderCycle(name?: string) {
+function useRenderCycle(name?: string) {
   const refRenderCount = useRef(0)
   const nameSegment = name ? `[${name}]` : ''
 
@@ -9,3 +9,5 @@ export default function useRenderCycle(name?: string) {
   })
   console.log(`[render ${refRenderCount.current}]${nameSegment} `)
 }
+
+export { useRenderCycle }

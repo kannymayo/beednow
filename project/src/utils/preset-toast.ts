@@ -1,4 +1,4 @@
-import debouncedToast from './debouncedToast'
+import { debouncedToast } from './debouncedToast'
 
 // a preset toast for error messages (auth for now)
 function errorToast(

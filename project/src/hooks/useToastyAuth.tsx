@@ -6,7 +6,7 @@ import {
   useSignOut as useSignOutRaw,
 } from 'react-firebase-hooks/auth'
 
-import debouncedToast from '@/utils/debouncedToast'
+import { debouncedToast } from '@/utils/debouncedToast'
 import { errorToast } from '@/utils/preset-toast'
 import { auth } from '@/api/firebase'
 
