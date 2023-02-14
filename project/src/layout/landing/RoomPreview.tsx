@@ -62,7 +62,7 @@ export default function RoomPreview() {
         <div>{`Host: ${hostedBy}`}</div>
         <div>{`Attendees: ${joinedBy?.length}`}</div>
         {/* Badges for details biddings */}
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
           <div className="badge badge-info badge-lg h-8 gap-1 drop-shadow-lg">
             <ShoppingCartIcon className="h-5 w-5" />
             {`biddings: ${dataBiddings?.length}`}
@@ -73,7 +73,7 @@ export default function RoomPreview() {
           </div>
         </div>
         {/* Buttons for joining or deleting */}
-        <div className="card-actions items-center justify-between">
+        <div className="card-actions flex-wrap items-center justify-between">
           {isHostedByMe && (
             <RequiresConfirmByModal
               title="Confirm Delete"

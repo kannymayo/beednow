@@ -7,29 +7,31 @@ import { Link, Outlet } from 'react-router-dom'
 
 import { useParams } from 'react-router-dom'
 import { ReactComponent as Logo } from '@/assets/logo.svg'
-import { useIsSelfHosted, useQueryGetCurrentRoom } from '@/api/room'
+import { useUserAtomMaster } from '@/store/useUserAtom'
+import { useQueryGetCurrentRoom } from '@/api/room'
 import { useIsRoomHostAtom, useRoomIdAtom } from '@/store/useRoomAtom'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
 import CurrentUser from './user/CurrentUser'
 
 export default function WithHeader() {
-  const param = useParams()
-  const [queryCurrentRoom] = useQueryGetCurrentRoom()
-  const [, setRoomId] = useRoomIdAtom({ resetOnUnmount: true })
-  const [, setIsRoomHost] = useIsRoomHostAtom({ resetOnUnmount: true })
-  const [isSelfHosted] = useIsSelfHosted()
-
   // update title for better bookmarking
+  const [queryCurrentRoom] = useQueryGetCurrentRoom()
   const roomInfo = queryCurrentRoom.data
   useUpdateTitle(roomInfo?.name || '')
 
-  // sync server state to Atom
+  // sync isRoomHost to Atom
+  const [user] = useUserAtomMaster()
+  const [isRoomHost, setIsRoomHost] = useIsRoomHostAtom({
+    resetOnUnmount: true,
+  })
   useEffect(() => {
-    setIsRoomHost(isSelfHosted)
-  }, [isSelfHosted])
+    setIsRoomHost(user.uid === roomInfo?.hostedBy)
+  }, [roomInfo?.hostedBy])
 
   // sync roomIdd in url to Atom
+  const param = useParams()
+  const [, setRoomId] = useRoomIdAtom({ resetOnUnmount: true })
   useEffect(() => {
     setRoomId(param.roomId || '')
     return () => {
@@ -69,7 +71,7 @@ export default function WithHeader() {
 
   const navItems = (
     <nav className="flex h-full flex-wrap items-center justify-center gap-1 px-4 text-base md:ml-auto">
-      {isSelfHosted ? (
+      {isRoomHost ? (
         <>
           {btnForImportModal}
           {btnForFinishedModal}
@@ -81,7 +83,7 @@ export default function WithHeader() {
 
   const header = (
     <>
-      {isSelfHosted ? (
+      {isRoomHost ? (
         <>
           <ImportModal />
           <BiddingsFinishedModal />

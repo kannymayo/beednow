@@ -15,10 +15,6 @@ export default function EnterRoom() {
   const navigate = useNavigate()
   const [user] = useUserAtom()
   const [createNewRoom] = useCreateRoom()
-  const [potentialRoomId, setPotentialRoomId] = useState('')
-  const [queryRoom] = useQueryGetRoom({
-    roomId: potentialRoomId,
-  })
   const [, setRoomPreview] = useRoomPreviewAtom()
 
   const [isFadingIn, setIsFadingIn] = useState(false)
@@ -26,6 +22,11 @@ export default function EnterRoom() {
   const [isAtLogin, setIsAtLogin] = useState(true)
   const [inputRoomId, setInputRoomId] = useState('')
 
+  // query room and set it for preview, when search box has a likely room id
+  const [potentialRoomId, setPotentialRoomId] = useState('')
+  const [queryRoom] = useQueryGetRoom({
+    roomId: potentialRoomId,
+  })
   useEffect(() => {
     if (queryRoom.data) {
       setRoomPreview(queryRoom.data)

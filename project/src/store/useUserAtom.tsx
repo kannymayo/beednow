@@ -16,7 +16,7 @@ interface UnifiedUser {
 const userAtom = atomWithStorage<UnifiedUser>('user', {})
 const iconFallback = 'https://cdn-icons-png.flaticon.com/512/3940/3940403.png'
 
-function useUserAtom() {
+function useUserAtomMaster() {
   const [user, setUser] = useAtom(userAtom)
   const [_user, _loading, _error] = useAuthState(auth, {
     onUserChanged: async (user) => {
@@ -42,5 +42,11 @@ function useUserAtom() {
   return [user, isLoggedIn] as const
 }
 
+function useUserAtom() {
+  const [user] = useAtom(userAtom)
+  const isLoggedIn = !!user?.uid
+  return [user, isLoggedIn] as const
+}
+
 export type { UnifiedUser }
-export { useUserAtom }
+export { useUserAtom, useUserAtomMaster }
