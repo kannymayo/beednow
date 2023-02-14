@@ -221,6 +221,7 @@ async function queryFnCollection({
   }
   if (!refFirebaseQuery) throw Error('Malformed collection/query')
   // process query
+  // actually query is always empty upon room creation, need to avoid?
   const snapshotQry = await getDocs(refFirebaseQuery)
   if (snapshotQry.empty) throw new Error('Query is empty.')
 

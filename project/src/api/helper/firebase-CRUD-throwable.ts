@@ -96,7 +96,6 @@ async function deleteFirebaseDoc({
   segments,
 }: {
   segments: (string | undefined)[]
-  data: { [any: string]: any }
 }) {
   if (segments.some(isVoid)) throw new Error('Invalid path')
   const _segments = segments as string[]

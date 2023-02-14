@@ -1,33 +1,43 @@
+import clsx from 'clsx'
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 import { useQueryGetRoom } from '@/api/room'
 import { useRoomPreviewAtom } from '@/store/useRoomAtom'
+import { calRelativeDate } from '@/utils/calc-relative-date'
 
 export default function RoomListItem({ roomId }: { roomId: string }) {
   const [queryRoom] = useQueryGetRoom({
     roomId,
   })
-  const [, setRoom] = useRoomPreviewAtom()
+  const [roomUnderPreview, setRoomUnderPreview] = useRoomPreviewAtom()
+  const isUnderPreview = roomUnderPreview?.id === roomId
 
   // queryFn can throw if Firestore has inconsistent data
   if (queryRoom.isError) {
     return <></>
   }
 
-  let roomName, hostedBy, joinedBy, createdAt, date
+  let roomName, hostedBy, joinedBy, date, seconds, strRelativeDate
   if (queryRoom.isSuccess) {
-    let {
+    ;({
       name: roomName,
       id: roomId,
       hostedBy,
       joinedBy,
       createdAt: { seconds },
-    } = queryRoom.data
+    } = queryRoom.data)
     date = new Date(seconds * 1000).toLocaleDateString()
+    strRelativeDate = calRelativeDate(new Date(seconds * 1000), new Date())
   }
 
+  const clsList = clsx(
+    {
+      'border-l-indigo-500 border-l-4 p-1': isUnderPreview,
+    },
+    'group relative grid transform-none select-none items-center gap-2 bg-slate-200 p-1 pl-3 transition-all last:border-b-0 hover:bg-slate-300 active:opacity-75 my-1 pb-2 cursor-pointer'
+  )
   return (
-    <div className="group relative grid transform-none select-none items-center gap-2 border-b-2 p-1 pl-3 first:rounded-t-md hover:bg-slate-200 active:opacity-75">
+    <div onClick={setForPreview} className={clsList}>
       {queryRoom.isLoading ? (
         <div className="flex h-12 w-full items-center justify-center">
           <div className="spinner" />
@@ -35,21 +45,18 @@ export default function RoomListItem({ roomId }: { roomId: string }) {
       ) : (
         <>
           <div className="font-bold">{queryRoom?.data?.name}</div>
-          <div className="tracking-tight">{`Created: ${date}`}</div>
-          <button
-            onClick={handleView}
-            className="btn btn-success btn-sm btn-outline invisible absolute right-2 border-2 group-hover:visible"
-          >
-            View <DocumentMagnifyingGlassIcon className="ml-2 h-6 w-6" />
-          </button>
+          <div className="badge badge-info tracking-tight">
+            {strRelativeDate}
+          </div>
+          <DocumentMagnifyingGlassIcon className="text-primary invisible absolute right-2 ml-2 h-7 w-7 capitalize group-hover:visible" />
         </>
       )}
     </div>
   )
 
-  async function handleView() {
+  async function setForPreview() {
     if (queryRoom.isSuccess) {
-      setRoom(queryRoom.data)
+      setRoomUnderPreview(queryRoom.data)
     }
   }
 }

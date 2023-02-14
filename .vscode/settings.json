@@ -12,5 +12,6 @@
     "**/.yarn": true,
     "**/.pnp.*": true
   },
-  "gitlens.currentLine.enabled": false
+  "gitlens.currentLine.enabled": false,
+  "tailwindCSS.emmetCompletions": true
 }

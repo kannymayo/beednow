@@ -10,6 +10,7 @@ import { Link, useNavigate, Outlet } from 'react-router-dom'
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { useSignOut } from '@/hooks/useToastyAuth'
 import { useUserAtom } from '@/store/useUserAtom'
+import { useRoomPreviewAtom } from '@/store/useRoomAtom'
 import { useIsSelfHosted, useQueryGetCurrentRoom } from '@/api/room'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
@@ -18,6 +19,7 @@ export default function WithHeader() {
   const [queryCurrentRoom] = useQueryGetCurrentRoom()
   const [user, isLoggedIn] = useUserAtom()
   const [signout] = useSignOut()
+  const [, setRoomPreview] = useRoomPreviewAtom()
   const [isSelfHosted] = useIsSelfHosted()
   const navigate = useNavigate()
 
@@ -143,6 +145,7 @@ export default function WithHeader() {
 
   async function handleSignout() {
     await signout()
+    setRoomPreview(null)
     navigate('/')
   }
 

@@ -39,16 +39,22 @@ export default function EnterRoom() {
   )
 
   const formSearchRoom = (
-    <div className="input-group mt-6 flex items-center">
+    <div className="mt-6 flex items-center">
       <input
         size={6}
         type="text"
         placeholder="Room ID"
-        className="input input-bordered flex-1 px-10"
+        className="input input-bordered flex-1 border-2 px-10"
         value={inputRoomId}
         onChange={handleChangeRoomId}
       />
       <GlobeAltIcon className="absolute mx-2 block h-6 w-6" />
+    </div>
+  )
+
+  const resultSearchRoom = (
+    <div className="my-4 flex-1 rounded-lg border-2 bg-white">
+      <RoomPreview />
     </div>
   )
 
@@ -96,14 +102,8 @@ export default function EnterRoom() {
     </Login>
   )
 
-  const resultSearchRoom = (
-    <div className="my-4 flex-1 rounded-lg border-2 bg-white">
-      <RoomPreview />
-    </div>
-  )
-
   const _RETURN = (
-    <div className="flex items-stretch justify-center bg-slate-50 px-24 py-24  2xl:px-72">
+    <div className="flex items-stretch justify-center bg-slate-50 px-24 py-10  2xl:px-72">
       {/* Enter Room */}
       <section className="flex-1 basis-1">
         <div className="mx-auto flex h-full w-full max-w-md flex-col justify-between gap-2 px-6">

@@ -31,7 +31,7 @@ export default function MyRooms() {
     'tab flex-1 tab-bordered'
   )
   const tabRoomsCategories = (
-    <div className="tabs  flex">
+    <div className="tabs flex">
       <a onClick={handleTabClick} className={tabHostedCls}>
         Hosted
       </a>

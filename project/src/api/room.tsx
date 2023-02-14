@@ -1,4 +1,5 @@
 import { serverTimestamp } from 'firebase/firestore'
+import { useMutation, MutationOptions } from '@tanstack/react-query'
 
 import { useUserAtom } from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
@@ -8,7 +9,9 @@ import {
   upcreateFirebaseDoc,
   upcreateFirebaseDocWithAutoId,
   getFirebaseDoc,
+  deleteFirebaseDoc,
 } from './helper/firebase-CRUD-throwable'
+import { debouncedToast } from '@/utils/debouncedToast'
 
 interface FirebaseServerTimestamp {
   seconds: number
@@ -52,7 +55,7 @@ function useQueryGetRoomActivities({
 
 function useCreateRoom() {
   const [user] = useUserAtom()
-  const [updateRoomActivitiy] = useUpdateRoomAcvitity()
+  const [joinRoom] = useJoinRoom()
   return [create]
 
   async function create() {
@@ -64,7 +67,8 @@ function useCreateRoom() {
         createdAt: serverTimestamp(),
       },
     })
-    await updateRoomActivitiy(roomId, 'hosted')
+    await joinRoom(roomId)
+    debouncedToast('Room created.', { type: 'success' })
     return roomId
   }
 }
@@ -99,6 +103,36 @@ function useJoinRoom() {
     } else {
       return await updateRoomAcvitity(roomId, 'joined')
     }
+  }
+}
+
+function useMutationDeleteRoom() {
+  const [user] = useUserAtom()
+  const mutation = useMutation({
+    mutationFn: deleteRoom,
+    onError: (err) => {
+      const error = err as Error
+      debouncedToast(error.message, { type: 'error' })
+    },
+    onSuccess: () => {
+      debouncedToast('Room deleted.', { type: 'success' })
+    },
+  })
+  return [mutation]
+
+  async function deleteRoom(roomId: string) {
+    // delete room
+    await deleteFirebaseDoc({
+      segments: ['rooms', roomId],
+    })
+
+    // delete user's room activity
+    await deleteFirebaseDoc({
+      segments: ['users', user.uid, 'roomActivities', roomId],
+    })
+
+    // should delete all subcollections manually, like
+    // biddings, offers and chats LOL
   }
 }
 
@@ -151,19 +185,26 @@ function useQueryGetRoom({
   return [query, queryKey] as const
 }
 
-function useIsSelfHosted() {
+function useIsSelfHosted(uidRoomHost?: string) {
   const [user, isLoggedIn] = useUserAtom()
   const [query] = useQueryGetCurrentRoom()
   const room = query?.data
-  if (!isLoggedIn || !room) return [false]
-
-  return [room?.hostedBy === user?.uid]
+  // if uidRoomHost is not provided, check if the host of current room
+  // is the same as the logged-in user
+  if (!uidRoomHost) {
+    if (!isLoggedIn || !room) return [false]
+    return [room?.hostedBy === user?.uid]
+  } else {
+    if (!isLoggedIn) return [false]
+    return [uidRoomHost === user?.uid]
+  }
 }
 
 export {
   useCreateRoom,
   useUpdateRoomAcvitity,
   useJoinRoom,
+  useMutationDeleteRoom,
   useIsSelfHosted,
   useQueryGetRoom,
   useQueryGetRoomActivities,
