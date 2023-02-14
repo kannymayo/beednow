@@ -1,5 +1,5 @@
 import { serverTimestamp } from 'firebase/firestore'
-import { useMutation, MutationOptions } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 
 import { useUserAtom } from '@/store/useUserAtom'
 import { useRoomIdAtom } from '@/store/useRoomAtom'

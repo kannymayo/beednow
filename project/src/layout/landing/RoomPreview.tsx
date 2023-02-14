@@ -25,9 +25,12 @@ export default function RoomPreview() {
   const [{ mutateAsync: mutateAsyncDeleteRoom }] = useMutationDeleteRoom()
   const [isPreviewDiabled, setIsPreviewDisabled] = useState(false)
 
-  // early return when no room is under preview
-  const { data: biddings } = queryBiddings
-  if (!roomUnderPreview) {
+  // retrieve biddings info
+  const { data: dataBiddings, isLoading: isLoadingBiddings } = queryBiddings
+
+  // early return when no room is under preview, or biddings info is loading
+  // prevents flashing of empty room preview
+  if (!roomUnderPreview || isLoadingBiddings) {
     return <></>
   }
 
@@ -55,16 +58,18 @@ export default function RoomPreview() {
         <div>{`Id: ${roomId}`}</div>
         <div>{`Host: ${hostedBy}`}</div>
         <div>{`Attendees: ${joinedBy?.length}`}</div>
+        {/* Badges for details biddings */}
         <div className="flex justify-end gap-2">
           <div className="badge badge-info badge-lg h-8 gap-1 drop-shadow-lg">
             <ShoppingCartIcon className="h-5 w-5" />
-            {`biddings: ${biddings?.length}`}
+            {`biddings: ${dataBiddings?.length}`}
           </div>
           <div className="badge badge-info badge-lg h-8 gap-1 drop-shadow-lg">
             <CalendarDaysIcon className="h-5 w-5" />
             {strRelativeDate}
           </div>
         </div>
+        {/* Buttons for joining or deleting */}
         <div className="card-actions items-center justify-end">
           {isSelfHosted && (
             <button

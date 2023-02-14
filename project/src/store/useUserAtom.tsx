@@ -24,8 +24,13 @@ function useUserAtom() {
         const uid = user?.uid
         const photoURL = user?.photoURL || iconFallback
         const displayName = user?.displayName || user?.email || 'Anonymous'
-        const provider =
-          user?.providerId === 'firebase' ? 'email' : user?.providerId
+        const providerId = user?.providerData?.[0].providerId
+        let provider = 'Email'
+        switch (providerId) {
+          case 'google.com':
+            provider = 'Google'
+            break
+        }
         setUser({ photoURL, displayName, provider, uid })
       } else {
         setUser({})
