@@ -13,6 +13,7 @@ import { useQueryGetBiddings } from '@/api/bidding'
 import { useRoomPreviewAtom } from '@/store/useRoomAtom'
 import { debouncedToast } from '@/utils/debouncedToast'
 import { calRelativeDate } from '@/utils/calc-relative-date'
+import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'
 
 export default function RoomPreview() {
   const navigate = useNavigate()
@@ -72,13 +73,15 @@ export default function RoomPreview() {
         {/* Buttons for joining or deleting */}
         <div className="card-actions items-center justify-end">
           {isSelfHosted && (
-            <button
-              onClick={handleDelete}
-              className="btn btn-error btn-outline btn-sm gap-2 border-2 shadow-md"
+            <RequiresConfirmByModal
+              title="Confirm Delete"
+              body="Are you sure you want to delete this room?"
+              onConfirm={handleDelete}
             >
-              Delete
-              <TrashIcon className="h-6 w-6" />
-            </button>
+              <div className="btn btn-error btn-outline btn-sm gap-2 border-2 shadow-md">
+                Delete <TrashIcon className="h-6 w-6" />
+              </div>
+            </RequiresConfirmByModal>
           )}
           <button
             onClick={handleJoin}
