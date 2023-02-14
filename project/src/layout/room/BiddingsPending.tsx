@@ -5,6 +5,7 @@ import { useForm } from '@/hooks/form'
 import { useSignalScrolledTooDeep } from '@/hooks/useSignalScrolledTooDeep'
 import { useQueryGetBiddings, Bidding } from '@/api/bidding'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
+import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
 import BiddingItem from './common/BiddingItem'
 
 export default function BiddingsPending() {
@@ -19,7 +20,6 @@ export default function BiddingsPending() {
   const displayedItems = useMemo(() => {
     return filterAndSortItems(biddings, formValues.searchPhrase)
   }, [formValues.searchPhrase, biddings])
-
   return (
     <div
       ref={refScrollingContainer}
@@ -73,12 +73,17 @@ export default function BiddingsPending() {
     searchPhrase: string
   ) {
     if (!items) return []
-    if (!searchPhrase) return items
-    const filteredItems = items.filter((item) =>
-      item.details.name
-        .toLowerCase()
-        .includes(searchPhrase.toLowerCase().trim())
+    let filteredItems = items
+    if (searchPhrase) {
+      filteredItems = items.filter((item) =>
+        item.details.name
+          .toLowerCase()
+          .includes(searchPhrase.toLowerCase().trim())
+      )
+    }
+    const sortedItems = filteredItems.sort(
+      factoryCompareNewerfirst(['createdAt', 'seconds'])
     )
-    return filteredItems
+    return sortedItems
   }
 }
