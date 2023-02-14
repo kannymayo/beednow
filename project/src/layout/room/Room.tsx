@@ -1,7 +1,3 @@
-import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-
-import { useRoomIdAtom } from '@/store/useRoomAtom'
 import BiddingsPending from './BiddingsPending'
 import BiddingsWatchlist from './BiddingsWatchlist'
 import BidAction from './BidAction'
@@ -10,16 +6,6 @@ import BidHistory from './BidHistory'
 import BidItem from './BidItem'
 
 export default function Room() {
-  const param = useParams()
-  const [, setRoomId] = useRoomIdAtom()
-
-  useEffect(() => {
-    setRoomId(param.roomId || '')
-    return () => {
-      setRoomId('')
-    }
-  }, [])
-
   return (
     <div className=" 4xl:px-96 grid-cols-3-1list-2details grid-rows-3-2details-1list grid 2xl:px-48">
       <div className="col-span-1 row-span-3">

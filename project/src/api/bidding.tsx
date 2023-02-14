@@ -1,9 +1,13 @@
+import { useMutation } from '@tanstack/react-query'
 import { serverTimestamp } from 'firebase/firestore'
 
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { ItemFromAPI } from '@/api/item-details'
-import { upcreateFirebaseDocWithAutoId } from './helper/firebase-CRUD-throwable'
+import {
+  upcreateFirebaseDocWithAutoId,
+  deleteFirebaseDoc,
+} from './helper/firebase-CRUD-throwable'
 
 function useAddItem() {
   const [roomId] = useRoomIdAtom()
@@ -16,6 +20,21 @@ function useAddItem() {
         ...item,
         createdAt: serverTimestamp(),
       },
+    })
+  }
+}
+
+function useMutationDeleteItem() {
+  const [roomId] = useRoomIdAtom()
+  const mutation = useMutation({
+    mutationFn: deleteItem,
+  })
+
+  return [mutation]
+
+  async function deleteItem(biddingId: string) {
+    return await deleteFirebaseDoc({
+      segments: ['rooms', roomId, 'biddings', biddingId],
     })
   }
 }
@@ -37,5 +56,5 @@ interface Bidding {
   details: ItemFromAPI
 }
 
-export { useAddItem, useQueryGetBiddings }
+export { useAddItem, useQueryGetBiddings, useMutationDeleteItem }
 export type { Bidding }

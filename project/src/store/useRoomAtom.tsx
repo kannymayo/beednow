@@ -1,11 +1,25 @@
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
 import { useAtom, atom } from 'jotai'
 
 import { Room } from '@/api/room'
 
 const roomIdAtom = atom<string>('')
 const roomPreviewAtom = atom<Room | null>(null)
+const isRoomHostAtom = atom<boolean>(false)
+
+function useIsRoomHostAtom({ resetOnUnmount = false } = {}) {
+  const [isRoomHost, setIsRoomHost] = useAtom(isRoomHostAtom)
+
+  useEffect(() => {
+    if (resetOnUnmount) {
+      return () => {
+        setIsRoomHost(false)
+      }
+    }
+  }, [])
+
+  return [isRoomHost, setIsRoomHost] as const
+}
 
 function useRoomPreviewAtom({
   resetOnUnmount = false,
@@ -37,4 +51,4 @@ function useRoomIdAtom({
   return [roomId, setRoomId] as const
 }
 
-export { useRoomIdAtom, useRoomPreviewAtom }
+export { useRoomIdAtom, useRoomPreviewAtom, useIsRoomHostAtom }

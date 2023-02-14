@@ -3,21 +3,39 @@ import {
   ArrowDownTrayIcon,
   DocumentCheckIcon,
 } from '@heroicons/react/24/outline'
-import { Link, useNavigate, Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 
+import { useParams } from 'react-router-dom'
 import { ReactComponent as Logo } from '@/assets/logo.svg'
-import { useUserAtom } from '@/store/useUserAtom'
 import { useIsSelfHosted, useQueryGetCurrentRoom } from '@/api/room'
+import { useIsRoomHostAtom, useRoomIdAtom } from '@/store/useRoomAtom'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
 import CurrentUser from './user/CurrentUser'
 
 export default function WithHeader() {
+  const param = useParams()
   const [queryCurrentRoom] = useQueryGetCurrentRoom()
+  const [, setRoomId] = useRoomIdAtom({ resetOnUnmount: true })
+  const [, setIsRoomHost] = useIsRoomHostAtom({ resetOnUnmount: true })
   const [isSelfHosted] = useIsSelfHosted()
 
-  const { data: roomInfo } = queryCurrentRoom
+  // update title for better bookmarking
+  const roomInfo = queryCurrentRoom.data
   useUpdateTitle(roomInfo?.name || '')
+
+  // sync server state to Atom
+  useEffect(() => {
+    setIsRoomHost(isSelfHosted)
+  }, [isSelfHosted])
+
+  // sync roomIdd in url to Atom
+  useEffect(() => {
+    setRoomId(param.roomId || '')
+    return () => {
+      setRoomId('')
+    }
+  }, [param])
 
   const logoLink = (
     <Link

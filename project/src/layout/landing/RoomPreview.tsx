@@ -8,9 +8,10 @@ import {
   ShoppingCartIcon,
 } from '@heroicons/react/24/outline'
 
-import { useJoinRoom, useIsSelfHosted, useMutationDeleteRoom } from '@/api/room'
+import { useJoinRoom, useMutationDeleteRoom } from '@/api/room'
 import { useQueryGetBiddings } from '@/api/bidding'
 import { useRoomPreviewAtom } from '@/store/useRoomAtom'
+import { useUserAtom } from '@/store/useUserAtom'
 import { debouncedToast } from '@/utils/debouncedToast'
 import { calRelativeDate } from '@/utils/calc-relative-date'
 import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'
@@ -21,11 +22,12 @@ export default function RoomPreview() {
   const [roomUnderPreview, setRoomUnderPreview] = useRoomPreviewAtom({
     resetOnUnmount: true,
   })
-  const [isSelfHosted] = useIsSelfHosted(roomUnderPreview?.hostedBy)
+  const [user] = useUserAtom()
   const [queryBiddings] = useQueryGetBiddings(roomUnderPreview?.id)
   const [{ mutateAsync: mutateAsyncDeleteRoom }] = useMutationDeleteRoom()
   const [isPreviewDiabled, setIsPreviewDisabled] = useState(false)
 
+  const isHostedByMe = roomUnderPreview?.hostedBy === user?.uid
   // retrieve biddings info
   const { data: dataBiddings, isLoading: isLoadingBiddings } = queryBiddings
 
@@ -71,8 +73,8 @@ export default function RoomPreview() {
           </div>
         </div>
         {/* Buttons for joining or deleting */}
-        <div className="card-actions items-center justify-end">
-          {isSelfHosted && (
+        <div className="card-actions items-center justify-between">
+          {isHostedByMe && (
             <RequiresConfirmByModal
               title="Confirm Delete"
               body="Are you sure you want to delete this room?"
@@ -85,7 +87,7 @@ export default function RoomPreview() {
           )}
           <button
             onClick={handleJoin}
-            className="btn btn-success btn-outline btn-sm gap-2 border-2 shadow-md"
+            className="btn btn-success btn-outline btn-sm ml-auto gap-2 border-2 shadow-md"
           >
             Join
             <PaperAirplaneIcon className="h-6 w-6" />
