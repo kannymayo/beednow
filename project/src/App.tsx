@@ -10,7 +10,7 @@ import Routes from '@/layout/Routes'
 const qc = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 0,
+      retry: false,
       cacheTime: 1 * 60 * 60 * 1000,
       staleTime: 1 * 60 * 60 * 1000,
       refetchOnMount: false,

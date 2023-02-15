@@ -79,7 +79,7 @@ function useQueryFirebaseDoc<TQueryData>({
 }) {
   const qc = useQueryClient()
   let shouldEnable = false
-  let refDoc: DocumentReference | null
+  let refDoc: DocumentReference | null = null
   try {
     if (segments.some(isVoid)) throw new Error('Contains invalid segment.')
     const _segments = segments as string[]
@@ -92,6 +92,9 @@ function useQueryFirebaseDoc<TQueryData>({
     queryFn: queryFnDoc,
     enabled: isEnabled && shouldEnable,
     ...queryOptions,
+    meta: {
+      refDoc,
+    },
   })
 
   // for triggering useEffect
@@ -132,73 +135,79 @@ function useQueryFirebaseCollection<TQueryData>({
 }) {
   const [hasPendingWrites, setHasPendingWrites] = useState(false)
   const qc = useQueryClient()
+
+  // try forming a query reference
   let shouldEnable = false
-  let refCollection: CollectionReference | null
+  let refQuery: Query | null = null
   try {
     if (segments.some(isVoid)) throw new Error('Contains invalid segment.')
+    // assert for now, a better isVoid would let TS know already
     const _segments = segments as string[]
-    refCollection = collection(db, _segments[0], ..._segments.slice(1))
-
+    refQuery = query(
+      collection(db, _segments[0], ..._segments.slice(1)),
+      ...(queryConstraints || [])
+    )
+    // enable only when no error
     shouldEnable = true
   } catch (e) {}
-  const query = useQuery({
-    queryKey: segments,
+
+  const queryKey = [...segments, JSON.stringify(queryConstraints)]
+  const tanQuery = useQuery({
+    queryKey,
     queryFn: queryFnCollection,
     enabled: isEnabled && shouldEnable,
     ...queryOptions,
+    // queryFn no need to reform Firebase query
     meta: {
-      queryConstraints: queryConstraints,
+      refQuery,
     },
   })
 
   // for triggering useEffect
-  const key = JSON.stringify(segments)
+  const key = JSON.stringify(queryKey)
   // subscribe to doc changes
   useEffect(() => {
     // end early if no ref or no subscribe or listener already attached
-    if (!refCollection) return
+    if (!refQuery) return
     if (!isSubscribed) return
     if (!isEnabled || !shouldEnable) return
     if (listenerAttached.has(key)) return
-    const queryKey = segments
 
-    const unsubscribe = onSnapshot(refCollection, (snapshotQuery) => {
-      setHasPendingWrites(snapshotQuery.metadata.hasPendingWrites)
-      qc.setQueryData(
-        queryKey,
-        snapshotQuery.docs.map((doc) => {
-          return { ...doc?.data(), id: doc?.id }
-        })
-      )
-    })
+    listenerAttached.add(key)
+    const unsubscribe = onSnapshot(
+      refQuery,
+      {
+        includeMetadataChanges: true,
+      },
+      (snapshotQuery) => {
+        setHasPendingWrites(snapshotQuery.metadata.hasPendingWrites)
+        qc.setQueryData(
+          queryKey,
+          snapshotQuery.docs.map((doc) => {
+            return { ...doc?.data(), id: doc?.id }
+          })
+        )
+      }
+    )
     return () => {
       listenerAttached.delete(key)
       unsubscribe()
     }
   }, [key])
 
-  const _query = query as UseQueryResult<TQueryData>
+  const _query = tanQuery as UseQueryResult<TQueryData>
   return [_query, hasPendingWrites] as const
 }
 
-async function queryFnDoc({ queryKey }: { queryKey: string[] }) {
-  // Work towards an early throw, but likely we won't end up this path
-  // when isEnabled is properly set
-  // Alternatively, we could attempt to form a doc reference even earlier
-  // and that would eliminate the need for setting isEnabled. But a bit
-  // messy?
-  const segments = queryKey
-  let refDoc: DocumentReference | null
-  try {
-    refDoc = doc(db, segments[0], ...segments.slice(1))
-  } catch (e) {
-    refDoc = null
-  }
-  if (!refDoc)
-    throw Error(
-      `Malformed segments, could not form a valid doc reference. ${queryKey}`
-    )
-  // process doc
+async function queryFnDoc({
+  queryKey,
+  meta: { refDoc },
+}: {
+  queryKey: string[]
+  meta: { refDoc: DocumentReference | null }
+}) {
+  if (!refDoc) throw Error('Malformed doc')
+
   const snapshotDoc = await getDoc(refDoc)
   if (!snapshotDoc.exists()) throw new Error('Doc does not exist.')
   return { ...snapshotDoc.data(), id: snapshotDoc.id }
@@ -206,29 +215,16 @@ async function queryFnDoc({ queryKey }: { queryKey: string[] }) {
 
 async function queryFnCollection({
   queryKey,
-  meta,
+  meta: { refQuery },
 }: {
   queryKey: string[]
-  meta: { queryConstraints: QueryConstraint[] }
+  meta: { refQuery: Query | null }
 }) {
-  // work towards an early throw
-  const segments = queryKey
-  const queryConstraints = meta.queryConstraints
-  let refFirebaseQuery: Query | null
-  try {
-    refFirebaseQuery = query(
-      collection(db, segments[0], ...segments.slice(1)),
-      ...queryConstraints
-    )
-  } catch (e) {
-    refFirebaseQuery = null
-  }
-  if (!refFirebaseQuery) throw Error('Malformed collection/query')
-  // process query
-  // actually query is always empty upon room creation, need to avoid?
-  const snapshotQry = await getDocs(refFirebaseQuery)
-  if (snapshotQry.empty) throw new Error('Query is empty.')
+  // probably won't reach as shoudEnable is guarding
+  if (!refQuery) throw Error('Malformed collection/query')
 
+  const snapshotQry = await getDocs(refQuery)
+  if (snapshotQry.empty) return []
   return snapshotQry.docs.map((doc) => {
     return { ...doc?.data(), id: doc?.id }
   })
