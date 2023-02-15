@@ -1,9 +1,11 @@
-import { TrashIcon } from '@heroicons/react/24/outline'
+import { useState } from 'react'
+import { TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 import { useIsRoomHostAtom } from '@/store/useRoomAtom'
 import { Bidding, useMutationDeleteItem } from '@/api/bidding'
 
-export default function ({ item }: { item: Bidding }) {
+export default function BiddingItem({ item }: { item: Bidding }) {
+  const [isDeleteStaged, setIsDeleteStaged] = useState(false)
   const [isRoomHost] = useIsRoomHostAtom()
   const [{ mutateAsync: mutateDeleteAsync }] = useMutationDeleteItem()
 
@@ -29,10 +31,15 @@ export default function ({ item }: { item: Bidding }) {
             {/* Delete button only visible to host */}
             {isRoomHost ? (
               <button
+                onMouseLeave={() => setIsDeleteStaged(false)}
                 onClick={handleDelete}
                 className="btn btn-xs btn-outline invisible border-none border-slate-500 group-hover:visible"
               >
-                <TrashIcon className="h-4 w-4" />
+                {isDeleteStaged ? (
+                  <XMarkIcon className="h-4 w-4" />
+                ) : (
+                  <TrashIcon className="h-4 w-4" />
+                )}
               </button>
             ) : (
               <></>
@@ -53,6 +60,10 @@ export default function ({ item }: { item: Bidding }) {
   )
 
   async function handleDelete() {
-    mutateDeleteAsync(item.id)
+    if (isDeleteStaged) {
+      mutateDeleteAsync(item.id)
+    } else {
+      setIsDeleteStaged(true)
+    }
   }
 }
