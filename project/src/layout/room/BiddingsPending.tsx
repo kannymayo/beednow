@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 import { useForm } from '@/hooks/form'
@@ -9,16 +9,24 @@ import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
 import BiddingItem from './common/BiddingItem'
 
 export default function BiddingsPending() {
+  const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
   const [showScrollToTop, refScrollingContainer, scrollToTop] =
     useSignalScrolledTooDeep()
   const [animationParent] = useAutoAnimate<HTMLUListElement>()
-  const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
-  const [roomId] = useRoomIdAtom()
-  const [queryBiddings] = useQueryGetBiddings(roomId)
 
+  const [roomId] = useRoomIdAtom()
+  const [queryBiddings, hasPendingWrites] = useQueryGetBiddings(roomId)
+
+  // if firestore has pending writes, use last saved result, because sorting
+  // without serverTimestamp creates chaotic visual effect
+  const refLastDisplayedBiddings = useRef<Bidding[] | undefined>(undefined)
   const { data: biddings } = queryBiddings
-  const displayedItems = useMemo(() => {
-    return filterAndSortItems(biddings, formValues.searchPhrase)
+  const displayedBiddings = useMemo(() => {
+    if (hasPendingWrites) return refLastDisplayedBiddings.current
+
+    const result = filterAndSortItems(biddings, formValues.searchPhrase)
+    refLastDisplayedBiddings.current = result
+    return result
   }, [formValues.searchPhrase, biddings])
   return (
     <div
@@ -60,8 +68,8 @@ export default function BiddingsPending() {
 
       {/* List of items */}
       <ul className="px-1" ref={animationParent}>
-        {displayedItems?.map &&
-          displayedItems.map((item) => (
+        {displayedBiddings?.map &&
+          displayedBiddings.map((item) => (
             <BiddingItem item={item} key={item.id} />
           ))}
       </ul>
@@ -73,17 +81,15 @@ export default function BiddingsPending() {
     searchPhrase: string
   ) {
     if (!items) return []
-    let filteredItems = items
+    let result = items
     if (searchPhrase) {
-      filteredItems = items.filter((item) =>
+      result = items.filter((item) =>
         item.details.name
           .toLowerCase()
           .includes(searchPhrase.toLowerCase().trim())
       )
     }
-    const sortedItems = filteredItems.sort(
-      factoryCompareNewerfirst(['createdAt', 'seconds'])
-    )
-    return sortedItems
+    result.sort(factoryCompareNewerfirst(['createdAt', 'seconds']))
+    return result
   }
 }

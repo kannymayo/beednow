@@ -44,7 +44,7 @@ function useQueryGetRoomActivities({
   const [user] = useUserAtom()
   const queryKey = ['users', user?.uid, 'roomActivities']
 
-  const query = useQueryFirebase<RoomActivity[]>({
+  const [query] = useQueryFirebase<RoomActivity[]>({
     segments: queryKey,
     isSubscribed: subscribe,
     isEnabled: enabled,
@@ -159,7 +159,7 @@ function useUpdateRoomAcvitity() {
 
 function useQueryGetCurrentRoom() {
   const [roomId] = useRoomIdAtom()
-  const query = useQueryFirebase<Room>({
+  const [query] = useQueryFirebase<Room>({
     segments: ['rooms', roomId],
     isSubscribed: true,
   })
@@ -176,7 +176,7 @@ function useQueryGetRoom({
   queryOptions?: Parameters<typeof useQueryFirebase>[0]['queryOptions']
 }) {
   const queryKey = ['rooms', roomId]
-  const query = useQueryFirebase<Room>({
+  const [query] = useQueryFirebase<Room>({
     segments: queryKey,
     isSubscribed,
     queryOptions,

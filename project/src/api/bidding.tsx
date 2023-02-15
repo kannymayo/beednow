@@ -40,11 +40,11 @@ function useMutationDeleteItem() {
 }
 
 function useQueryGetBiddings(roomId: string | undefined) {
-  const query = useQueryFirebase<Bidding[]>({
+  const [query, hasPendingWrites] = useQueryFirebase<Bidding[]>({
     segments: ['rooms', roomId, 'biddings'],
     isSubscribed: true,
   })
-  return [query]
+  return [query, hasPendingWrites] as const
 }
 
 interface Bidding {

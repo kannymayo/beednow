@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   useQuery,
   useQueryClient,
@@ -113,7 +113,8 @@ function useQueryFirebaseDoc<TQueryData>({
       unsubscribe()
     }
   }, [key])
-  return query as UseQueryResult<TQueryData>
+  const _query = query as UseQueryResult<TQueryData>
+  return [_query] as const
 }
 
 function useQueryFirebaseCollection<TQueryData>({
@@ -129,6 +130,7 @@ function useQueryFirebaseCollection<TQueryData>({
   queryOptions?: any
   queryConstraints?: QueryConstraint[]
 }) {
+  const [hasPendingWrites, setHasPendingWrites] = useState(false)
   const qc = useQueryClient()
   let shouldEnable = false
   let refCollection: CollectionReference | null
@@ -160,8 +162,8 @@ function useQueryFirebaseCollection<TQueryData>({
     if (listenerAttached.has(key)) return
     const queryKey = segments
 
-    listenerAttached.add(key)
     const unsubscribe = onSnapshot(refCollection, (snapshotQuery) => {
+      setHasPendingWrites(snapshotQuery.metadata.hasPendingWrites)
       qc.setQueryData(
         queryKey,
         snapshotQuery.docs.map((doc) => {
@@ -174,7 +176,9 @@ function useQueryFirebaseCollection<TQueryData>({
       unsubscribe()
     }
   }, [key])
-  return query as UseQueryResult<TQueryData>
+
+  const _query = query as UseQueryResult<TQueryData>
+  return [_query, hasPendingWrites] as const
 }
 
 async function queryFnDoc({ queryKey }: { queryKey: string[] }) {
