@@ -9,7 +9,7 @@ import {
 } from '@heroicons/react/24/outline'
 
 import { useJoinRoom, useMutationDeleteRoom } from '@/api/room'
-import { useQueryGetBiddings } from '@/api/bidding'
+import { useQueryBiddings } from '@/api/bidding'
 import { useRoomPreviewAtom } from '@/store/useRoomAtom'
 import { useUserAtom } from '@/store/useUserAtom'
 import { debouncedToast } from '@/utils/debouncedToast'
@@ -23,7 +23,7 @@ export default function RoomPreview() {
     resetOnUnmount: true,
   })
   const [user] = useUserAtom()
-  const [queryBiddings] = useQueryGetBiddings(roomUnderPreview?.id)
+  const [queryBiddings] = useQueryBiddings(roomUnderPreview?.id)
   const [{ mutateAsync: mutateAsyncDeleteRoom }] = useMutationDeleteRoom()
   const [isPreviewDiabled, setIsPreviewDisabled] = useState(false)
 

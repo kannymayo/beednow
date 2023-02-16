@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { GlobeAltIcon } from '@heroicons/react/24/outline'
 
 import { ReactComponent as Logo } from '@/assets/logo.svg'
-import { useCreateRoom, useQueryGetRoom } from '@/api/room'
+import { useCreateRoom, useQueryRoom } from '@/api/room'
 import { useUserAtom } from '@/store/useUserAtom'
 import { useRoomPreviewAtom } from '@/store/useRoomAtom'
 import Login from './landing/Login'
@@ -24,7 +24,7 @@ export default function EnterRoom() {
 
   // query room and set it for preview, when search box has a likely room id
   const [potentialRoomId, setPotentialRoomId] = useState('')
-  const [queryRoom] = useQueryGetRoom({
+  const [queryRoom] = useQueryRoom({
     roomId: potentialRoomId,
   })
   useEffect(() => {

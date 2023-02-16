@@ -6,7 +6,7 @@ import { useSignalScrolledTooDeep } from '@/hooks/useSignalScrolledTooDeep'
 import {
   useMutationDeleteItem,
   useMutationStartBidding,
-  useQueryGetBiddings,
+  useQueryBiddings,
   Bidding,
 } from '@/api/bidding'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
@@ -20,7 +20,7 @@ export default function BiddingsPending() {
   const [animationParent] = useAutoAnimate<HTMLUListElement>()
 
   const [roomId] = useRoomIdAtom()
-  const [queryBiddings, hasPendingWrites] = useQueryGetBiddings(roomId)
+  const [queryBiddings, hasPendingWrites] = useQueryBiddings(roomId)
 
   const [{ mutateAsync: mutateDeleteAsync }] = useMutationDeleteItem()
   const [{ mutateAsync: mutateStartBiddingAsync }] = useMutationStartBidding({

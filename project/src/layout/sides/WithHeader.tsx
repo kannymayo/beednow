@@ -8,7 +8,7 @@ import { Link, Outlet } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { useUserAtomMaster } from '@/store/useUserAtom'
-import { useQueryGetCurrentRoom } from '@/api/room'
+import { useQueryCurrentRoom } from '@/api/room'
 import { useIsRoomHostAtom, useRoomIdAtom } from '@/store/useRoomAtom'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
@@ -16,7 +16,7 @@ import CurrentUser from './user/CurrentUser'
 
 export default function WithHeader() {
   // update title for better bookmarking
-  const [queryCurrentRoom] = useQueryGetCurrentRoom()
+  const [queryCurrentRoom] = useQueryCurrentRoom()
   const roomInfo = queryCurrentRoom.data
   useUpdateTitle(roomInfo?.name || '')
 

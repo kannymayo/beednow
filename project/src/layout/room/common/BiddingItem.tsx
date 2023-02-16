@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import clsx from 'clsx'
 import {
   TrashIcon,
   XMarkIcon,
@@ -7,7 +8,6 @@ import {
 
 import { useIsRoomHostAtom } from '@/store/useRoomAtom'
 import { Bidding } from '@/api/bidding'
-import clsx from 'clsx'
 
 export default function BiddingItem({
   item,

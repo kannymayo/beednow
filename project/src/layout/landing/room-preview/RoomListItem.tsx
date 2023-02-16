@@ -1,12 +1,12 @@
 import clsx from 'clsx'
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
-import { useQueryGetRoom } from '@/api/room'
+import { useQueryRoom } from '@/api/room'
 import { useRoomPreviewAtom } from '@/store/useRoomAtom'
 import { calRelativeDate } from '@/utils/calc-relative-date'
 
 export default function RoomListItem({ roomId }: { roomId: string }) {
-  const [queryRoom] = useQueryGetRoom({
+  const [queryRoom] = useQueryRoom({
     roomId,
   })
   const [roomUnderPreview, setRoomUnderPreview] = useRoomPreviewAtom()

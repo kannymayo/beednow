@@ -34,7 +34,7 @@ interface RoomActivity {
   lastModified: FirebaseServerTimestamp
 }
 
-function useQueryGetRoomActivities({
+function useQueryRoomActivities({
   enabled = true,
   subscribe = false,
 }: {
@@ -157,7 +157,7 @@ function useUpdateRoomAcvitity() {
   }
 }
 
-function useQueryGetCurrentRoom() {
+function useQueryCurrentRoom() {
   const [roomId] = useRoomIdAtom()
   const [query] = useQueryFirebase<Room>({
     segments: ['rooms', roomId],
@@ -166,7 +166,7 @@ function useQueryGetCurrentRoom() {
   return [query]
 }
 
-function useQueryGetRoom({
+function useQueryRoom({
   roomId = '',
   isSubscribed = false,
   queryOptions,
@@ -185,9 +185,9 @@ function useQueryGetRoom({
   return [query, queryKey] as const
 }
 
-function useIsSelfHosted(uidRoomHost?: string) {
+function useQueryIsThatHostedbyMe(uidRoomHost?: string) {
   const [user, isLoggedIn] = useUserAtom()
-  const [query] = useQueryGetCurrentRoom()
+  const [query] = useQueryCurrentRoom()
   const room = query?.data
   // if uidRoomHost is not provided, check if the host of current room
   // is the same as the logged-in user
@@ -205,10 +205,9 @@ export {
   useUpdateRoomAcvitity,
   useJoinRoom,
   useMutationDeleteRoom,
-  useIsSelfHosted,
-  useQueryGetRoom,
-  useQueryGetRoomActivities,
-  useQueryGetCurrentRoom,
+  useQueryRoom,
+  useQueryRoomActivities,
+  useQueryCurrentRoom,
 }
 
 export type { Room }

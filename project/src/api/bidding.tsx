@@ -40,7 +40,7 @@ function useMutationStartBidding(
   { resetOnUnmount } = { resetOnUnmount: false }
 ) {
   const [roomId] = useRoomIdAtom()
-  const [queryInProgressBidding] = useQueryGetInProgressBidding(roomId)
+  const [queryInProgressBidding] = useQueryInProgressBiddings(roomId)
   const inprogressBiddings = queryInProgressBidding.data
   const mutation = useMutation({
     mutationFn: startBidding,
@@ -116,7 +116,7 @@ function useMutationDeleteItem() {
   }
 }
 
-function useQueryGetBiddings(roomId: string | undefined) {
+function useQueryBiddings(roomId: string | undefined) {
   const [query, hasPendingWrites] = useQueryFirebase<Bidding[]>({
     segments: ['rooms', roomId, 'biddings'],
     isSubscribed: true,
@@ -124,20 +124,20 @@ function useQueryGetBiddings(roomId: string | undefined) {
   return [query, hasPendingWrites] as const
 }
 
-function useQueryGetInProgressBidding(roomId: string | undefined) {
+function useQueryInProgressBiddings(roomId: string | undefined) {
   const [query] = useQueryFirebase<Bidding[] | []>({
     segments: ['rooms', roomId, 'biddings'],
     isSubscribed: true,
     queryConstraints: [where('isInProgress', '!=', false)],
   })
-  // console.log(query.data)
   return [query] as const
 }
 
 export {
   useAddItem,
-  useQueryGetBiddings,
+  useQueryBiddings,
   useMutationDeleteItem,
   useMutationStartBidding,
+  useQueryInProgressBiddings,
 }
 export type { Bidding }
