@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { serverTimestamp, where } from 'firebase/firestore'
 
@@ -40,28 +40,31 @@ function useMutationStartBidding(
   { resetOnUnmount } = { resetOnUnmount: false }
 ) {
   const [roomId] = useRoomIdAtom()
-  const [queryInProgressBidding] = useQueryInProgressBiddings(roomId)
+  const [queryInProgressBidding] = useQueryInProgressBiddings()
+  const refCleanupFn = useRef<() => void>(() => null)
   const inprogressBiddings = queryInProgressBidding.data
   const mutation = useMutation({
     mutationFn: startBidding,
   })
 
+  refCleanupFn.current = clearInProgressBiddings
+
   // unmount will clear inprogress bidding
   useEffect(() => {
     if (!resetOnUnmount) return
     return () => {
-      clearInProgressBiddings()
+      refCleanupFn?.current()
     }
   }, [])
 
   // refresh/closing will also clear inprogress bidding
   useEffect(() => {
     if (!resetOnUnmount) return
-    window.addEventListener('beforeunload', clearInProgressBiddings)
+    window.addEventListener('beforeunload', refCleanupFn?.current)
     return () => {
-      window.removeEventListener('beforeunload', clearInProgressBiddings)
+      window.removeEventListener('beforeunload', refCleanupFn?.current)
     }
-  })
+  }, [])
 
   return [mutation]
 
@@ -124,7 +127,8 @@ function useQueryBiddings(roomId: string | undefined) {
   return [query, hasPendingWrites] as const
 }
 
-function useQueryInProgressBiddings(roomId: string | undefined) {
+function useQueryInProgressBiddings() {
+  const [roomId] = useRoomIdAtom()
   const [query] = useQueryFirebase<Bidding[] | []>({
     segments: ['rooms', roomId, 'biddings'],
     isSubscribed: true,
