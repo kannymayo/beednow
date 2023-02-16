@@ -17,7 +17,9 @@ export default function BiddingItem({ item }: { item: Bidding }) {
   const [isRoomHost] = useIsRoomHostAtom()
   const [isDeleteStaged, setIsDeleteStaged] = useState(false)
   const [{ mutateAsync: mutateDeleteAsync }] = useMutationDeleteItem()
-  const [{ mutateAsync: mutateStartBiddingAsync }] = useMutationStartBidding()
+  const [{ mutateAsync: mutateStartBiddingAsync }] = useMutationStartBidding({
+    resetOnUnmount: true,
+  })
 
   const {
     id,
@@ -29,7 +31,7 @@ export default function BiddingItem({ item }: { item: Bidding }) {
       <div
         className={clsx(
           { 'shadow ring-2 ring-rose-800': isInProgress },
-          'card card-side group my-1 rounded-md bg-slate-300 py-0  hover:bg-slate-400'
+          'card card-side group my-1 overflow-hidden rounded-md bg-slate-300  py-0 hover:bg-slate-400'
         )}
       >
         {/* Icon */}
@@ -42,11 +44,11 @@ export default function BiddingItem({ item }: { item: Bidding }) {
             <img src={iconUrl} />
           </a>
         </figure>
-        <div className="card-body gap-0 overflow-hidden p-1 ">
+        <div className="card-body grid gap-0  px-1 py-0">
           {/* Row of name + action */}
-          <div className="flex items-center justify-between ">
+          <div className="flex items-center justify-between overflow-hidden">
             {/* Name */}
-            <div className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium">
+            <div className="min-w-0 flex-1 truncate text-sm font-medium">
               {name}
             </div>
             {/* Only visible to host */}
@@ -70,8 +72,8 @@ export default function BiddingItem({ item }: { item: Bidding }) {
             )}
           </div>
           {/* Row of tags */}
-          <div className="card-actions flex-1 flex-nowrap items-center justify-around">
-            <div className="mr-auto flex gap-1">
+          <div className="card-actions flex-nowrap items-center justify-around">
+            <div className="mr-auto flex min-w-0 gap-1 ">
               <div className="badge badge-primary shrink-0">{type ?? slot}</div>
               <div className="badge badge-primary shrink-0">
                 ilvl: {itemLevel}

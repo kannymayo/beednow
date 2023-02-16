@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { serverTimestamp, where } from 'firebase/firestore'
 
@@ -35,14 +36,47 @@ function useAddItem() {
   }
 }
 
-function useMutationStartBidding() {
+function useMutationStartBidding(
+  { resetOnUnmount } = { resetOnUnmount: false }
+) {
   const [roomId] = useRoomIdAtom()
   const [queryInProgressBidding] = useQueryGetInProgressBidding(roomId)
   const inprogressBiddings = queryInProgressBidding.data
   const mutation = useMutation({
     mutationFn: startBidding,
   })
+
+  // unmount will clear inprogress bidding
+  useEffect(() => {
+    if (!resetOnUnmount) return
+    return () => {
+      clearInProgressBiddings()
+    }
+  }, [])
+
+  // refresh/closing will also clear inprogress bidding
+  useEffect(() => {
+    if (!resetOnUnmount) return
+    window.addEventListener('beforeunload', clearInProgressBiddings)
+    return () => {
+      window.removeEventListener('beforeunload', clearInProgressBiddings)
+    }
+  })
+
   return [mutation]
+
+  async function clearInProgressBiddings() {
+    // clear previous inprogress bidding
+    if (!inprogressBiddings) return
+    inprogressBiddings.forEach(async (inprogressBidding) => {
+      await upcreateFirebaseDoc({
+        segments: ['rooms', roomId, 'biddings', inprogressBidding.id],
+        data: {
+          isInProgress: false,
+        },
+      })
+    })
+  }
 
   async function startBidding(biddingId: string) {
     // clear previous inprogress bidding
