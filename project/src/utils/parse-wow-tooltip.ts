@@ -161,23 +161,6 @@ export default function deepRead(
   }
 
   function get2DTextArray(el: Element): string[][] | null {
-    function getTextOfThisNode(el: Element): string[] | null {
-      let textArray = []
-      for (const childNode of el.childNodes) {
-        // if childNode is a text node
-        if (childNode.nodeType === 3 && childNode.textContent !== null) {
-          textArray.push(childNode.textContent.trim())
-        }
-      }
-
-      textArray = textArray.filter(Boolean)
-      if (textArray.length > 0) {
-        return textArray as string[]
-      } else {
-        return null
-      }
-    }
-
     // prepare return
     let result: string[][] | null = null
 
@@ -198,11 +181,24 @@ export default function deepRead(
         }
       }
     }
+    console.log(result)
+    return result
+  }
 
-    if (result === null) {
-      return null
+  function getTextOfThisNode(el: Element): string[] | null {
+    let textArray = []
+    for (const childNode of el.childNodes) {
+      // if childNode is a text node
+      if (childNode.nodeType === 3 && childNode.textContent !== null) {
+        textArray.push(childNode.textContent.trim())
+      }
+    }
+
+    textArray = textArray.filter(Boolean)
+    if (textArray.length > 0) {
+      return textArray as string[]
     } else {
-      return result
+      return null
     }
   }
 
@@ -224,7 +220,6 @@ export default function deepRead(
       for (const [key, regex] of Object.entries(regexSet)) {
         const foundIndex = twoDArr.findIndex((oneDArr) => {
           let matched = oneDArr.join(':').match(regex)
-
           // form result according to regexSet
           if (matched) {
             result[key] = matched[1]
@@ -300,12 +295,13 @@ export default function deepRead(
       ssRatingDodge: /^Equip: Improves dodge rating by:(\d+)/,
       ssRatingDefense: /^Equip: Improves defense rating by:(\d+)/,
       ssRatingParry: /^Equip: Improves parry rating by:(\d+)/,
+      ssRatingExpertise: /^Equip: Increases your expertise rating by:(\d+)/,
 
-      ssSpellPower: /^Increases spell power by:(\d+)/,
-      ssAttackPower: /^Increases attack power by:(\d+)/,
-      ssResilience: /^Equip: Improves your resilience by:(\d+)/,
-      ssBlockValue: /^Equip: Increases the block value of your shield by:(\d+)/,
-      ssManaPer5: /^Equip: Restores (\d+) mana per 5 sec\./,
+      ssSpellPower: /Increases spell power by[:\s](\d+)/,
+      ssAttackPower: /^Increases attack power by (\d+)/,
+      ssResilience: /^Improves your resilience by:(\d+)/,
+      ssBlockValue: /^Increases the block value of your shield by:(\d+)/,
+      ssManaPer5: /^Restores (\d+) mana per 5 sec\./,
       // ssHealthPer5: /^Equip: Restores (\d+) health per 5 sec\./,
 
       ssSpellPenetration: /^Equip: Improves spell penetration by:(\d+)/,
@@ -361,6 +357,7 @@ export default function deepRead(
       ratingDodge: item.ssRatingDodge,
       ratingDefense: item.ssRatingDefense,
       ratingParry: item.ssRatingParry,
+      ratingExpertise: item.ssRatingExpertise,
       spellPower: item.ssSpellPower,
       attackPower: item.ssAttackPower,
       resilience: item.ssResilience,
@@ -378,7 +375,6 @@ export default function deepRead(
       item.equipEffect2,
       item.equipEffect3,
     ].filter(Boolean)
-
     return {
       ...(item.phase && { phase: item.phase }),
       itemLevel: item.itemLevel,
