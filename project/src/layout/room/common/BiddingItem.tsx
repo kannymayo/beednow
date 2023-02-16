@@ -6,20 +6,20 @@ import {
 } from '@heroicons/react/24/outline'
 
 import { useIsRoomHostAtom } from '@/store/useRoomAtom'
-import {
-  Bidding,
-  useMutationDeleteItem,
-  useMutationStartBidding,
-} from '@/api/bidding'
+import { Bidding } from '@/api/bidding'
 import clsx from 'clsx'
 
-export default function BiddingItem({ item }: { item: Bidding }) {
+export default function BiddingItem({
+  item,
+  mutateDeleteAsync,
+  mutateStartBiddingAsync,
+}: {
+  item: Bidding
+  mutateDeleteAsync: (id: string) => Promise<void>
+  mutateStartBiddingAsync: (id: string) => Promise<void>
+}) {
   const [isRoomHost] = useIsRoomHostAtom()
   const [isDeleteStaged, setIsDeleteStaged] = useState(false)
-  const [{ mutateAsync: mutateDeleteAsync }] = useMutationDeleteItem()
-  const [{ mutateAsync: mutateStartBiddingAsync }] = useMutationStartBidding({
-    resetOnUnmount: true,
-  })
 
   const {
     id,

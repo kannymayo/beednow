@@ -3,7 +3,12 @@ import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 import { useForm } from '@/hooks/form'
 import { useSignalScrolledTooDeep } from '@/hooks/useSignalScrolledTooDeep'
-import { useQueryGetBiddings, Bidding } from '@/api/bidding'
+import {
+  useMutationDeleteItem,
+  useMutationStartBidding,
+  useQueryGetBiddings,
+  Bidding,
+} from '@/api/bidding'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
 import BiddingItem from './common/BiddingItem'
@@ -16,6 +21,11 @@ export default function BiddingsPending() {
 
   const [roomId] = useRoomIdAtom()
   const [queryBiddings, hasPendingWrites] = useQueryGetBiddings(roomId)
+
+  const [{ mutateAsync: mutateDeleteAsync }] = useMutationDeleteItem()
+  const [{ mutateAsync: mutateStartBiddingAsync }] = useMutationStartBidding({
+    resetOnUnmount: true,
+  })
 
   // if firestore has pending writes, use last saved result, because sorting
   // without serverTimestamp creates chaotic visual effect
@@ -70,7 +80,12 @@ export default function BiddingsPending() {
       <ul className="px-1" ref={animationParent}>
         {displayedBiddings?.map &&
           displayedBiddings.map((item) => (
-            <BiddingItem item={item} key={item.id} />
+            <BiddingItem
+              item={item}
+              key={item.id}
+              mutateDeleteAsync={mutateDeleteAsync}
+              mutateStartBiddingAsync={mutateStartBiddingAsync}
+            />
           ))}
       </ul>
     </div>
