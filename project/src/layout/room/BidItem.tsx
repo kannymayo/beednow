@@ -129,7 +129,7 @@ export default function BidItem() {
             <div className="stats h-full w-full grid-cols-3 overflow-hidden rounded-none shadow">
               <div className="stat overflow-hidden p-2 pb-0">
                 <div className="stat-title line-clamps-2 whitespace-normal font-bold opacity-100">
-                  {name} sdad asd asd asdasda sad
+                  {name}
                 </div>
                 <div className="stat-value flex gap-1">
                   <img
@@ -154,7 +154,7 @@ export default function BidItem() {
               </div>
 
               <div className="stat overflow-hidden p-2 pb-0">
-                <div className="stat-value text-center text-8xl">
+                <div className="stat-value pt-2 text-center text-7xl">
                   <span className="countdown font-mono ">
                     <span style={{ '--value': 36 }}></span>
                   </span>

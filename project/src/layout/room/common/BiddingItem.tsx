@@ -4,6 +4,7 @@ import {
   TrashIcon,
   XMarkIcon,
   PlayCircleIcon,
+  BoltIcon,
 } from '@heroicons/react/24/outline'
 
 import { useIsRoomHostAtom } from '@/store/useRoomAtom'
@@ -31,7 +32,7 @@ export default function BiddingItem({
       <div
         className={clsx(
           {
-            'ring-2 ring-rose-800 transition-shadow duration-500 ease-in':
+            'ring-2 ring-rose-700 transition-shadow duration-500 ease-in':
               isInProgress,
           },
           'card card-side group my-1 overflow-hidden rounded-md bg-slate-300  py-0 hover:bg-slate-400'
@@ -91,6 +92,14 @@ export default function BiddingItem({
             </button>
           </div>
         </div>
+        {isInProgress ? (
+          // animate-bounce when countdown starats
+          <div className="flex scale-100 items-center px-1 text-rose-700 transition-all">
+            <BoltIcon className="h-10 w-10" />
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
     </li>
   )

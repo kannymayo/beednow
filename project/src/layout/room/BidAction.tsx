@@ -68,7 +68,7 @@ export default function BidAction() {
                       +5000
                     </span>
                     <button className="btn btn-sm btn-primary gap-2 font-normal capitalize">
-                      <FireIcon className="h-5 w-5" />
+                      <FireIcon className="h-5 w-5 hover:animate-bounce" />
                     </button>
                   </div>
                 </div>
