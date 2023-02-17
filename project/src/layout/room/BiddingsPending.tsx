@@ -10,6 +10,7 @@ import {
   Bidding,
 } from '@/api/bidding'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
+import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
 import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
 import BiddingItem from './common/BiddingItem'
 
@@ -20,7 +21,13 @@ export default function BiddingsPending() {
   const [animationParent] = useAutoAnimate<HTMLUListElement>()
 
   const [roomId] = useRoomIdAtom()
-  const [queryBiddings, hasPendingWrites] = useQueryBiddings(roomId)
+  const [{ data: biddings, isLoading: isBiddingsLoading }, hasPendingWrites] =
+    useQueryBiddings(roomId)
+  const [] = useInProgressBiddingsAtom({
+    resetOnUnmount: true,
+    biddingsAll: biddings,
+    readyToSync: !isBiddingsLoading,
+  })
 
   const [{ mutateAsync: mutateDeleteAsync }] = useMutationDeleteItem()
   const [{ mutateAsync: mutateStartBiddingAsync }] = useMutationStartBidding({
@@ -30,7 +37,6 @@ export default function BiddingsPending() {
   // if firestore has pending writes, use last saved result, because sorting
   // without serverTimestamp creates chaotic visual effect
   const refLastDisplayedBiddings = useRef<Bidding[] | undefined>(undefined)
-  const { data: biddings } = queryBiddings
   const displayedBiddings = useMemo(() => {
     if (hasPendingWrites) return refLastDisplayedBiddings.current
 

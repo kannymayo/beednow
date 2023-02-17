@@ -1,9 +1,10 @@
-import { useEffect, useCallback, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { serverTimestamp, where } from 'firebase/firestore'
 
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
+import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
 import { ItemFromAPI } from '@/api/item-details'
 import {
   upcreateFirebaseDoc,
@@ -40,9 +41,9 @@ function useMutationStartBidding(
   { resetOnUnmount } = { resetOnUnmount: false }
 ) {
   const [roomId] = useRoomIdAtom()
-  const [queryInProgressBidding] = useQueryInProgressBiddings()
+  const [queryInProgressBidding] = useInProgressBiddingsAtom()
   const refCleanupFn = useRef<() => void>(() => null)
-  const inprogressBiddings = queryInProgressBidding.data
+  const inprogressBiddings = queryInProgressBidding
   const mutation = useMutation({
     mutationFn: startBidding,
   })
@@ -143,6 +144,5 @@ export {
   useQueryBiddings,
   useMutationDeleteItem,
   useMutationStartBidding,
-  useQueryInProgressBiddings,
 }
 export type { Bidding }

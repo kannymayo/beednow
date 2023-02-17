@@ -1,7 +1,7 @@
-import { useQueryInProgressBiddings } from '@/api/bidding'
+import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
 
 export default function BidItem() {
-  const [queryInProgressBidding, hasMember] = useQueryInProgressBiddings()
+  const [inProgressBiddings, hasMember] = useInProgressBiddingsAtom()
 
   if (!hasMember)
     return (
@@ -14,7 +14,7 @@ export default function BidItem() {
       </div>
     )
 
-  const inProgressBidding = queryInProgressBidding.data?.[0]
+  const inProgressBidding = inProgressBiddings[0]
   var name,
     iconUrl,
     type,
