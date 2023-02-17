@@ -38,6 +38,7 @@ export default function BiddingsPending() {
     refLastDisplayedBiddings.current = result
     return result
   }, [formValues.searchPhrase, biddings])
+
   return (
     <div
       ref={refScrollingContainer}
@@ -95,7 +96,7 @@ export default function BiddingsPending() {
     items: Bidding[] | undefined,
     searchPhrase: string
   ) {
-    if (!items) return []
+    if (!items || items.length === 0) return []
     let result = items
     if (searchPhrase) {
       result = items.filter((item) =>
@@ -105,6 +106,9 @@ export default function BiddingsPending() {
       )
     }
     result.sort(factoryCompareNewerfirst(['createdAt', 'seconds']))
+    const idxInProgress = result.findIndex((el) => el.isInProgress)
+    const elInProgress = result.splice(idxInProgress, 1)
+    result.unshift(elInProgress[0])
     return result
   }
 }

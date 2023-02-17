@@ -1,3 +1,4 @@
+import './BiddingItem.css'
 import { useState } from 'react'
 import clsx from 'clsx'
 import {
@@ -30,7 +31,10 @@ export default function BiddingItem({
     <li key={id}>
       <div
         className={clsx(
-          { 'shadow ring-2 ring-rose-800': isInProgress },
+          {
+            'ring-2 ring-rose-800 transition-shadow duration-500 ease-in':
+              isInProgress,
+          },
           'card card-side group my-1 overflow-hidden rounded-md bg-slate-300  py-0 hover:bg-slate-400'
         )}
       >
@@ -84,7 +88,7 @@ export default function BiddingItem({
               onClick={handleStartBidding}
               className="btn btn-xs btn-outline hidden border-none  group-hover:flex"
             >
-              <PlayCircleIcon className="h-5 w-5" />
+              <PlayCircleIcon className="h-5 w-5 -rotate-90" />
             </button>
           </div>
         </div>

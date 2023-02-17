@@ -180,8 +180,7 @@ export default function deepRead(
           result.push(...childResult)
         }
       }
-    }
-    console.log(result)
+    } 
     return result
   }
 

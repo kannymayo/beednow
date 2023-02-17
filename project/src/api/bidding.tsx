@@ -134,7 +134,8 @@ function useQueryInProgressBiddings() {
     isSubscribed: true,
     queryConstraints: [where('isInProgress', '!=', false)],
   })
-  return [query] as const
+  const hasMember = (query.data?.length || 0) > 0
+  return [query, hasMember] as const
 }
 
 export {
