@@ -14,8 +14,8 @@ import InfoModal from '@/components/InfoModal'
 export default function BidAction() {
   return (
     <div className="grid h-full w-full">
-      <div className="mt-1 bg-slate-100 drop-shadow-lg">
-        <div className="grid h-full w-full grid-cols-2 grid-rows-6 overflow-hidden">
+      <div className="mt-1 overflow-hidden bg-slate-100 drop-shadow-lg">
+        <div className="grid h-full w-full grid-cols-2 grid-rows-6">
           {/* Top Layer */}
           <div className="col-span-2 col-start-1 row-span-3 row-start-1 flex items-stretch justify-between gap-2 px-2 xl:gap-16 xl:px-10">
             {/* TL  Relative Offer with Predicate*/}

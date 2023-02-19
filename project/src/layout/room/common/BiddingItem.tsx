@@ -6,11 +6,8 @@ import {
   PlayCircleIcon,
   BoltIcon,
 } from '@heroicons/react/24/outline'
+import { UseMutationResult } from '@tanstack/react-query'
 
-import {
-  UseMutationResult,
-  UseMutateAsyncFunction,
-} from '@tanstack/react-query'
 import { useIsRoomHostAtom } from '@/store/useRoomAtom'
 import { Bidding, useMutationStartBidding } from '@/api/bidding'
 

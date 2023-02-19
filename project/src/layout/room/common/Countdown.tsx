@@ -52,7 +52,7 @@ export default function Countdown({
     {
       'duration-1000': !refShouldInstaScroll.current,
     },
-    'relative whitespace-pre transition-all ease-in-out'
+    'relative whitespace-pre transition-all'
   )
   useEffect(() => {
     console.log('here')

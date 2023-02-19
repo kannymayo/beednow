@@ -35,34 +35,34 @@ export type ItemFromAPI = {
   }
 
   primaryStats?: {
-    stamina: number
-    intellect: number
-    spirit: number
-    agility: number
-    strength: number
-    armor: number
+    stamina?: number
+    intellect?: number
+    spirit?: number
+    agility?: number
+    strength?: number
+    armor?: number
   }
 
   secondaryStats?: {
-    ratingDefense: number
-    ratingDodge: number
-    ratingParry: number
-    ratingBlock: number
-    ratingHit: number
-    ratingCrit: number
-    ratingHaste: number
-    ratingExpertise: number
-    blockValue: number
-    manaPer5: number
-    healthPer5: number
-    attackPower: number
-    spellPower: number
-    spellPenetration: number
-    armorPenetration: number
-    resilience: number
+    ratingDefense?: number
+    ratingDodge?: number
+    ratingParry?: number
+    ratingBlock?: number
+    ratingHit?: number
+    ratingCrit?: number
+    ratingHaste?: number
+    ratingExpertise?: number
+    blockValue?: number
+    manaPer5?: number
+    healthPer5?: number
+    attackPower?: number
+    spellPower?: number
+    spellPenetration?: number
+    armorPenetration?: number
+    resilience?: number
   }
 
-  equipEffects: string[]
+  equipEffects?: string[]
 }
 
 type ItemFromAPIAlmost = Omit<
@@ -180,7 +180,7 @@ export default function deepRead(
           result.push(...childResult)
         }
       }
-    } 
+    }
     return result
   }
 

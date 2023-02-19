@@ -1,4 +1,3 @@
-import './BidItem.css'
 import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
 import { CurrencyDollarIcon } from '@heroicons/react/24/solid'
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
@@ -7,6 +6,7 @@ import { useMutationStartBidding } from '@/api/bidding'
 import { useIsRoomHostAtom } from '@/store/useRoomAtom'
 import InfoModal from '@/components/InfoModal'
 import Countdown from './common/Countdown'
+import StatsAndEqpEffects from './common/StatsAndEqpEffects'
 
 export default function BidItem() {
   const [mutation] = useMutationStartBidding()
@@ -81,35 +81,6 @@ export default function BidItem() {
           })}
         </ul>
       )}
-      {primaryStats && (
-        <ul className="text-slate-800">
-          {Object.entries(primaryStats).map((el) => {
-            return (
-              <li key={el[0]}>
-                {el[0]}: {el[1]}
-              </li>
-            )
-          })}
-        </ul>
-      )}
-      {secondaryStats && (
-        <ul className="text-green-600">
-          {Object.entries(secondaryStats).map((el) => {
-            return (
-              <li key={el[0]}>
-                {el[0]}: {el[1]}
-              </li>
-            )
-          })}
-        </ul>
-      )}
-      {equipEffects && (
-        <ul className="text-amber-900 ">
-          {equipEffects.map((el) => {
-            return <li key={el}>{el}</li>
-          })}
-        </ul>
-      )}
 
       {usableClasses && (
         <ul className="flex">
@@ -141,12 +112,20 @@ export default function BidItem() {
     <div className="grid h-full w-full ">
       <div className="m-1 mb-0 overflow-hidden bg-slate-100 drop-shadow-lg">
         <div className="grid h-full w-full grid-cols-3 grid-rows-3">
-          {/* Name, Bidding Info, Image, Countdown */}
+          {/* [A1,C1] Name, Bidding Info, Image, Countdown */}
           <div className="col-span-3 col-start-1 row-span-1 row-start-1">
             <div className="stats h-full w-full grid-cols-3 overflow-hidden rounded-none shadow">
               {/* Left: Name, Icon */}
               <div className="stat overflow-hidden p-2 pb-0">
-                <div className="stat-title line-clamps-2 whitespace-normal font-bold leading-4 opacity-100">
+                <div
+                  className="stat-title whitespace-normal font-bold leading-4 opacity-100"
+                  style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}
+                >
                   {name}
                 </div>
                 <div className="stat-value flex gap-1">
@@ -187,12 +166,25 @@ export default function BidItem() {
             </div>
           </div>
 
-          {/* Bottom Left + Bottom Middle: Stats */}
-          <div className="col-span-2 col-start-1 row-span-2 row-start-2">
+          {/* [A2] Meta stats */}
+
+          {/* [B2] Weapon stats */}
+
+          {/* [A3,C3] primary/secondary stats, and equipe ffects */}
+          <div className="col-span-3 col-start-1 row-span-1 row-start-3">
+            <StatsAndEqpEffects
+              priStats={primaryStats}
+              secStats={secondaryStats}
+              equipEffects={equipEffects}
+            />
+          </div>
+
+          {/* To be removed */}
+          <div className=" ">
             <div className="p-2">{statsList}</div>
           </div>
 
-          {/* Bottom Right Upper Half: Host Actions */}
+          {/* [C2] Host Actions */}
           {isRoomHost && (
             <div className="col-span-1 col-start-3 row-span-1 row-start-2 ">
               <div className="flex h-full w-full flex-col items-stretch justify-center gap-2 px-4">
@@ -217,8 +209,6 @@ export default function BidItem() {
               </div>
             </div>
           )}
-
-          {/* Bottom Right Lower Half */}
         </div>
       </div>
     </div>
