@@ -1,6 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { serverTimestamp, where } from 'firebase/firestore'
+import {
+  serverTimestamp,
+  where,
+  deleteField,
+  FieldValue,
+  Timestamp,
+} from 'firebase/firestore'
 
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { useRoomIdAtom } from '@/store/useRoomAtom'
@@ -14,12 +20,18 @@ import {
 
 interface Bidding {
   id: string
-  createdAt: {
-    seconds: number
-    nanoseconds: number
-  }
+  createdAt: Timestamp
   details: ItemFromAPI
   isInProgress: boolean
+  isPaused: boolean
+  isEnded: boolean
+  pausedAt: Timestamp
+  endsAt: Timestamp
+}
+
+// well done, chatGPT
+type BiddingModification = {
+  [K in keyof Partial<Bidding>]: Bidding[K] | FieldValue | Date
 }
 
 function useAddItem() {
@@ -40,14 +52,18 @@ function useAddItem() {
 function useMutationStartBidding(
   { resetOnUnmount } = { resetOnUnmount: false }
 ) {
+  const LATENCY_COMPENSATION = 499
   const [roomId] = useRoomIdAtom()
   const [queryInProgressBidding] = useInProgressBiddingsAtom()
   const refCleanupFn = useRef<() => void>(() => null)
   const inprogressBiddings = queryInProgressBidding
   const mutation = useMutation({
-    mutationFn: startBidding,
+    mutationFn: mutateStartBidding,
   })
 
+  // prevent cleanup from capturing the first render's closure, in which
+  // inprogressBiddings is undefined
+  // more info: NPM ahooks/useLatest
   refCleanupFn.current = clearInProgressBiddings
 
   // unmount will clear inprogress bidding
@@ -77,20 +93,37 @@ function useMutationStartBidding(
         segments: ['rooms', roomId, 'biddings', inprogressBidding.id],
         data: {
           isInProgress: false,
-        },
+          isEnded: false,
+          isPaused: false,
+          pausedAt: deleteField(),
+          endsAt: deleteField(),
+        } as BiddingModification,
       })
     })
   }
 
-  async function startBidding(biddingId: string) {
+  async function mutateStartBidding({
+    biddingId,
+    initialCountdown = 60,
+  }: {
+    biddingId: string
+    initialCountdown?: number
+  }) {
     // clear previous inprogress bidding
     if (inprogressBiddings) {
       const allDeletion = inprogressBiddings.map((inprogressBidding) => {
+        // exclude the current bidding
+        if (inprogressBidding.id === biddingId) return
+
         return upcreateFirebaseDoc({
           segments: ['rooms', roomId, 'biddings', inprogressBidding.id],
           data: {
             isInProgress: false,
-          },
+            isEnded: false,
+            isPaused: false,
+            pausedAt: deleteField(),
+            endsAt: deleteField(),
+          } as BiddingModification,
         })
       })
       await Promise.all(allDeletion)
@@ -100,7 +133,16 @@ function useMutationStartBidding(
       segments: ['rooms', roomId, 'biddings', biddingId],
       data: {
         isInProgress: true,
-      },
+        endsAt: (() => {
+          const now = new Date()
+          now.setMilliseconds(
+            now.getMilliseconds() +
+              initialCountdown * 1000 +
+              LATENCY_COMPENSATION
+          )
+          return now
+        })(),
+      } as BiddingModification,
     })
   }
 }

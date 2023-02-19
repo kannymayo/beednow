@@ -1,0 +1,4 @@
+.custom-countdown > span {
+  /* top: 0; */
+  top: calc(var(--value) * 1em - var(--max-value) * 1em - 1em);
+}

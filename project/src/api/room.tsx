@@ -26,6 +26,7 @@ interface Room {
   attendees: string[] // realtime
   createdAt: FirebaseServerTimestamp
   biddings?: string // collection
+  bidOrder?: string[] // array of all bidding ids
 }
 
 interface RoomActivity {

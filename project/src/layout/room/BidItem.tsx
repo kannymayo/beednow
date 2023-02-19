@@ -1,10 +1,17 @@
 import './BidItem.css'
-
 import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
 import { CurrencyDollarIcon } from '@heroicons/react/24/solid'
+import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
+
+import { useMutationStartBidding } from '@/api/bidding'
+import { useIsRoomHostAtom } from '@/store/useRoomAtom'
+import InfoModal from '@/components/InfoModal'
+import Countdown from './common/Countdown'
 
 export default function BidItem() {
+  const [mutation] = useMutationStartBidding()
   const [inProgressBiddings, hasMember] = useInProgressBiddingsAtom()
+  const [isRoomHost] = useIsRoomHostAtom()
 
   if (!hasMember)
     return (
@@ -30,9 +37,20 @@ export default function BidItem() {
     usableClasses,
     weaponProps,
     bindOn,
-    phase
+    phase,
+    endsAt: any,
+    pausedAt,
+    isPaused,
+    isInProgress,
+    isEnded
   if (inProgressBidding) {
     ;({
+      isInProgress,
+      endsAt,
+      pausedAt,
+      isPaused,
+      endsAt,
+      isEnded,
       details: {
         name,
         iconUrl,
@@ -50,7 +68,6 @@ export default function BidItem() {
       },
     } = inProgressBidding)
   }
-
   const statsList = (
     <>
       {weaponProps && (
@@ -123,12 +140,13 @@ export default function BidItem() {
   return (
     <div className="grid h-full w-full ">
       <div className="m-1 mb-0 overflow-hidden bg-slate-100 drop-shadow-lg">
-        <div className="grid h-full w-full grid-cols-2 grid-rows-3">
+        <div className="grid h-full w-full grid-cols-3 grid-rows-3">
           {/* Name, Bidding Info, Image, Countdown */}
-          <div className="col-span-2 col-start-1 row-span-1 row-start-1">
+          <div className="col-span-3 col-start-1 row-span-1 row-start-1">
             <div className="stats h-full w-full grid-cols-3 overflow-hidden rounded-none shadow">
+              {/* Left: Name, Icon */}
               <div className="stat overflow-hidden p-2 pb-0">
-                <div className="stat-title line-clamps-2 whitespace-normal font-bold opacity-100">
+                <div className="stat-title line-clamps-2 whitespace-normal font-bold leading-4 opacity-100">
                   {name}
                 </div>
                 <div className="stat-value flex gap-1">
@@ -144,6 +162,7 @@ export default function BidItem() {
                 </div>
               </div>
 
+              {/* Middle: Current Highest */}
               <div className="stat gap-x-0 overflow-hidden p-2 pb-0">
                 <div className="stat-figure text-secondary">
                   <CurrencyDollarIcon className="h-10 w-10 text-yellow-500" />
@@ -153,34 +172,62 @@ export default function BidItem() {
                 <div className="stat-desc">User Name</div>
               </div>
 
+              {/* Right: Countdown */}
               <div className="stat overflow-hidden p-2 pb-0">
-                <div className="stat-value pt-2 text-center text-7xl">
-                  <span className="countdown font-mono ">
-                    <span style={{ '--value': 36 }}></span>
-                  </span>
-                </div>
+                <Countdown
+                  isInProgress={isInProgress}
+                  isEnded={isEnded}
+                  isPaused={isPaused}
+                  endsAt={endsAt}
+                  pausedAt={pausedAt}
+                />
+                {/* <div className="stat-desc">Countdown</div> */}
                 <div className="stat-desc">Countdown</div>
               </div>
             </div>
-
-            {/* <h1 className="mx-auto w-full bg-slate-300 py-1 text-center text-2xl">
-              {name}
-            </h1>
-            <div className="p-2">
-              <img
-                src={iconUrl}
-                className="mask h-12 w-12 rounded-md drop-shadow-lg"
-              ></img>
-              
-            </div> */}
           </div>
 
-          {/* Stats */}
+          {/* Bottom Left + Bottom Middle: Stats */}
           <div className="col-span-2 col-start-1 row-span-2 row-start-2">
             <div className="p-2">{statsList}</div>
           </div>
+
+          {/* Bottom Right Upper Half: Host Actions */}
+          {isRoomHost && (
+            <div className="col-span-1 col-start-3 row-span-1 row-start-2 ">
+              <div className="flex h-full w-full flex-col items-stretch justify-center gap-2 px-4">
+                <div className="flex items-center justify-around">
+                  <span className="text-sm opacity-70">Host Actions</span>
+                  <InfoModal
+                    title="Continue vs. Reset"
+                    body="You can continue a bidding when the countdown has finished, and offer history will be preserved. On the contrary, if you choose to reset a bidding, all offers will be removed and the bidding starts from fresh."
+                  >
+                    <QuestionMarkCircleIcon className="ml-auto h-4 w-4 cursor-pointer" />
+                  </InfoModal>
+                </div>
+                <button
+                  onClick={handleResetBidding}
+                  className="btn btn-sm btn-warning w-full"
+                >
+                  Reset
+                </button>
+                <button className="btn btn-sm btn-warning w-full">
+                  Continue
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Bottom Right Lower Half */}
         </div>
       </div>
     </div>
   )
+
+  async function handleResetBidding() {
+    await mutation.mutateAsync({
+      biddingId: inProgressBidding.id,
+      initialCountdown: 40,
+    })
+  }
 }

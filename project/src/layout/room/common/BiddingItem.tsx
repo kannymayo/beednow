@@ -7,8 +7,19 @@ import {
   BoltIcon,
 } from '@heroicons/react/24/outline'
 
+import {
+  UseMutationResult,
+  UseMutateAsyncFunction,
+} from '@tanstack/react-query'
 import { useIsRoomHostAtom } from '@/store/useRoomAtom'
-import { Bidding } from '@/api/bidding'
+import { Bidding, useMutationStartBidding } from '@/api/bidding'
+
+// Thanks, ChatGPT
+type MutateFnParams = ReturnType<
+  typeof useMutationStartBidding
+>[0] extends UseMutationResult<unknown, unknown, infer T, unknown>
+  ? T
+  : never
 
 export default function BiddingItem({
   item,
@@ -17,7 +28,7 @@ export default function BiddingItem({
 }: {
   item: Bidding
   mutateDeleteAsync: (id: string) => Promise<void>
-  mutateStartBiddingAsync: (id: string) => Promise<void>
+  mutateStartBiddingAsync: (o: MutateFnParams) => Promise<void>
 }) {
   const [isRoomHost] = useIsRoomHostAtom()
   const [isDeleteStaged, setIsDeleteStaged] = useState(false)
@@ -113,6 +124,6 @@ export default function BiddingItem({
   }
 
   async function handleStartBidding() {
-    await mutateStartBiddingAsync(item.id)
+    await mutateStartBiddingAsync({ biddingId: item.id })
   }
 }
