@@ -18,6 +18,7 @@ import InfoModal from '@/components/InfoModal'
 import Countdown from './Countdown'
 import StatsAndEqpEffects from './StatsAndEqpEffects'
 import MetaAndWpnStats from './MetaAndWpnStats'
+import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'
 
 export default function BidItem() {
   const MAX_COUNTDOWN = 60
@@ -30,7 +31,6 @@ export default function BidItem() {
   })
   const [countdown, setCoundown] = useState(MAX_COUNTDOWN)
 
-  const canReset = countdown <= MAX_COUNTDOWN / 2
   const canGrantMoreTime = countdown <= MAX_COUNTDOWN - 10
   const inProgressBidding = inProgressBiddings[0]
   const name = inProgressBidding?.details?.name
@@ -156,20 +156,23 @@ export default function BidItem() {
                     <QuestionMarkCircleIcon className="ml-auto h-4 w-4 cursor-pointer" />
                   </InfoModal>
                 </div>
-                <button
-                  onClick={handleResetBidding}
-                  className="btn btn-sm btn-warning flex w-full justify-start gap-3 capitalize"
+                <RequiresConfirmByModal
+                  title="Are you sure you want to reset the bidding?"
+                  body="This will reset the bidding to its initial state and wipe all bidding history, and will also reset the countdown to half the initial value."
+                  onConfirm={handleResetBidding}
                 >
-                  <ArrowPathIcon className="h-6 w-6" />
-                  Reset
-                </button>
+                  <div className="btn btn-sm btn-warning w-full flex-nowrap justify-start gap-3 truncate capitalize">
+                    <ArrowPathIcon className="h-6 w-6 shrink-0" />
+                    Reset
+                  </div>
+                </RequiresConfirmByModal>
                 <button
                   disabled={!canGrantMoreTime}
                   onClick={handleGrantMoreTime}
-                  className="btn btn-sm btn-warning w-full justify-start gap-3 capitalize"
+                  className="btn btn-sm btn-warning w-full flex-nowrap justify-start gap-3 truncate capitalize"
                 >
-                  <PlusCircleIcon className="h-6 w-6" />
-                  Grant 10s
+                  <PlusCircleIcon className="h-6 w-6 shrink-0" />
+                  10s More
                 </button>
               </div>
             </div>

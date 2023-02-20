@@ -92,12 +92,16 @@ export default function BiddingItem({
               </div>
             </div>
             {/* Start bidding button */}
-            <button
-              onClick={handleStartBidding}
-              className="btn btn-xs btn-outline hidden border-none  group-hover:flex"
-            >
-              <PlayCircleIcon className="h-5 w-5 -rotate-90" />
-            </button>
+            {isRoomHost && !isInProgress ? (
+              <button
+                onClick={handleStartBidding}
+                className="btn btn-xs btn-outline hidden border-none  group-hover:flex"
+              >
+                <PlayCircleIcon className="h-5 w-5 -rotate-90" />
+              </button>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
         {isInProgress ? (

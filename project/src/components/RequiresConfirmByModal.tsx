@@ -1,4 +1,5 @@
 import { useState, useId } from 'react'
+import { createPortal } from 'react-dom'
 
 /**
  * Just Pass in div and style as button. Passing in button child will not
@@ -18,37 +19,42 @@ export default function RequiresConfirmByModal({
 }) {
   const modalId = useId()
   const [isModalOpen, setIsModalOpen] = useState(false)
-
   return (
     <>
       {/* Modal Trigger */}
       <label htmlFor={modalId}>{children}</label>
 
-      {/* Not rendered until checkbox checked */}
-      <input
-        type="checkbox"
-        id={modalId}
-        className="modal-toggle"
-        checked={isModalOpen}
-        onChange={() => setIsModalOpen(!isModalOpen)}
-      />
-      {/* Backdrop, also as a label to close modal */}
-      <label className="modal cursor-pointer" htmlFor={modalId}>
-        {/* Modal itself */}
-        <label className="modal-box relative" htmlFor="">
-          <h3 className="text-lg font-bold">{title}</h3>
-          <p className="py-4">{body}</p>
-          {/* Action to confirm */}
-          <div className="modal-action">
-            <button
-              onClick={handleConfirm}
-              className="btn btn-error btn-outline btn-sm border-2 shadow-lg"
-            >
-              Confirm
-            </button>
-          </div>
-        </label>
-      </label>
+      {/* Modal itself is added to body */}
+      {createPortal(
+        <>
+          {/* Hidden checkbox encapsulate the open state */}
+          <input
+            type="checkbox"
+            id={modalId}
+            className="modal-toggle"
+            checked={isModalOpen}
+            onChange={() => setIsModalOpen(!isModalOpen)}
+          />
+          {/* Backdrop, also as a label to close modal */}
+          <label className="modal cursor-pointer" htmlFor={modalId}>
+            {/* Modal itself */}
+            <label className="modal-box relative" htmlFor="">
+              <h3 className="text-lg font-bold">{title}</h3>
+              <p className="py-4">{body}</p>
+              {/* Action to confirm */}
+              <div className="modal-action">
+                <button
+                  onClick={handleConfirm}
+                  className="btn btn-error btn-outline btn-sm border-2 shadow-lg"
+                >
+                  Confirm
+                </button>
+              </div>
+            </label>
+          </label>
+        </>,
+        document.body
+      )}
     </>
   )
 
