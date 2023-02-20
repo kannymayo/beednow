@@ -1,5 +1,5 @@
 .custom-countdown > span {
   /* top: 0; */
   top: calc(var(--value) * 1em - var(--max-value) * 1em - 1em);
-  transition-timing-function: cubic-bezier(1, 0, 0, 1);
+  transition-timing-function: cubic-bezier(0, 1.6, 0, 0.8);
 }

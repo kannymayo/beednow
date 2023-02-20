@@ -11,15 +11,20 @@ import {
   FireIcon,
 } from '@heroicons/react/24/outline'
 
-import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
+import {
+  useInProgressBiddingsAtom,
+  useCountdownAtom,
+} from '@/store/useBiddingAtom'
 import InfoModal from '@/components/InfoModal'
 
 export default function BidAction() {
+  const [countdown] = useCountdownAtom()
   const [inProgressBiddings, hasMember] = useInProgressBiddingsAtom()
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
   })
-  const globalDisabled = !hasMemberDebounced
+
+  const globalDisabled = !hasMemberDebounced || countdown <= 0
 
   return (
     <div className="grid h-full w-full">

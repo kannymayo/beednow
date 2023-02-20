@@ -4,6 +4,12 @@ import { useAtom, atom } from 'jotai'
 import { Bidding } from '@/api/bidding'
 
 const inProgressBiddingsAtom = atom<Bidding[] | []>([])
+const countdownAtom = atom(0)
+
+function useCountdownAtom() {
+  const [countdown, setCountdown] = useAtom(countdownAtom)
+  return [countdown, setCountdown] as const
+}
 
 function useInProgressBiddingsAtom({
   resetOnUnmount = false,
@@ -35,4 +41,4 @@ function useInProgressBiddingsAtom({
   return [inProgressBiddings, hasMember] as const
 }
 
-export { useInProgressBiddingsAtom }
+export { useInProgressBiddingsAtom, useCountdownAtom }

@@ -1,8 +1,10 @@
 import './Countdown.css'
 import clsx from 'clsx'
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { Timestamp } from 'firebase/firestore'
 import { useCountDown } from 'ahooks'
+
+import { useCountdownAtom } from '@/store/useBiddingAtom'
 
 export default function Countdown({
   endsAt,
@@ -19,12 +21,14 @@ export default function Countdown({
   max?: number
   updateSubscriberCountdown?: (countdown: number) => void
 } = {}) {
+  const [, setCountdown] = useCountdownAtom()
   const refShouldInstaScroll = useRef<boolean>(false)
   const refPrevCountdown = useRef<number | undefined>(undefined)
   const [countdownInMs] = useCountDown({
     targetDate: endsAt?.toDate(),
   })
-  const [countdown, wasOutOfRange] = confineToIntInRange(
+
+  const [countdownConfined, wasOutOfRange] = confineToIntInRange(
     countdownInMs / 1000,
     0,
     max
@@ -32,16 +36,15 @@ export default function Countdown({
   const shouldShowNumber = !isEnded && endsAt && !wasOutOfRange
   // NA is represented by "--", and to make it shown, MAX + 1 is used
   // it is specially chosen to ensure a good animation from '--' to MAX
-  const valueToDriveCountdown = shouldShowNumber ? countdown : max + 1
+  const valueToDriveCountdown = shouldShowNumber ? countdownConfined : max + 1
   const numberTape = '--' + sequenceWithPrefix(max)
   const counterStyle = {
     '--max-value': max,
     '--value': valueToDriveCountdown,
   } as React.CSSProperties
 
-  // change too drastic, turn off animation
-  if (refPrevCountdown.current) {
-    if (Math.abs(refPrevCountdown.current - countdown) > 5) {
+  if (refPrevCountdown.current !== undefined) {
+    if (Math.abs(refPrevCountdown.current - countdownConfined) > 5) {
       refShouldInstaScroll.current = true
       setTimeout(() => {
         refShouldInstaScroll.current = false
@@ -50,9 +53,14 @@ export default function Countdown({
   }
   // update prev and subscriber
   useEffect(() => {
-    updateSubscriberCountdown?.(countdown)
-    refPrevCountdown.current = countdown
-  }, [countdown])
+    updateSubscriberCountdown?.(countdownConfined)
+    refPrevCountdown.current = countdownConfined
+  }, [countdownConfined])
+
+  // update store
+  useEffect(() => {
+    setCountdown(countdownConfined)
+  }, [countdownConfined])
 
   const clsTape = clsx(
     {
