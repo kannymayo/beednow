@@ -7,9 +7,9 @@ import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
 import { useMutationResetBidding } from '@/api/bidding'
 import { useIsRoomHostAtom } from '@/store/useRoomAtom'
 import InfoModal from '@/components/InfoModal'
-import Countdown from './common/Countdown'
-import StatsAndEqpEffects from './common/StatsAndEqpEffects'
-import MetaAndWpnStats from './common/MetaAndWpnStats'
+import Countdown from './Countdown'
+import StatsAndEqpEffects from './StatsAndEqpEffects'
+import MetaAndWpnStats from './MetaAndWpnStats'
 
 export default function BidItem() {
   const [mutation] = useMutationResetBidding()

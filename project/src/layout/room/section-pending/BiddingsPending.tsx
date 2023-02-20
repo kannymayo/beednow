@@ -12,7 +12,7 @@ import {
 import { useRoomIdAtom } from '@/store/useRoomAtom'
 import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
 import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
-import BiddingItem from './common/BiddingItem'
+import BiddingItem from '../common/BiddingItem'
 
 export default function BiddingsPending() {
   const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
