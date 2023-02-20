@@ -9,7 +9,7 @@ import {
 } from 'firebase/firestore'
 
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
-import { useRoomIdAtom } from '@/store/useRoomAtom'
+import { useRoomIdAtom, useIsRoomHostAtom } from '@/store/useRoomAtom'
 import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
 import { ItemFromAPI } from '@/api/item-details'
 import {
@@ -107,6 +107,7 @@ function useMutationResetBidding(
 ) {
   const LATENCY_COMPENSATION = 499
   const [roomId] = useRoomIdAtom()
+  const [isRoomHost] = useIsRoomHostAtom()
   const [queryInProgressBidding] = useInProgressBiddingsAtom()
   const refClearAllFn = useRef<() => void>(() => null)
   const inprogressBiddings = queryInProgressBidding
@@ -121,23 +122,23 @@ function useMutationResetBidding(
 
   // Unmount will clear all
   useEffect(() => {
-    if (!resetOnUnmount) return
+    if (!resetOnUnmount || !isRoomHost) return
     return () => {
       refClearAllFn?.current()
     }
-  }, [])
+  }, [isRoomHost])
 
   // Refresh/Close tab will clear all
   useEffect(() => {
     const fn = () => {
       refClearAllFn?.current()
     }
-    if (!resetOnUnmount) return
+    if (!resetOnUnmount || !isRoomHost) return
     window.addEventListener('beforeunload', fn)
     return () => {
       window.removeEventListener('beforeunload', fn)
     }
-  }, [])
+  }, [isRoomHost])
 
   return [mutation]
 
