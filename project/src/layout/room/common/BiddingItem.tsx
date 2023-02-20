@@ -9,11 +9,11 @@ import {
 import { UseMutationResult } from '@tanstack/react-query'
 
 import { useIsRoomHostAtom } from '@/store/useRoomAtom'
-import { Bidding, useMutationStartBidding } from '@/api/bidding'
+import { Bidding, useMutationResetBidding } from '@/api/bidding'
 
 // Thanks, ChatGPT
 type MutateFnParams = ReturnType<
-  typeof useMutationStartBidding
+  typeof useMutationResetBidding
 >[0] extends UseMutationResult<unknown, unknown, infer T, unknown>
   ? T
   : never

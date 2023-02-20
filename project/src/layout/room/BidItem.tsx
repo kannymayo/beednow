@@ -4,7 +4,7 @@ import { CurrencyDollarIcon } from '@heroicons/react/24/solid'
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 
 import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
-import { useMutationStartBidding } from '@/api/bidding'
+import { useMutationResetBidding } from '@/api/bidding'
 import { useIsRoomHostAtom } from '@/store/useRoomAtom'
 import InfoModal from '@/components/InfoModal'
 import Countdown from './common/Countdown'
@@ -12,7 +12,7 @@ import StatsAndEqpEffects from './common/StatsAndEqpEffects'
 import MetaAndWpnStats from './common/MetaAndWpnStats'
 
 export default function BidItem() {
-  const [mutation] = useMutationStartBidding()
+  const [mutation] = useMutationResetBidding()
   const [inProgressBiddings, hasMember] = useInProgressBiddingsAtom()
   const [isRoomHost] = useIsRoomHostAtom()
   const hasMemberDebounced = useDebounce(hasMember, {
@@ -63,10 +63,12 @@ export default function BidItem() {
                   {hasMember ? name : 'No item is being bid on'}
                 </div>
                 <div className="stat-value flex gap-1">
-                  <img
-                    src={iconUrl}
+                  <div
+                    style={{
+                      backgroundImage: `url(${iconUrl})`,
+                    }}
                     className="bg-loading h-14 w-14 rounded"
-                  ></img>
+                  ></div>
                   {/* Item Level */}
                   <div className="flex flex-1 flex-col items-center justify-center">
                     <div className="select-none text-sm opacity-70">

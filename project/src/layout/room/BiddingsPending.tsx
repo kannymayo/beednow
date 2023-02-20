@@ -5,7 +5,7 @@ import { useForm } from '@/hooks/form'
 import { useSignalScrolledTooDeep } from '@/hooks/useSignalScrolledTooDeep'
 import {
   useMutationDeleteItem,
-  useMutationStartBidding,
+  useMutationResetBidding,
   useQueryBiddings,
   Bidding,
 } from '@/api/bidding'
@@ -30,7 +30,7 @@ export default function BiddingsPending() {
   })
 
   const [{ mutateAsync: mutateDeleteAsync }] = useMutationDeleteItem()
-  const [{ mutateAsync: mutateStartBiddingAsync }] = useMutationStartBidding({
+  const [{ mutateAsync: mutateStartBiddingAsync }] = useMutationResetBidding({
     resetOnUnmount: true,
   })
 

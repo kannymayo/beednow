@@ -49,44 +49,94 @@ function useAddItem() {
   }
 }
 
-function useMutationStartBidding(
+function useMutationGrantMoreTime() {
+  const [roomId] = useRoomIdAtom()
+  const mutation = useMutation({
+    mutationFn: mutateFnGrantMoreTime,
+  })
+
+  return [mutation]
+
+  async function mutateFnGrantMoreTime({
+    biddingId,
+    seconds = 15,
+    base,
+  }: {
+    biddingId: string
+    seconds?: number
+    base?: Timestamp
+  }) {
+    // Base provided, relatively set to x seconds from base
+    if (base) {
+      await upcreateFirebaseDoc({
+        segments: ['rooms', roomId, 'biddings', biddingId],
+        data: {
+          endsAt: (() => {
+            const baseDate = new Date(base.toMillis())
+            baseDate.setMilliseconds(
+              baseDate.getMilliseconds() + seconds * 1000
+            )
+            return baseDate
+          })(),
+        } as BiddingModification,
+      })
+    }
+    // No base, absolute time x seconds from now
+    else {
+      await upcreateFirebaseDoc({
+        segments: ['rooms', roomId, 'biddings', biddingId],
+        data: {
+          endsAt: (() => {
+            const now = new Date()
+            now.setMilliseconds(now.getMilliseconds() + seconds * 1000)
+            return now
+          })(),
+        } as BiddingModification,
+      })
+    }
+  }
+}
+
+function useMutationResetBidding(
   { resetOnUnmount } = { resetOnUnmount: false }
 ) {
   const LATENCY_COMPENSATION = 499
   const [roomId] = useRoomIdAtom()
   const [queryInProgressBidding] = useInProgressBiddingsAtom()
-  const refCleanupFn = useRef<() => void>(() => null)
+  const refClearAllFn = useRef<() => void>(() => null)
   const inprogressBiddings = queryInProgressBidding
   const mutation = useMutation({
-    mutationFn: mutateStartBidding,
+    mutationFn: mutateFnResetBidding,
   })
 
   // prevent cleanup from capturing the first render's closure, in which
   // inprogressBiddings is undefined
   // more info: NPM ahooks/useLatest
-  refCleanupFn.current = clearInProgressBiddings
+  refClearAllFn.current = clearAll
 
-  // unmount will clear inprogress bidding
+  // Unmount will clear all
   useEffect(() => {
     if (!resetOnUnmount) return
     return () => {
-      refCleanupFn?.current()
+      refClearAllFn?.current()
     }
   }, [])
 
-  // refresh/closing will also clear inprogress bidding
+  // Refresh/Close tab will clear all
   useEffect(() => {
+    const fn = () => {
+      refClearAllFn?.current()
+    }
     if (!resetOnUnmount) return
-    window.addEventListener('beforeunload', refCleanupFn?.current)
+    window.addEventListener('beforeunload', fn)
     return () => {
-      window.removeEventListener('beforeunload', refCleanupFn?.current)
+      window.removeEventListener('beforeunload', fn)
     }
   }, [])
 
   return [mutation]
 
-  async function clearInProgressBiddings() {
-    // clear previous inprogress bidding
+  async function clearAll() {
     if (!inprogressBiddings) return
     inprogressBiddings.forEach(async (inprogressBidding) => {
       await upcreateFirebaseDoc({
@@ -102,17 +152,16 @@ function useMutationStartBidding(
     })
   }
 
-  async function mutateStartBidding({
+  async function mutateFnResetBidding({
     biddingId,
     initialCountdown = 60,
   }: {
     biddingId: string
     initialCountdown?: number
   }) {
-    // clear previous inprogress bidding
+    // clear all inprogress bidding, except the one we are about to start
     if (inprogressBiddings) {
       const allDeletion = inprogressBiddings.map((inprogressBidding) => {
-        // exclude the current bidding
         if (inprogressBidding.id === biddingId) return
 
         return upcreateFirebaseDoc({
@@ -128,7 +177,7 @@ function useMutationStartBidding(
       })
       await Promise.all(allDeletion)
     }
-    // set new inprogress bidding
+    // resets the bidding and give it a new end time
     await upcreateFirebaseDoc({
       segments: ['rooms', roomId, 'biddings', biddingId],
       data: {
@@ -185,6 +234,6 @@ export {
   useAddItem,
   useQueryBiddings,
   useMutationDeleteItem,
-  useMutationStartBidding,
+  useMutationResetBidding,
 }
 export type { Bidding }

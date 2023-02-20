@@ -39,7 +39,7 @@ export default function StatsAndEqpEffects({
       {/* Stats width 1/3 */}
       {/* Primary */}
       {Object.entries(priStats).map(([statName, statValue]) => (
-        <li className=" w-[33.3%] px-1">
+        <li key={statName} className=" w-[33.3%] px-1">
           <div className="input-group input-group-xs grid grid-cols-3">
             <span className="col-span-2 flex-1 select-none truncate bg-yellow-800 pl-2 text-sm capitalize text-white">
               {statName}
@@ -52,7 +52,7 @@ export default function StatsAndEqpEffects({
       ))}
       {/* Secondary */}
       {Object.entries(secStats).map(([statName, statValue]) => (
-        <li className=" w-[33.3%] px-1">
+        <li key={statName} className=" w-[33.3%] px-1">
           <div className="input-group input-group-xs grid grid-cols-3">
             <span className="col-span-2 select-none truncate bg-green-900 pl-2 text-sm capitalize text-white">
               {RatingLookup[statName] || statName}
@@ -66,7 +66,7 @@ export default function StatsAndEqpEffects({
 
       {/* Equip effect, width max 2/3 */}
       {equipEffects.map((desc) => (
-        <li className="min-w-[33.3%] max-w-[66.6%] px-1">
+        <li key={desc} className="min-w-[33.3%] max-w-[66.6%] px-1">
           <div className="input-group input-group-vertical input-group-sm">
             <span className="h-6 select-none bg-yellow-800 px-2 text-sm capitalize text-white">
               equip effect
