@@ -27,12 +27,12 @@ export default function StatsAndEqpEffects({
   priStats = {},
   secStats = {},
   equipEffects = [],
-  isLoading,
+  isAnyInProgress,
 }: {
   priStats?: PriStats
   secStats?: SecStats
   equipEffects?: EquipEffect
-  isLoading?: boolean
+  isAnyInProgress?: boolean
 }) {
   return (
     <ul className="flex h-full flex-col flex-wrap content-start items-start gap-y-1 overflow-hidden px-2 py-1">
@@ -41,7 +41,7 @@ export default function StatsAndEqpEffects({
       {Object.entries(priStats).map(([statName, statValue]) => (
         <li className=" w-[33.3%] px-1">
           <div className="input-group input-group-xs grid grid-cols-3">
-            <span className="col-span-2 flex-1 select-none truncate bg-yellow-800 text-sm capitalize text-white">
+            <span className="col-span-2 flex-1 select-none truncate bg-yellow-800 pl-2 text-sm capitalize text-white">
               {statName}
             </span>
             <div className="input input-xs flex-1 text-center text-base">
@@ -54,7 +54,7 @@ export default function StatsAndEqpEffects({
       {Object.entries(secStats).map(([statName, statValue]) => (
         <li className=" w-[33.3%] px-1">
           <div className="input-group input-group-xs grid grid-cols-3">
-            <span className="col-span-2 select-none truncate bg-green-900 text-sm capitalize text-white">
+            <span className="col-span-2 select-none truncate bg-green-900 pl-2 text-sm capitalize text-white">
               {RatingLookup[statName] || statName}
             </span>
             <div className="input input-xs text-center text-base">

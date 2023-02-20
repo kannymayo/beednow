@@ -7,14 +7,12 @@ import { useCountDown } from 'ahooks'
 export default function Countdown({
   endsAt,
   pausedAt,
-  isInProgress = false,
   isEnded = false,
   isPaused = false,
   max = 60,
 }: {
   endsAt?: Timestamp | undefined
   pausedAt?: Timestamp | undefined
-  isInProgress?: boolean
   isEnded?: boolean
   isPaused?: boolean
   max?: number
@@ -29,7 +27,7 @@ export default function Countdown({
     0,
     max
   )
-  const shouldShowNumber = isInProgress && !isEnded && endsAt && !wasOutOfRange
+  const shouldShowNumber = !isEnded && endsAt && !wasOutOfRange
   // NA is represented by "--", and to make it shown, MAX + 1 is used
   // it is specially chosen to ensure a good animation from '--' to MAX
   const valueToDriveCountdown = shouldShowNumber ? countdown : max + 1
@@ -38,27 +36,26 @@ export default function Countdown({
     '--max-value': max,
     '--value': valueToDriveCountdown,
   } as React.CSSProperties
+
+  // change too drastic, turn off animation
   if (refPrevCountdown.current) {
-    // change too drastic, turn off animation
     if (Math.abs(refPrevCountdown.current - countdown) > 5) {
-      // setter here causes infinite loop
       refShouldInstaScroll.current = true
       setTimeout(() => {
         refShouldInstaScroll.current = false
       }, 1000)
     }
   }
+  useEffect(() => {
+    refPrevCountdown.current = countdown
+  }, [countdown])
+
   const clsTape = clsx(
     {
       'duration-1000': !refShouldInstaScroll.current,
     },
-    'relative whitespace-pre transition-all'
+    'relative whitespace-pre transition-all select-none'
   )
-  useEffect(() => {
-    console.log('here')
-    refPrevCountdown.current = countdown
-  }, [countdown])
-
   return (
     <div className="stat-value text-center font-mono text-7xl font-light">
       <span className="custom-countdown inline-flex h-[1em] overflow-y-hidden">
@@ -71,7 +68,7 @@ export default function Countdown({
 }
 
 function sequenceWithPrefix(upto: number) {
-  return range(60, 0, -1).reduce((acc, cur) => acc + '\n' + cur, '')
+  return range(upto, 0, -1).reduce((acc, cur) => acc + '\n' + cur, '')
 }
 
 function range(start: number, stop: number, step: number) {

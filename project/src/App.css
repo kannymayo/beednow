@@ -12,9 +12,40 @@ body {
   height: 100vh;
 }
 
-// loading skeleton
+.requires-inprogress-bidding {
+  position: relative !important;
+  pointer-events: none;
+  user-select: none;
+}
+.requires-inprogress-bidding::before {
+  content: '';
+  position: absolute;
+  background-color: RGBA(51, 65, 85, 0.7);
+  backdrop-filter: blur(8px);
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+}
+.requires-inprogress-bidding::after {
+  content: 'Start a new bidding session to view';
+  text-align: center;
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  font-weight: bolder;
+  z-index: 2;
+}
+
+.bg-loading {
+  background-color: hsl(200, 20%, 70%);
+}
+
 .skeleton {
-  opacity: 0.7;
   animation: skeleton-loading 1s linear infinite alternate;
 }
 .skeleton-text {

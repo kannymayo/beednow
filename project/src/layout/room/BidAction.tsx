@@ -1,3 +1,5 @@
+import clsx from 'clsx'
+import { useDebounce } from 'ahooks'
 import {
   ArrowUturnUpIcon,
   HandRaisedIcon,
@@ -9,9 +11,16 @@ import {
   FireIcon,
 } from '@heroicons/react/24/outline'
 
+import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
 import InfoModal from '@/components/InfoModal'
 
 export default function BidAction() {
+  const [inProgressBiddings, hasMember] = useInProgressBiddingsAtom()
+  const hasMemberDebounced = useDebounce(hasMember, {
+    wait: 200,
+  })
+  const globalDisabled = !hasMemberDebounced
+
   return (
     <div className="grid h-full w-full">
       <div className="mt-1 overflow-hidden bg-slate-100 drop-shadow-lg">
@@ -25,19 +34,34 @@ export default function BidAction() {
                   <span className="label-text">Manually bid 000</span>
                 </label>
                 <div className="flex flex-1 flex-col justify-around">
-                  <button className="btn btn-sm btn-primary">+100</button>
-                  <button className="btn btn-sm btn-primary">+500</button>
-                  <button className="btn btn-sm btn-primary">+5000</button>
+                  <button
+                    disabled={globalDisabled}
+                    className="btn btn-sm btn-primary"
+                  >
+                    +100
+                  </button>
+                  <button
+                    disabled={globalDisabled}
+                    className="btn btn-sm btn-primary"
+                  >
+                    +500
+                  </button>
+                  <button
+                    disabled={globalDisabled}
+                    className="btn btn-sm btn-primary"
+                  >
+                    +5000
+                  </button>
                 </div>
               </div>
             </div>
-            {/* TR Relative Offer with Autopolit */}
+            {/* TR Relative Offer with Autopilot */}
 
             <div className="flex flex-grow basis-1 flex-col gap-1">
               <div className="form-control flex-1">
-                <label className=" label">
+                <div className=" label">
                   <span className="label-text flex items-center gap-2">
-                    Autopilot{' '}
+                    Autopilot
                     <InfoModal
                       title="Autopilot Mode"
                       body="When in autopilot mode, system will automatically bid at the selected increment, until the budget is reached or the bid is won"
@@ -45,13 +69,16 @@ export default function BidAction() {
                       <QuestionMarkCircleIcon className="h-4 w-4 cursor-pointer" />
                     </InfoModal>
                   </span>
-                </label>
+                </div>
                 <div className="flex flex-1 flex-col justify-around">
                   <div className="input-group">
                     <span className="input-group-text flex-1 select-none">
                       +100
                     </span>
-                    <button className="btn btn-sm btn-primary gap-2 font-normal capitalize">
+                    <button
+                      disabled={globalDisabled}
+                      className="btn btn-sm btn-primary gap-2 font-normal capitalize"
+                    >
                       <RocketLaunchIcon className="h-5 w-5" />
                     </button>
                   </div>
@@ -59,7 +86,10 @@ export default function BidAction() {
                     <span className="input-group-text flex-1 select-none">
                       +500
                     </span>
-                    <button className="btn btn-sm btn-primary gap-2 font-normal capitalize">
+                    <button
+                      disabled={globalDisabled}
+                      className="btn btn-sm btn-primary gap-2 font-normal capitalize"
+                    >
                       <RocketLaunchIcon className="h-5 w-5" />
                     </button>
                   </div>
@@ -67,7 +97,10 @@ export default function BidAction() {
                     <span className="input-group-text flex-1 select-none">
                       +5000
                     </span>
-                    <button className="btn btn-sm btn-primary gap-2 font-normal capitalize">
+                    <button
+                      disabled={globalDisabled}
+                      className="btn btn-sm btn-primary gap-2 font-normal capitalize"
+                    >
                       <FireIcon className="h-5 w-5 hover:animate-bounce" />
                     </button>
                   </div>
@@ -78,7 +111,7 @@ export default function BidAction() {
 
           {/* Middle Layer, Budget */}
           <div className="col-span-2 col-start-1 row-span-1 row-start-4 flex items-end justify-center px-2 xl:px-10">
-            <label className="input-group">
+            <div className="input-group">
               <span className="input-group-text select-none gap-2">
                 Budget
                 <InfoModal
@@ -89,27 +122,37 @@ export default function BidAction() {
                 </InfoModal>
               </span>
               <input
+                disabled={globalDisabled}
                 className="input flex-1 focus:outline-none"
                 type="text"
                 placeholder="Infinity"
                 size={12}
               />
-              <button className="btn btn-warning gap-2 capitalize">
+              <button
+                disabled={globalDisabled}
+                className="btn btn-warning gap-2 capitalize"
+              >
                 <LockOpenIcon className="h-5 w-5" />
                 Set
               </button>
-            </label>
+            </div>
           </div>
 
           {/* Bottom Layer */}
           <div className="col-span-2 col-start-1 row-span-2 row-start-5 flex justify-center gap-8 px-2 xl:px-10">
             {/* BL Non-bidding Actions */}
             <div className=" flex flex-col items-center justify-center gap-2">
-              <button className="btn btn-warning btn-sm flex w-28 justify-around">
+              <button
+                disabled={globalDisabled}
+                className="btn btn-warning btn-sm flex w-28 justify-around"
+              >
                 <HandRaisedIcon className="h-5 w-5" />
                 Wait
               </button>
-              <button className="btn btn-warning btn-sm flex w-28 justify-around">
+              <button
+                disabled={globalDisabled}
+                className="btn btn-warning btn-sm flex w-28 justify-around"
+              >
                 <ArrowPathIcon className="h-5 w-5" />
                 Later
               </button>
@@ -124,12 +167,16 @@ export default function BidAction() {
                 <label className="input-group input-group-sm">
                   <span className="input-group-text px-2">Offer</span>
                   <input
+                    disabled={globalDisabled}
                     size={4}
                     type="text"
                     placeholder="Enter amount"
                     className="input input-sm flex-1 focus:outline-none"
                   />
-                  <button className="btn btn-sm btn-primary">
+                  <button
+                    disabled={globalDisabled}
+                    className="btn btn-sm btn-primary"
+                  >
                     <ArrowUturnUpIcon className="h-5 w-5" />
                   </button>
                 </label>
