@@ -1,10 +1,18 @@
 import clsx from 'clsx'
+import { useState } from 'react'
 import { useDebounce } from 'ahooks'
 import { CurrencyDollarIcon } from '@heroicons/react/24/solid'
-import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
+import {
+  QuestionMarkCircleIcon,
+  ArrowPathIcon,
+  PlusCircleIcon,
+} from '@heroicons/react/24/outline'
 
 import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
-import { useMutationResetBidding } from '@/api/bidding'
+import {
+  useMutationResetBidding,
+  useMutationGrantMoreTime,
+} from '@/api/bidding'
 import { useIsRoomHostAtom } from '@/store/useRoomAtom'
 import InfoModal from '@/components/InfoModal'
 import Countdown from './Countdown'
@@ -12,13 +20,18 @@ import StatsAndEqpEffects from './StatsAndEqpEffects'
 import MetaAndWpnStats from './MetaAndWpnStats'
 
 export default function BidItem() {
-  const [mutation] = useMutationResetBidding()
+  const MAX_COUNTDOWN = 60
+  const [mutationReset] = useMutationResetBidding()
+  const [mutationGrantMoreTime] = useMutationGrantMoreTime()
   const [inProgressBiddings, hasMember] = useInProgressBiddingsAtom()
   const [isRoomHost] = useIsRoomHostAtom()
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
   })
+  const [countdown, setCoundown] = useState(MAX_COUNTDOWN)
 
+  const canReset = countdown <= MAX_COUNTDOWN / 2
+  const canGrantMoreTime = countdown <= MAX_COUNTDOWN - 10
   const inProgressBidding = inProgressBiddings[0]
   const name = inProgressBidding?.details?.name
   const iconUrl = inProgressBidding?.details?.iconUrl
@@ -92,10 +105,12 @@ export default function BidItem() {
               {/* Right: Countdown */}
               <div className="stat overflow-hidden p-2 pb-0">
                 <Countdown
+                  max={MAX_COUNTDOWN}
                   isEnded={isEnded}
                   isPaused={isPaused}
                   endsAt={endsAt}
                   pausedAt={pausedAt}
+                  updateSubscriberCountdown={setCoundown}
                 />
                 {/* <div className="stat-desc">Countdown</div> */}
                 <div className="stat-desc select-none">Countdown</div>
@@ -135,20 +150,26 @@ export default function BidItem() {
                     Host Actions
                   </span>
                   <InfoModal
-                    title="Continue vs. Reset"
-                    body="You can continue a bidding when the countdown has finished, and offer history will be preserved. On the contrary, if you choose to reset a bidding, all offers will be removed and the bidding starts from fresh."
+                    title="Host Actions"
+                    body="As host, you have unlimited access to these 2 actions: reset, or grant more time to the bidding (even after the bidding is ended)"
                   >
                     <QuestionMarkCircleIcon className="ml-auto h-4 w-4 cursor-pointer" />
                   </InfoModal>
                 </div>
                 <button
                   onClick={handleResetBidding}
-                  className="btn btn-sm btn-warning w-full"
+                  className="btn btn-sm btn-warning flex w-full justify-start gap-3 capitalize"
                 >
+                  <ArrowPathIcon className="h-6 w-6" />
                   Reset
                 </button>
-                <button className="btn btn-sm btn-warning w-full">
-                  Continue
+                <button
+                  disabled={!canGrantMoreTime}
+                  onClick={handleGrantMoreTime}
+                  className="btn btn-sm btn-warning w-full justify-start gap-3 capitalize"
+                >
+                  <PlusCircleIcon className="h-6 w-6" />
+                  Grant 10s
                 </button>
               </div>
             </div>
@@ -159,9 +180,17 @@ export default function BidItem() {
   )
 
   async function handleResetBidding() {
-    await mutation.mutateAsync({
+    await mutationReset.mutateAsync({
       biddingId: inProgressBidding.id,
-      initialCountdown: 40,
+      initialCountdown: MAX_COUNTDOWN / 2,
+    })
+  }
+
+  async function handleGrantMoreTime() {
+    await mutationGrantMoreTime.mutateAsync({
+      biddingId: inProgressBidding.id,
+      seconds: 10,
+      base: inProgressBidding.endsAt,
     })
   }
 }

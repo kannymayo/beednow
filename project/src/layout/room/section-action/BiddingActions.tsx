@@ -3,7 +3,7 @@ import { useDebounce } from 'ahooks'
 import {
   ArrowUturnUpIcon,
   HandRaisedIcon,
-  ArrowPathIcon,
+  BackwardIcon,
   QuestionMarkCircleIcon,
   LockOpenIcon,
   LockClosedIcon,
@@ -153,7 +153,7 @@ export default function BidAction() {
                 disabled={globalDisabled}
                 className="btn btn-warning btn-sm flex w-28 justify-around"
               >
-                <ArrowPathIcon className="h-5 w-5" />
+                <BackwardIcon className="h-5 w-5" />
                 Later
               </button>
             </div>

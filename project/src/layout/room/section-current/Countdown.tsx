@@ -10,12 +10,14 @@ export default function Countdown({
   isEnded = false,
   isPaused = false,
   max = 60,
+  updateSubscriberCountdown,
 }: {
   endsAt?: Timestamp | undefined
   pausedAt?: Timestamp | undefined
   isEnded?: boolean
   isPaused?: boolean
   max?: number
+  updateSubscriberCountdown?: (countdown: number) => void
 } = {}) {
   const refShouldInstaScroll = useRef<boolean>(false)
   const refPrevCountdown = useRef<number | undefined>(undefined)
@@ -46,7 +48,9 @@ export default function Countdown({
       }, 1000)
     }
   }
+  // update prev and subscriber
   useEffect(() => {
+    updateSubscriberCountdown?.(countdown)
     refPrevCountdown.current = countdown
   }, [countdown])
 

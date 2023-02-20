@@ -21,11 +21,11 @@ type MutateFnParams = ReturnType<
 export default function BiddingItem({
   item,
   mutateDeleteAsync,
-  mutateStartBiddingAsync,
+  mutateResetBiddingAsync,
 }: {
   item: Bidding
   mutateDeleteAsync: (id: string) => Promise<void>
-  mutateStartBiddingAsync: (o: MutateFnParams) => Promise<void>
+  mutateResetBiddingAsync: (o: MutateFnParams) => Promise<void>
 }) {
   const [isRoomHost] = useIsRoomHostAtom()
   const [isDeleteStaged, setIsDeleteStaged] = useState(false)
@@ -121,6 +121,6 @@ export default function BiddingItem({
   }
 
   async function handleStartBidding() {
-    await mutateStartBiddingAsync({ biddingId: item.id })
+    await mutateResetBiddingAsync({ biddingId: item.id })
   }
 }

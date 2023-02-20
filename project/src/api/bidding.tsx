@@ -27,6 +27,10 @@ interface Bidding {
   isEnded: boolean
   pausedAt: Timestamp
   endsAt: Timestamp
+  offers: {
+    userId: string
+    createdAt: Timestamp
+  }[]
 }
 
 // well done, chatGPT
@@ -66,34 +70,35 @@ function useMutationGrantMoreTime() {
     seconds?: number
     base?: Timestamp
   }) {
-    // Base provided, relatively set to x seconds from base
+    const now = new Date()
+    // Base provided and base in the fure, relatively set to
+    // x seconds from base
     if (base) {
-      await upcreateFirebaseDoc({
-        segments: ['rooms', roomId, 'biddings', biddingId],
-        data: {
-          endsAt: (() => {
-            const baseDate = new Date(base.toMillis())
-            baseDate.setMilliseconds(
-              baseDate.getMilliseconds() + seconds * 1000
-            )
-            return baseDate
-          })(),
-        } as BiddingModification,
-      })
+      const baseDate = new Date(base.toMillis())
+      if (baseDate > now) {
+        return await upcreateFirebaseDoc({
+          segments: ['rooms', roomId, 'biddings', biddingId],
+          data: {
+            endsAt: (() => {
+              baseDate.setMilliseconds(
+                baseDate.getMilliseconds() + seconds * 1000
+              )
+              return baseDate
+            })(),
+          } as BiddingModification,
+        })
+      }
     }
-    // No base, absolute time x seconds from now
-    else {
-      await upcreateFirebaseDoc({
-        segments: ['rooms', roomId, 'biddings', biddingId],
-        data: {
-          endsAt: (() => {
-            const now = new Date()
-            now.setMilliseconds(now.getMilliseconds() + seconds * 1000)
-            return now
-          })(),
-        } as BiddingModification,
-      })
-    }
+    // else set to x seconds from now
+    return await upcreateFirebaseDoc({
+      segments: ['rooms', roomId, 'biddings', biddingId],
+      data: {
+        endsAt: (() => {
+          now.setMilliseconds(now.getMilliseconds() + seconds * 1000)
+          return now
+        })(),
+      } as BiddingModification,
+    })
   }
 }
 
@@ -235,5 +240,6 @@ export {
   useQueryBiddings,
   useMutationDeleteItem,
   useMutationResetBidding,
+  useMutationGrantMoreTime,
 }
 export type { Bidding }

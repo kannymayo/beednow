@@ -30,7 +30,7 @@ export default function BiddingsPending() {
   })
 
   const [{ mutateAsync: mutateDeleteAsync }] = useMutationDeleteItem()
-  const [{ mutateAsync: mutateStartBiddingAsync }] = useMutationResetBidding({
+  const [{ mutateAsync: mutateResetBiddingAsync }] = useMutationResetBidding({
     resetOnUnmount: true,
   })
 
@@ -91,7 +91,7 @@ export default function BiddingsPending() {
               item={item}
               key={item.id}
               mutateDeleteAsync={mutateDeleteAsync}
-              mutateStartBiddingAsync={mutateStartBiddingAsync}
+              mutateResetBiddingAsync={mutateResetBiddingAsync}
             />
           ))}
       </ul>
