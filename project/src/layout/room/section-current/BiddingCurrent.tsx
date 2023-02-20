@@ -8,12 +8,12 @@ import {
   PlusCircleIcon,
 } from '@heroicons/react/24/outline'
 
-import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
+import { useInProgressBiddingsAtomValue } from '@/store/useBiddingAtom'
 import {
   useMutationResetBidding,
   useMutationGrantMoreTime,
 } from '@/api/bidding'
-import { useIsRoomHostAtom } from '@/store/useRoomAtom'
+import { useIsRoomHostAtomValue } from '@/store/useRoomAtom'
 import InfoModal from '@/components/InfoModal'
 import Countdown from './Countdown'
 import StatsAndEqpEffects from './StatsAndEqpEffects'
@@ -24,8 +24,8 @@ export default function BidItem() {
   const MAX_COUNTDOWN = 60
   const [mutationReset] = useMutationResetBidding()
   const [mutationGrantMoreTime] = useMutationGrantMoreTime()
-  const [inProgressBiddings, hasMember] = useInProgressBiddingsAtom()
-  const [isRoomHost] = useIsRoomHostAtom()
+  const [inProgressBiddings, hasMember] = useInProgressBiddingsAtomValue()
+  const isRoomHost = useIsRoomHostAtomValue()
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
   })

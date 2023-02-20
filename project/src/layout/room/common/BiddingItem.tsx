@@ -8,7 +8,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { UseMutationResult } from '@tanstack/react-query'
 
-import { useIsRoomHostAtom } from '@/store/useRoomAtom'
+import { useIsRoomHostAtomValue } from '@/store/useRoomAtom'
 import { Bidding, useMutationResetBidding } from '@/api/bidding'
 
 // Thanks, ChatGPT
@@ -27,7 +27,7 @@ export default function BiddingItem({
   mutateDeleteAsync: (id: string) => Promise<void>
   mutateResetBiddingAsync: (o: MutateFnParams) => Promise<void>
 }) {
-  const [isRoomHost] = useIsRoomHostAtom()
+  const isRoomHost = useIsRoomHostAtomValue()
   const [isDeleteStaged, setIsDeleteStaged] = useState(false)
 
   const {

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useAtom, atom } from 'jotai'
+import { useAtom, atom, useSetAtom, useAtomValue } from 'jotai'
 
 import { Room } from '@/api/room'
 
@@ -21,6 +21,10 @@ function useIsRoomHostAtom({ resetOnUnmount = false } = {}) {
   return [isRoomHost, setIsRoomHost] as const
 }
 
+function useIsRoomHostAtomValue() {
+  return useAtomValue(isRoomHostAtom)
+}
+
 function useRoomPreviewAtom({
   resetOnUnmount = false,
 }: { resetOnUnmount?: boolean } = {}) {
@@ -34,6 +38,25 @@ function useRoomPreviewAtom({
   }, [])
 
   return [roomPreview, setRoomPreview] as const
+}
+
+function useRoomPreviewSetAtom({
+  resetOnUnmount = false,
+}: { resetOnUnmount?: boolean } = {}) {
+  const setRoomPreview = useSetAtom(roomPreviewAtom)
+  useEffect(() => {
+    if (resetOnUnmount) {
+      return () => {
+        setRoomPreview(null)
+      }
+    }
+  }, [])
+
+  return setRoomPreview
+}
+
+function useRoomPreviewAtomValue() {
+  return useAtomValue(roomPreviewAtom)
 }
 
 function useRoomIdAtom({
@@ -51,4 +74,32 @@ function useRoomIdAtom({
   return [roomId, setRoomId] as const
 }
 
-export { useRoomIdAtom, useRoomPreviewAtom, useIsRoomHostAtom }
+function useRoomIdSetAtom({
+  resetOnUnmount = false,
+}: { resetOnUnmount?: boolean } = {}) {
+  const setRoomId = useSetAtom(roomIdAtom)
+  useEffect(() => {
+    if (resetOnUnmount) {
+      return () => {
+        setRoomId('')
+      }
+    }
+  }, [])
+
+  return setRoomId
+}
+
+function useRoomIdAtomValue() {
+  return useAtomValue(roomIdAtom)
+}
+
+export {
+  useRoomIdAtom,
+  useRoomIdSetAtom,
+  useRoomIdAtomValue,
+  useRoomPreviewAtom,
+  useRoomPreviewSetAtom,
+  useRoomPreviewAtomValue,
+  useIsRoomHostAtom,
+  useIsRoomHostAtomValue,
+}

@@ -12,14 +12,14 @@ import {
 } from '@heroicons/react/24/outline'
 
 import {
-  useInProgressBiddingsAtom,
-  useCountdownAtom,
+  useInProgressBiddingsAtomValue,
+  useCountdownAtomValue,
 } from '@/store/useBiddingAtom'
 import InfoModal from '@/components/InfoModal'
 
 export default function BidAction() {
-  const [countdown] = useCountdownAtom()
-  const [inProgressBiddings, hasMember] = useInProgressBiddingsAtom()
+  const countdown = useCountdownAtomValue()
+  const [inProgressBiddings, hasMember] = useInProgressBiddingsAtomValue()
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
   })

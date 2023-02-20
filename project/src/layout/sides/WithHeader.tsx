@@ -9,7 +9,7 @@ import { useParams } from 'react-router-dom'
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { useUserAtomMaster } from '@/store/useUserAtom'
 import { useQueryCurrentRoom } from '@/api/room'
-import { useIsRoomHostAtom, useRoomIdAtom } from '@/store/useRoomAtom'
+import { useIsRoomHostAtom, useRoomIdSetAtom } from '@/store/useRoomAtom'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
 import CurrentUser from './user/CurrentUser'
@@ -31,7 +31,7 @@ export default function WithHeader() {
 
   // sync roomIdd in url to Atom
   const param = useParams()
-  const [, setRoomId] = useRoomIdAtom({ resetOnUnmount: true })
+  const setRoomId = useRoomIdSetAtom({ resetOnUnmount: true })
   useEffect(() => {
     setRoomId(param.roomId || '')
     return () => {

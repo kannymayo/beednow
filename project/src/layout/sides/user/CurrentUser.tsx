@@ -2,14 +2,14 @@ import clsx from 'clsx'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
 
-import { useUserAtom } from '@/store/useUserAtom'
+import { useUserAtomValue } from '@/store/useUserAtom'
 import { useSignOut } from '@/hooks/useToastyAuth'
-import { useRoomPreviewAtom } from '@/store/useRoomAtom'
+import { useRoomPreviewSetAtom } from '@/store/useRoomAtom'
 
 export default function CurrentUser() {
-  const [user, isLoggedIn] = useUserAtom()
+  const [user, isLoggedIn] = useUserAtomValue()
   const [signout] = useSignOut()
-  const [, setRoomPreview] = useRoomPreviewAtom()
+  const setRoomPreview = useRoomPreviewSetAtom()
   const navigate = useNavigate()
 
   if (!isLoggedIn) return <></>

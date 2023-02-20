@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useAtom, atom } from 'jotai'
+import { useAtom, atom, useSetAtom, useAtomValue } from 'jotai'
 
 import { Bidding } from '@/api/bidding'
 
@@ -9,6 +9,14 @@ const countdownAtom = atom(0)
 function useCountdownAtom() {
   const [countdown, setCountdown] = useAtom(countdownAtom)
   return [countdown, setCountdown] as const
+}
+
+function useCountdownAtomValue() {
+  return useAtomValue(countdownAtom)
+}
+
+function useCountdownSetAtom() {
+  return useSetAtom(countdownAtom)
 }
 
 function useInProgressBiddingsAtom({
@@ -41,4 +49,17 @@ function useInProgressBiddingsAtom({
   return [inProgressBiddings, hasMember] as const
 }
 
-export { useInProgressBiddingsAtom, useCountdownAtom }
+function useInProgressBiddingsAtomValue() {
+  const inProgressBiddings = useAtomValue(inProgressBiddingsAtom)
+  const hasMember = inProgressBiddings.length > 0
+  return [inProgressBiddings, hasMember] as const
+}
+
+export {
+  useInProgressBiddingsAtom,
+  useInProgressBiddingsAtomValue,
+  useCountdownAtom,
+  useCountdownSetAtom,
+  useCountdownAtomValue,
+  inProgressBiddingsAtom,
+}

@@ -1,8 +1,8 @@
 import { serverTimestamp } from 'firebase/firestore'
 import { useMutation } from '@tanstack/react-query'
 
-import { useUserAtom } from '@/store/useUserAtom'
-import { useRoomIdAtom } from '@/store/useRoomAtom'
+import { useUserAtomValue } from '@/store/useUserAtom'
+import { useRoomIdAtomValue } from '@/store/useRoomAtom'
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { getRandomName } from '@/utils/random-name'
 import {
@@ -42,7 +42,7 @@ function useQueryRoomActivities({
   enabled?: boolean
   subscribe?: boolean
 }) {
-  const [user] = useUserAtom()
+  const [user] = useUserAtomValue()
   const queryKey = ['users', user?.uid, 'roomActivities']
 
   const [query] = useQueryFirebase<RoomActivity[]>({
@@ -55,7 +55,7 @@ function useQueryRoomActivities({
 }
 
 function useCreateRoom() {
-  const [user] = useUserAtom()
+  const [user] = useUserAtomValue()
   const [joinRoom] = useJoinRoom()
   return [create]
 
@@ -75,7 +75,7 @@ function useCreateRoom() {
 }
 
 function useJoinRoom() {
-  const [user, isLoggedIn] = useUserAtom()
+  const [user, isLoggedIn] = useUserAtomValue()
   const [updateRoomAcvitity] = useUpdateRoomAcvitity()
   return [joinRoom]
 
@@ -108,7 +108,7 @@ function useJoinRoom() {
 }
 
 function useMutationDeleteRoom() {
-  const [user] = useUserAtom()
+  const [user] = useUserAtomValue()
   const mutation = useMutation({
     mutationFn: deleteRoom,
     onError: (err) => {
@@ -141,7 +141,7 @@ function useMutationDeleteRoom() {
  * TODO: check user ban list
  */
 function useUpdateRoomAcvitity() {
-  const [user] = useUserAtom()
+  const [user] = useUserAtomValue()
   return [updateRoomActivity]
 
   async function updateRoomActivity(
@@ -159,7 +159,7 @@ function useUpdateRoomAcvitity() {
 }
 
 function useQueryCurrentRoom() {
-  const [roomId] = useRoomIdAtom()
+  const roomId = useRoomIdAtomValue()
   const [query] = useQueryFirebase<Room>({
     segments: ['rooms', roomId],
     isSubscribed: true,
@@ -187,7 +187,7 @@ function useQueryRoom({
 }
 
 function useQueryIsThatHostedbyMe(uidRoomHost?: string) {
-  const [user, isLoggedIn] = useUserAtom()
+  const [user, isLoggedIn] = useUserAtomValue()
   const [query] = useQueryCurrentRoom()
   const room = query?.data
   // if uidRoomHost is not provided, check if the host of current room

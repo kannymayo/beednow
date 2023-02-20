@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { useAuthState } from 'react-firebase-hooks/auth'
 
@@ -42,11 +42,11 @@ function useUserAtomMaster() {
   return [user, isLoggedIn] as const
 }
 
-function useUserAtom() {
-  const [user] = useAtom(userAtom)
+function useUserAtomValue() {
+  const user = useAtomValue(userAtom)
   const isLoggedIn = !!user?.uid
   return [user, isLoggedIn] as const
 }
 
 export type { UnifiedUser }
-export { useUserAtom, useUserAtomMaster }
+export { useUserAtomValue, useUserAtomMaster }

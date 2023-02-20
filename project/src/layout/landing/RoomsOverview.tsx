@@ -1,12 +1,12 @@
 import clsx from 'clsx'
 import { useState } from 'react'
 
-import { useUserAtom } from '@/store/useUserAtom'
+import { useUserAtomValue } from '@/store/useUserAtom'
 import { useQueryRoomActivities } from '@/api/room'
 import RoomListItem from './room-preview/RoomListItem'
 
 export default function MyRooms() {
-  const [user] = useUserAtom()
+  const [user] = useUserAtomValue()
   const [activeTab, setActiveTab] = useState('hosted')
   const [roomActivities] = useQueryRoomActivities({
     enabled: !!user?.uid,

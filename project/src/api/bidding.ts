@@ -9,14 +9,15 @@ import {
 } from 'firebase/firestore'
 
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
-import { useRoomIdAtom, useIsRoomHostAtom } from '@/store/useRoomAtom'
-import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
+import { useRoomIdAtomValue, useIsRoomHostAtomValue } from '@/store/useRoomAtom'
+import { useInProgressBiddingsAtomValue } from '@/store/useBiddingAtom'
 import { ItemFromAPI } from '@/api/item-details'
 import {
   upcreateFirebaseDoc,
   upcreateFirebaseDocWithAutoId,
   deleteFirebaseDoc,
 } from './helper/firebase-CRUD-throwable'
+import { Offer } from './offer'
 
 interface Bidding {
   id: string
@@ -27,10 +28,7 @@ interface Bidding {
   isEnded: boolean
   pausedAt: Timestamp
   endsAt: Timestamp
-  offers: {
-    userId: string
-    createdAt: Timestamp
-  }[]
+  offers: Offer[]
 }
 
 // well done, chatGPT
@@ -39,7 +37,7 @@ type BiddingModification = {
 }
 
 function useAddItem() {
-  const [roomId] = useRoomIdAtom()
+  const roomId = useRoomIdAtomValue()
   return [addItem]
 
   async function addItem(item: { details: ItemFromAPI; [any: string]: any }) {
@@ -54,7 +52,7 @@ function useAddItem() {
 }
 
 function useMutationGrantMoreTime() {
-  const [roomId] = useRoomIdAtom()
+  const roomId = useRoomIdAtomValue()
   const mutation = useMutation({
     mutationFn: mutateFnGrantMoreTime,
   })
@@ -106,11 +104,10 @@ function useMutationResetBidding(
   { resetOnUnmount } = { resetOnUnmount: false }
 ) {
   const LATENCY_COMPENSATION = 499
-  const [roomId] = useRoomIdAtom()
-  const [isRoomHost] = useIsRoomHostAtom()
-  const [queryInProgressBidding] = useInProgressBiddingsAtom()
+  const roomId = useRoomIdAtomValue()
+  const isRoomHost = useIsRoomHostAtomValue()
+  const [inprogressBiddings] = useInProgressBiddingsAtomValue()
   const refClearAllFn = useRef<() => void>(() => null)
-  const inprogressBiddings = queryInProgressBidding
   const mutation = useMutation({
     mutationFn: mutateFnResetBidding,
   })
@@ -203,7 +200,7 @@ function useMutationResetBidding(
 }
 
 function useMutationDeleteItem() {
-  const [roomId] = useRoomIdAtom()
+  const roomId = useRoomIdAtomValue()
   const mutation = useMutation({
     mutationFn: deleteItem,
   })
@@ -226,7 +223,7 @@ function useQueryBiddings(roomId: string | undefined) {
 }
 
 function useQueryInProgressBiddings() {
-  const [roomId] = useRoomIdAtom()
+  const roomId = useRoomIdAtomValue()
   const [query] = useQueryFirebase<Bidding[] | []>({
     segments: ['rooms', roomId, 'biddings'],
     isSubscribed: true,
