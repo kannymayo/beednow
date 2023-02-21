@@ -1,4 +1,4 @@
-import './Countdown.css'
+import './HeaderCountdown.css'
 import clsx from 'clsx'
 import { useRef, useEffect } from 'react'
 import { Timestamp } from 'firebase/firestore'
@@ -69,12 +69,15 @@ export default function Countdown({
     'relative whitespace-pre transition-all select-none'
   )
   return (
-    <div className="stat-value text-center font-mono text-7xl font-light">
-      <span className="custom-countdown inline-flex h-[1em] overflow-y-hidden">
-        <span style={counterStyle} className={clsTape}>
-          {numberTape}
+    <div className="stat overflow-hidden p-2 pb-0">
+      <div className="stat-value text-center font-mono text-7xl font-light">
+        <span className="custom-countdown inline-flex h-[1em] overflow-y-hidden">
+          <span style={counterStyle} className={clsTape}>
+            {numberTape}
+          </span>
         </span>
-      </span>
+      </div>
+      <div className="stat-desc select-none">Countdown</div>
     </div>
   )
 }
