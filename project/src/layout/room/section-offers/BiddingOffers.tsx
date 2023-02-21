@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { CurrencyDollarIcon, UserCircleIcon } from '@heroicons/react/24/outline'
+import { useDebounce } from 'ahooks'
 
 import { useAnnotatedOffersAtomValue } from '@/store/useOfferAtom'
 
@@ -8,6 +9,9 @@ export default function BidHistory() {
   const refScrollingContainer = useRef<HTMLDivElement>(null)
   const [animationParent] = useAutoAnimate()
   const offers = useAnnotatedOffersAtomValue()
+  const lenOffersDecounced = useDebounce(offers.length, { wait: 500 })
+  const shouldHideEmptyMsg = offers.length > 0 || lenOffersDecounced > 0
+  const shouldShowEndMsg = offers.length > 5
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -26,15 +30,13 @@ export default function BidHistory() {
         className="mx-1 overflow-y-auto overflow-x-hidden bg-slate-100 drop-shadow-lg"
       >
         {/* Empty message*/}
-        {offers.length === 0 ? (
+        {!shouldHideEmptyMsg && (
           <>
             <div className="mt-6 w-full text-center text-sm">
               Bids will show up here
             </div>
             <div className="divider px-12"></div>
           </>
-        ) : (
-          <></>
         )}
 
         {/* The list of offeers */}
@@ -68,7 +70,7 @@ export default function BidHistory() {
         </ol>
 
         {/* End indicator */}
-        {offers.length !== 0 ? (
+        {shouldShowEndMsg ? (
           <>
             <div className="divider px-12 text-sm text-slate-400">end</div>
           </>
