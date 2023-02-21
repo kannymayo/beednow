@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+import { useEffect, useState } from 'react'
 import { useDebounce } from 'ahooks'
 import {
   ArrowUturnUpIcon,
@@ -15,16 +15,33 @@ import {
   useInProgressBiddingsAtomValue,
   useCountdownAtomValue,
 } from '@/store/useBiddingAtom'
+import { useHighestOfferAtomValue } from '@/store/useOfferAtom'
+import { useMakeOffer } from '@/api/offer'
 import InfoModal from '@/components/InfoModal'
 
 export default function BidAction() {
   const countdown = useCountdownAtomValue()
+  const highestOffer = useHighestOfferAtomValue()
   const [inProgressBiddings, hasMember] = useInProgressBiddingsAtomValue()
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
   })
-
+  const [mutationMakeOffer] = useMakeOffer()
+  const [absAmount, setAbsAmount] = useState(0)
+  const [intendedIncrement, setIntendedIncrement] = useState(0)
+  const intendedIncrementDebounced = useDebounce(intendedIncrement, {
+    wait: 350,
+  })
+  const predictedAmount =
+    (highestOffer?.amount || 0) + intendedIncrementDebounced
   const globalDisabled = !hasMemberDebounced || countdown <= 0
+
+  useEffect(() => {
+    if (globalDisabled) {
+      setIntendedIncrement(0)
+    }
+  }, [globalDisabled])
+  console.log(absAmount)
 
   return (
     <div className="grid h-full w-full">
@@ -36,24 +53,40 @@ export default function BidAction() {
             <div className="flex flex-grow basis-1 flex-col gap-1">
               <div className="form-control flex-1">
                 <label className="label">
-                  <span className="label-text">Manually bid 000</span>
+                  <span className="label-text text-base">
+                    {predictedAmount === 0
+                      ? 'Choose an increment'
+                      : `Bid ${predictedAmount}?`}
+                  </span>
                 </label>
                 <div className="flex flex-1 flex-col justify-around">
                   <button
+                    onClick={() => handleIncrementalBid(intendedIncrement)}
                     disabled={globalDisabled}
                     className="btn btn-sm btn-primary"
+                    value={100}
+                    onMouseEnter={handleMouseEnterIncrement}
+                    onMouseLeave={handleMouseLeaveIncrement}
                   >
                     +100
                   </button>
                   <button
+                    onClick={() => handleIncrementalBid(intendedIncrement)}
                     disabled={globalDisabled}
                     className="btn btn-sm btn-primary"
+                    value={500}
+                    onMouseEnter={handleMouseEnterIncrement}
+                    onMouseLeave={handleMouseLeaveIncrement}
                   >
                     +500
                   </button>
                   <button
+                    onClick={() => handleIncrementalBid(intendedIncrement)}
                     disabled={globalDisabled}
                     className="btn btn-sm btn-primary"
+                    value={5000}
+                    onMouseEnter={handleMouseEnterIncrement}
+                    onMouseLeave={handleMouseLeaveIncrement}
                   >
                     +5000
                   </button>
@@ -129,7 +162,7 @@ export default function BidAction() {
               <input
                 disabled={globalDisabled}
                 className="input flex-1 focus:outline-none"
-                type="text"
+                type="number"
                 placeholder="Infinity"
                 size={12}
               />
@@ -174,11 +207,15 @@ export default function BidAction() {
                   <input
                     disabled={globalDisabled}
                     size={4}
-                    type="text"
+                    type="number"
                     placeholder="Enter amount"
                     className="input input-sm flex-1 focus:outline-none"
+                    onChange={(e) =>
+                      setAbsAmount(parseInt(e.target.value) || 0)
+                    }
                   />
                   <button
+                    onClick={handleAbsoluteBid}
                     disabled={globalDisabled}
                     className="btn btn-sm btn-primary"
                   >
@@ -192,4 +229,20 @@ export default function BidAction() {
       </div>
     </div>
   )
+
+  async function handleIncrementalBid(amount: number) {
+    await mutationMakeOffer.mutateAsync(amount + (highestOffer?.amount || 0))
+  }
+
+  async function handleAbsoluteBid() {
+    // if (absAmount < (highestOffer?.amount || 0)) return
+    await mutationMakeOffer.mutateAsync(absAmount)
+  }
+
+  function handleMouseEnterIncrement(e: any) {
+    setIntendedIncrement(parseInt(e.target.value))
+  }
+  function handleMouseLeaveIncrement(e: any) {
+    setIntendedIncrement(0)
+  }
 }

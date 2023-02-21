@@ -150,6 +150,7 @@ function useMutationResetBidding(
           isPaused: false,
           pausedAt: deleteField(),
           endsAt: deleteField(),
+          offers: [],
         } as BiddingModification,
       })
     })
@@ -175,16 +176,20 @@ function useMutationResetBidding(
             isPaused: false,
             pausedAt: deleteField(),
             endsAt: deleteField(),
+            offers: [],
           } as BiddingModification,
         })
       })
       await Promise.all(allDeletion)
     }
-    // resets the bidding and give it a new end time
+    // resets the specified bidding and give it a new end time
     await upcreateFirebaseDoc({
       segments: ['rooms', roomId, 'biddings', biddingId],
       data: {
         isInProgress: true,
+        isEnded: false,
+        isPaused: false,
+        pausedAt: deleteField(),
         endsAt: (() => {
           const now = new Date()
           now.setMilliseconds(
@@ -194,6 +199,7 @@ function useMutationResetBidding(
           )
           return now
         })(),
+        offers: [],
       } as BiddingModification,
     })
   }

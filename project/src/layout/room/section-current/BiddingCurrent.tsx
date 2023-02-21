@@ -14,6 +14,7 @@ import {
   useMutationGrantMoreTime,
 } from '@/api/bidding'
 import { useIsRoomHostAtomValue } from '@/store/useRoomAtom'
+import { useHighestOfferAtomValue } from '@/store/useOfferAtom'
 import InfoModal from '@/components/InfoModal'
 import Countdown from './Countdown'
 import StatsAndEqpEffects from './StatsAndEqpEffects'
@@ -26,6 +27,7 @@ export default function BidItem() {
   const [mutationGrantMoreTime] = useMutationGrantMoreTime()
   const [inProgressBiddings, hasMember] = useInProgressBiddingsAtomValue()
   const isRoomHost = useIsRoomHostAtomValue()
+  const highestOffer = useHighestOfferAtomValue()
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
   })
@@ -93,13 +95,19 @@ export default function BidItem() {
               </div>
 
               {/* Middle: Current Highest */}
-              <div className="stat gap-x-0 overflow-hidden p-2 pb-0">
-                <div className="stat-figure text-secondary">
-                  <CurrencyDollarIcon className="h-10 w-10 text-yellow-500" />
+              <div className="stat @container grid-cols-4 grid-rows-4 gap-x-0 overflow-hidden p-2 pb-0">
+                <div className="stat-figure text-secondary col-span-1 col-start-4 row-span-2 row-start-2">
+                  <CurrencyDollarIcon className="@[135px]:visible invisible h-10 w-10 text-yellow-500" />
                 </div>
-                <div className="stat-title select-none">Currently at:</div>
-                <div className="stat-value">4,200</div>
-                <div className="stat-desc">User Name</div>
+                <div className="stat-title cols-span-4 row-span-1 select-none">
+                  Currently at:
+                </div>
+                <div className="stat-value col-span-3 row-span-2 flex items-center">
+                  {highestOffer?.amount || '0'}
+                </div>
+                <div className="stat-desc col-span-4 row-span-1">
+                  {highestOffer?.userName || '-'}
+                </div>
               </div>
 
               {/* Right: Countdown */}
