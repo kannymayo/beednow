@@ -4,7 +4,7 @@ import { useRef, useEffect } from 'react'
 import { Timestamp } from 'firebase/firestore'
 import { useCountDown } from 'ahooks'
 
-import { useCountdownSetAtom } from '@/store/useBiddingAtom'
+import { useCountdownAtoms } from '@/store/useBiddingAtom'
 
 export default function Countdown({
   endsAt,
@@ -21,7 +21,7 @@ export default function Countdown({
   max?: number
   updateSubscriberCountdown?: (countdown: number) => void
 } = {}) {
-  const setCountdown = useCountdownSetAtom()
+  const setCountdown = useCountdownAtoms().set()
   const refShouldInstaScroll = useRef<boolean>(false)
   const refPrevCountdown = useRef<number | undefined>(undefined)
   const [countdownInMs] = useCountDown({

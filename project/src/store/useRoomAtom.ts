@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useAtom, atom, useSetAtom, useAtomValue } from 'jotai'
 
 import { Room } from '@/api/room'
+import createAtomHooks from './helper/create-atom-hooks'
 
 const roomIdAtom = atom<string>('')
 const roomPreviewAtom = atom<Room | null>(null)
@@ -21,9 +22,7 @@ function useIsRoomHostAtom({ resetOnUnmount = false } = {}) {
   return [isRoomHost, setIsRoomHost] as const
 }
 
-function useIsRoomHostAtomValue() {
-  return useAtomValue(isRoomHostAtom)
-}
+const useIsRoomHostAtoms = createAtomHooks(isRoomHostAtom)
 
 function useRoomPreviewAtom({
   resetOnUnmount = false,
@@ -39,7 +38,6 @@ function useRoomPreviewAtom({
 
   return [roomPreview, setRoomPreview] as const
 }
-
 function useRoomPreviewSetAtom({
   resetOnUnmount = false,
 }: { resetOnUnmount?: boolean } = {}) {
@@ -54,10 +52,7 @@ function useRoomPreviewSetAtom({
 
   return setRoomPreview
 }
-
-function useRoomPreviewAtomValue() {
-  return useAtomValue(roomPreviewAtom)
-}
+const useRoomPreviewAtoms = createAtomHooks(roomPreviewAtom)
 
 function useRoomIdAtom({
   resetOnUnmount = false,
@@ -73,7 +68,6 @@ function useRoomIdAtom({
 
   return [roomId, setRoomId] as const
 }
-
 function useRoomIdSetAtom({
   resetOnUnmount = false,
 }: { resetOnUnmount?: boolean } = {}) {
@@ -88,18 +82,15 @@ function useRoomIdSetAtom({
 
   return setRoomId
 }
-
-function useRoomIdAtomValue() {
-  return useAtomValue(roomIdAtom)
-}
+const useRoomIdAtoms = createAtomHooks(roomIdAtom)
 
 export {
   useRoomIdAtom,
   useRoomIdSetAtom,
-  useRoomIdAtomValue,
+  useRoomIdAtoms,
   useRoomPreviewAtom,
   useRoomPreviewSetAtom,
-  useRoomPreviewAtomValue,
+  useRoomPreviewAtoms,
   useIsRoomHostAtom,
-  useIsRoomHostAtomValue,
+  useIsRoomHostAtoms,
 }

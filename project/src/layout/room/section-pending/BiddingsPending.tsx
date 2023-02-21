@@ -9,7 +9,7 @@ import {
   useQueryBiddings,
   Bidding,
 } from '@/api/bidding'
-import { useRoomIdAtomValue } from '@/store/useRoomAtom'
+import { useRoomIdAtoms } from '@/store/useRoomAtom'
 import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
 import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
 import BiddingItem from '../common/BiddingItem'
@@ -20,7 +20,7 @@ export default function BiddingsPending() {
     useSignalScrolledTooDeep()
   const [animationParent] = useAutoAnimate<HTMLUListElement>()
 
-  const roomId = useRoomIdAtomValue()
+  const roomId = useRoomIdAtoms().get()
   const [{ data: biddings, isLoading: isBiddingsLoading }, hasPendingWrites] =
     useQueryBiddings(roomId)
   const [] = useInProgressBiddingsAtom({

@@ -2,22 +2,12 @@ import { useEffect } from 'react'
 import { useAtom, atom, useSetAtom, useAtomValue } from 'jotai'
 
 import { Bidding } from '@/api/bidding'
+import createAtomHooks from './helper/create-atom-hooks'
 
 const inProgressBiddingsAtom = atom<Bidding[] | []>([])
 const countdownAtom = atom(0)
 
-function useCountdownAtom() {
-  const [countdown, setCountdown] = useAtom(countdownAtom)
-  return [countdown, setCountdown] as const
-}
-
-function useCountdownAtomValue() {
-  return useAtomValue(countdownAtom)
-}
-
-function useCountdownSetAtom() {
-  return useSetAtom(countdownAtom)
-}
+const useCountdownAtoms = createAtomHooks(countdownAtom)
 
 function useInProgressBiddingsAtom({
   resetOnUnmount = false,
@@ -48,7 +38,6 @@ function useInProgressBiddingsAtom({
 
   return [inProgressBiddings, hasMember] as const
 }
-
 function useInProgressBiddingsAtomValue() {
   const inProgressBiddings = useAtomValue(inProgressBiddingsAtom)
   const hasMember = inProgressBiddings.length > 0
@@ -58,8 +47,6 @@ function useInProgressBiddingsAtomValue() {
 export {
   useInProgressBiddingsAtom,
   useInProgressBiddingsAtomValue,
-  useCountdownAtom,
-  useCountdownSetAtom,
-  useCountdownAtomValue,
+  useCountdownAtoms,
   inProgressBiddingsAtom,
 }

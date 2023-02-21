@@ -3,6 +3,7 @@ import { produce } from 'immer'
 
 import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
 import { inProgressBiddingsAtom } from './useBiddingAtom'
+import createAtomHooks from './helper/create-atom-hooks'
 
 const readOnlyOffersAtom = atom((get) => {
   return get(inProgressBiddingsAtom)[0]?.offers || []
@@ -25,7 +26,6 @@ const roOffersSortedAnnotatedAtom = atom((get) => {
     }
   })
 })
-
 const readOnlyHighestOfferAtom = atom((get) => {
   const offers = get(roOffersSortedAnnotatedAtom)
   if (offers.length === 0) return undefined
@@ -33,12 +33,8 @@ const readOnlyHighestOfferAtom = atom((get) => {
   return offers.find((offer) => offer.amount === maxAmount)
 })
 
-function useAnnotatedOffersAtomValue() {
-  return useAtomValue(roOffersSortedAnnotatedAtom)
-}
+const useAnnotatedOffersAtoms = createAtomHooks(readOnlyOffersAtom)
 
-function useHighestOfferAtomValue() {
-  return useAtomValue(readOnlyHighestOfferAtom)
-}
+const useHighestOfferAtoms = createAtomHooks(readOnlyHighestOfferAtom)
 
-export { useAnnotatedOffersAtomValue, useHighestOfferAtomValue }
+export { useAnnotatedOffersAtoms, useHighestOfferAtoms }

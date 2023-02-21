@@ -9,7 +9,7 @@ import {
 } from 'firebase/firestore'
 
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
-import { useRoomIdAtomValue, useIsRoomHostAtomValue } from '@/store/useRoomAtom'
+import { useRoomIdAtoms, useIsRoomHostAtoms } from '@/store/useRoomAtom'
 import { useInProgressBiddingsAtomValue } from '@/store/useBiddingAtom'
 import { ItemFromAPI } from '@/api/item-details'
 import {
@@ -37,7 +37,7 @@ type BiddingModification = {
 }
 
 function useAddItem() {
-  const roomId = useRoomIdAtomValue()
+  const roomId = useRoomIdAtoms().get()
   return [addItem]
 
   async function addItem(item: { details: ItemFromAPI; [any: string]: any }) {
@@ -52,7 +52,7 @@ function useAddItem() {
 }
 
 function useMutationGrantMoreTime() {
-  const roomId = useRoomIdAtomValue()
+  const roomId = useRoomIdAtoms().get()
   const mutation = useMutation({
     mutationFn: mutateFnGrantMoreTime,
   })
@@ -104,8 +104,8 @@ function useMutationResetBidding(
   { resetOnUnmount } = { resetOnUnmount: false }
 ) {
   const LATENCY_COMPENSATION = 499
-  const roomId = useRoomIdAtomValue()
-  const isRoomHost = useIsRoomHostAtomValue()
+  const roomId = useRoomIdAtoms().get()
+  const isRoomHost = useIsRoomHostAtoms().get()
   const [inprogressBiddings] = useInProgressBiddingsAtomValue()
   const refClearAllFn = useRef<() => void>(() => null)
   const mutation = useMutation({
@@ -206,7 +206,7 @@ function useMutationResetBidding(
 }
 
 function useMutationDeleteItem() {
-  const roomId = useRoomIdAtomValue()
+  const roomId = useRoomIdAtoms().get()
   const mutation = useMutation({
     mutationFn: deleteItem,
   })
@@ -229,7 +229,7 @@ function useQueryBiddings(roomId: string | undefined) {
 }
 
 function useQueryInProgressBiddings() {
-  const roomId = useRoomIdAtomValue()
+  const roomId = useRoomIdAtoms().get()
   const [query] = useQueryFirebase<Bidding[] | []>({
     segments: ['rooms', roomId, 'biddings'],
     isSubscribed: true,

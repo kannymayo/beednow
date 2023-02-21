@@ -3,12 +3,12 @@ import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { CurrencyDollarIcon, UserCircleIcon } from '@heroicons/react/24/outline'
 import { useDebounce } from 'ahooks'
 
-import { useAnnotatedOffersAtomValue } from '@/store/useOfferAtom'
+import { useAnnotatedOffersAtoms } from '@/store/useOfferAtom'
 
 export default function BidHistory() {
   const refScrollingContainer = useRef<HTMLDivElement>(null)
   const [animationParent] = useAutoAnimate()
-  const offers = useAnnotatedOffersAtomValue()
+  const offers = useAnnotatedOffersAtoms().get()
   const lenOffersDecounced = useDebounce(offers.length, { wait: 500 })
   const shouldHideEmptyMsg = offers.length > 0 || lenOffersDecounced > 0
   const shouldShowEndMsg = offers.length > 5

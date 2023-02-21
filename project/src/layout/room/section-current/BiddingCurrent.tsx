@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useDebounce } from 'ahooks'
 
 import { useInProgressBiddingsAtomValue } from '@/store/useBiddingAtom'
-import { useIsRoomHostAtomValue } from '@/store/useRoomAtom'
+import { useIsRoomHostAtoms } from '@/store/useRoomAtom'
 import HeaderSummary from './HeaderSummary'
 import HeaderCurrentHighest from './HeaderCurrentHighest'
 import HeaderCountdown from './HeaderCountdown'
@@ -14,7 +14,7 @@ import HostActions from './HostActions'
 export default function BidItem() {
   const MAX_COUNTDOWN = 60
   const [inProgressBiddings, hasMember] = useInProgressBiddingsAtomValue()
-  const isRoomHost = useIsRoomHostAtomValue()
+  const isRoomHost = useIsRoomHostAtoms().get()
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
   })

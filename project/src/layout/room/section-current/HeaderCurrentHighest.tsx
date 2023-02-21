@@ -1,11 +1,8 @@
-import clsx from 'clsx'
-import { useState } from 'react'
-import { useDebounce } from 'ahooks'
 import { CurrencyDollarIcon } from '@heroicons/react/24/solid'
-import { useHighestOfferAtomValue } from '@/store/useOfferAtom'
+import { useHighestOfferAtoms } from '@/store/useOfferAtom'
 
 export default function HeaderCurrentHighest() {
-  const highestOffer = useHighestOfferAtomValue()
+  const highestOffer = useHighestOfferAtoms().get()
 
   return (
     <div className="stat @container grid-cols-4 grid-rows-4 gap-x-0 overflow-hidden p-2 pb-0">

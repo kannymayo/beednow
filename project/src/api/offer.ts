@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Timestamp } from 'firebase/firestore'
 
 import { useUserAtomValue } from '@/store/useUserAtom'
-import { useRoomIdAtomValue } from '@/store/useRoomAtom'
+import { useRoomIdAtoms } from '@/store/useRoomAtom'
 import { useInProgressBiddingsAtomValue } from '@/store/useBiddingAtom'
 import { updateFirebaseDoc } from './helper/firebase-CRUD-throwable'
 
@@ -21,7 +21,7 @@ interface Offer {
 
 function useMakeOffer() {
   const [user] = useUserAtomValue()
-  const roomId = useRoomIdAtomValue()
+  const roomId = useRoomIdAtoms().get()
   const [[bidding]] = useInProgressBiddingsAtomValue()
   const mutation = useMutation({
     mutationFn: mutateFnMakeOffer,

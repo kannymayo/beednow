@@ -13,15 +13,15 @@ import {
 
 import {
   useInProgressBiddingsAtomValue,
-  useCountdownAtomValue,
+  useCountdownAtoms,
 } from '@/store/useBiddingAtom'
-import { useHighestOfferAtomValue } from '@/store/useOfferAtom'
+import { useHighestOfferAtoms } from '@/store/useOfferAtom'
 import { useMakeOffer } from '@/api/offer'
 import InfoModal from '@/components/InfoModal'
 
 export default function BidAction() {
-  const countdown = useCountdownAtomValue()
-  const highestOffer = useHighestOfferAtomValue()
+  const countdown = useCountdownAtoms().get()
+  const highestOffer = useHighestOfferAtoms().get()
   const [inProgressBiddings, hasMember] = useInProgressBiddingsAtomValue()
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
@@ -33,7 +33,10 @@ export default function BidAction() {
     wait: 350,
   })
   const predictedAmount =
-    (highestOffer?.amount || 0) + intendedIncrementDebounced
+    intendedIncrementDebounced === 0
+      ? 0
+      : (highestOffer?.amount || 0) + intendedIncrementDebounced
+
   const globalDisabled = !hasMemberDebounced || countdown <= 0
 
   useEffect(() => {
