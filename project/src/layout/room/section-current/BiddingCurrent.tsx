@@ -2,38 +2,26 @@ import clsx from 'clsx'
 import { useState } from 'react'
 import { useDebounce } from 'ahooks'
 import { CurrencyDollarIcon } from '@heroicons/react/24/solid'
-import {
-  QuestionMarkCircleIcon,
-  ArrowPathIcon,
-  PlusCircleIcon,
-} from '@heroicons/react/24/outline'
 
 import { useInProgressBiddingsAtomValue } from '@/store/useBiddingAtom'
-import {
-  useMutationResetBidding,
-  useMutationGrantMoreTime,
-} from '@/api/bidding'
 import { useIsRoomHostAtomValue } from '@/store/useRoomAtom'
 import { useHighestOfferAtomValue } from '@/store/useOfferAtom'
-import InfoModal from '@/components/InfoModal'
 import Countdown from './Countdown'
 import StatsAndEqpEffects from './StatsAndEqpEffects'
 import MetaAndWpnStats from './MetaAndWpnStats'
-import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'
+import HostActions from './HostActions'
 
 export default function BidItem() {
   const MAX_COUNTDOWN = 60
-  const [mutationReset] = useMutationResetBidding()
-  const [mutationGrantMoreTime] = useMutationGrantMoreTime()
   const [inProgressBiddings, hasMember] = useInProgressBiddingsAtomValue()
   const isRoomHost = useIsRoomHostAtomValue()
   const highestOffer = useHighestOfferAtomValue()
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
   })
+  // drives the component tree
   const [countdown, setCoundown] = useState(MAX_COUNTDOWN)
 
-  const canGrantMoreTime = countdown <= MAX_COUNTDOWN - 10
   const inProgressBidding = inProgressBiddings[0]
   const name = inProgressBidding?.details?.name
   const iconUrl = inProgressBidding?.details?.iconUrl
@@ -151,57 +139,10 @@ export default function BidItem() {
 
           {/* [C2] Host Actions */}
           {isRoomHost && (
-            <div className="col-span-1 col-start-3 row-span-1 row-start-2 ">
-              <div className="flex h-full w-full flex-col items-stretch justify-center gap-2 px-4">
-                <div className="flex items-center justify-around">
-                  <span className="select-none text-sm opacity-70">
-                    Host Actions
-                  </span>
-                  <InfoModal
-                    title="Host Actions"
-                    body="As host, you have unlimited access to these 2 actions: reset, or grant more time to the bidding (even after the bidding is ended)"
-                  >
-                    <QuestionMarkCircleIcon className="ml-auto h-4 w-4 cursor-pointer" />
-                  </InfoModal>
-                </div>
-                <RequiresConfirmByModal
-                  title="Are you sure you want to reset the bidding?"
-                  body="This will reset the bidding to its initial state and wipe all bidding history, and will also reset the countdown to half the initial value."
-                  onConfirm={handleResetBidding}
-                >
-                  <div className="btn btn-sm btn-warning w-full flex-nowrap justify-start gap-3 truncate capitalize">
-                    <ArrowPathIcon className="h-6 w-6 shrink-0" />
-                    Reset
-                  </div>
-                </RequiresConfirmByModal>
-                <button
-                  disabled={!canGrantMoreTime}
-                  onClick={handleGrantMoreTime}
-                  className="btn btn-sm btn-warning w-full flex-nowrap justify-start gap-3 truncate capitalize"
-                >
-                  <PlusCircleIcon className="h-6 w-6 shrink-0" />
-                  10s More
-                </button>
-              </div>
-            </div>
+            <HostActions bidding={inProgressBidding} countdown={countdown} />
           )}
         </div>
       </div>
     </div>
   )
-
-  async function handleResetBidding() {
-    await mutationReset.mutateAsync({
-      biddingId: inProgressBidding.id,
-      initialCountdown: MAX_COUNTDOWN / 2,
-    })
-  }
-
-  async function handleGrantMoreTime() {
-    await mutationGrantMoreTime.mutateAsync({
-      biddingId: inProgressBidding.id,
-      seconds: 10,
-      base: inProgressBidding.endsAt,
-    })
-  }
 }

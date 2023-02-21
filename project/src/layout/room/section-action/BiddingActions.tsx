@@ -41,7 +41,6 @@ export default function BidAction() {
       setIntendedIncrement(0)
     }
   }, [globalDisabled])
-  console.log(absAmount)
 
   return (
     <div className="grid h-full w-full">

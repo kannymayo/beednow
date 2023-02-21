@@ -70,12 +70,8 @@ export default function BidHistory() {
         </ol>
 
         {/* End indicator */}
-        {shouldShowEndMsg ? (
-          <>
-            <div className="divider px-12 text-sm text-slate-400">end</div>
-          </>
-        ) : (
-          <></>
+        {shouldShowEndMsg && (
+          <div className="divider px-12 text-sm text-slate-400">end</div>
         )}
       </div>
     </div>
