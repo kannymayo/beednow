@@ -12,7 +12,7 @@ import {
 } from '@heroicons/react/24/outline'
 
 import {
-  useInProgressBiddingsAtomValue,
+  useInProgressBiddingsAtoms,
   useCountdownAtoms,
 } from '@/store/useBiddingAtom'
 import { useHighestOfferAtoms } from '@/store/useOfferAtom'
@@ -22,7 +22,7 @@ import InfoModal from '@/components/InfoModal'
 export default function BidAction() {
   const countdown = useCountdownAtoms().get()
   const highestOffer = useHighestOfferAtoms().get()
-  const [inProgressBiddings, hasMember] = useInProgressBiddingsAtomValue()
+  const [inProgressBiddings, hasMember] = useInProgressBiddingsAtoms().get()
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
   })

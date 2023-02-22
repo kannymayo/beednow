@@ -2,11 +2,11 @@ import { useAtomValue, atom } from 'jotai'
 import { produce } from 'immer'
 
 import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
-import { inProgressBiddingsAtom } from './useBiddingAtom'
+import { _inProgressBiddingsAtom as _inProgressBiddingsAtom } from './useBiddingAtom'
 import createAtomHooks from './helper/create-atom-hooks'
 
 const readOnlyOffersAtom = atom((get) => {
-  return get(inProgressBiddingsAtom)[0]?.offers || []
+  return get(_inProgressBiddingsAtom)[0]?.offers || []
 })
 
 const roOffersSortedAnnotatedAtom = atom((get) => {

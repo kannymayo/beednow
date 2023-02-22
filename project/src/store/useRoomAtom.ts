@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useAtom, atom, useSetAtom, useAtomValue } from 'jotai'
+import { atom, useSetAtom } from 'jotai'
 
 import { Room } from '@/api/room'
 import createAtomHooks from './helper/create-atom-hooks'
@@ -8,89 +8,50 @@ const roomIdAtom = atom<string>('')
 const roomPreviewAtom = atom<Room | null>(null)
 const isRoomHostAtom = atom<boolean>(false)
 
-function useIsRoomHostAtom({ resetOnUnmount = false } = {}) {
-  const [isRoomHost, setIsRoomHost] = useAtom(isRoomHostAtom)
+const useIsRoomHostAtoms = createAtomHooks(isRoomHostAtom, {
+  setFn: ({ resetOnUnmount = false } = {}) => {
+    const setIsRoomHost = useSetAtom(isRoomHostAtom)
 
-  useEffect(() => {
-    if (resetOnUnmount) {
-      return () => {
-        setIsRoomHost(false)
+    useEffect(() => {
+      if (resetOnUnmount) {
+        return () => {
+          setIsRoomHost(false)
+        }
       }
-    }
-  }, [])
+    }, [])
 
-  return [isRoomHost, setIsRoomHost] as const
-}
+    return setIsRoomHost
+  },
+})
 
-const useIsRoomHostAtoms = createAtomHooks(isRoomHostAtom)
-
-function useRoomPreviewAtom({
-  resetOnUnmount = false,
-}: { resetOnUnmount?: boolean } = {}) {
-  const [roomPreview, setRoomPreview] = useAtom(roomPreviewAtom)
-  useEffect(() => {
-    if (resetOnUnmount) {
-      return () => {
-        setRoomPreview(null)
+const useRoomPreviewAtoms = createAtomHooks(roomPreviewAtom, {
+  setFn: ({ resetOnUnmount = false }: { resetOnUnmount?: boolean } = {}) => {
+    const setRoomPreview = useSetAtom(roomPreviewAtom)
+    useEffect(() => {
+      if (resetOnUnmount) {
+        return () => {
+          setRoomPreview(null)
+        }
       }
-    }
-  }, [])
+    }, [])
 
-  return [roomPreview, setRoomPreview] as const
-}
-function useRoomPreviewSetAtom({
-  resetOnUnmount = false,
-}: { resetOnUnmount?: boolean } = {}) {
-  const setRoomPreview = useSetAtom(roomPreviewAtom)
-  useEffect(() => {
-    if (resetOnUnmount) {
-      return () => {
-        setRoomPreview(null)
+    return setRoomPreview
+  },
+})
+
+const useRoomIdAtoms = createAtomHooks(roomIdAtom, {
+  setFn: ({ resetOnUnmount = false }: { resetOnUnmount?: boolean } = {}) => {
+    const setRoomId = useSetAtom(roomIdAtom)
+    useEffect(() => {
+      if (resetOnUnmount) {
+        return () => {
+          setRoomId('')
+        }
       }
-    }
-  }, [])
+    }, [])
 
-  return setRoomPreview
-}
-const useRoomPreviewAtoms = createAtomHooks(roomPreviewAtom)
+    return setRoomId
+  },
+})
 
-function useRoomIdAtom({
-  resetOnUnmount = false,
-}: { resetOnUnmount?: boolean } = {}) {
-  const [roomId, setRoomId] = useAtom(roomIdAtom)
-  useEffect(() => {
-    if (resetOnUnmount) {
-      return () => {
-        setRoomId('')
-      }
-    }
-  }, [])
-
-  return [roomId, setRoomId] as const
-}
-function useRoomIdSetAtom({
-  resetOnUnmount = false,
-}: { resetOnUnmount?: boolean } = {}) {
-  const setRoomId = useSetAtom(roomIdAtom)
-  useEffect(() => {
-    if (resetOnUnmount) {
-      return () => {
-        setRoomId('')
-      }
-    }
-  }, [])
-
-  return setRoomId
-}
-const useRoomIdAtoms = createAtomHooks(roomIdAtom)
-
-export {
-  useRoomIdAtom,
-  useRoomIdSetAtom,
-  useRoomIdAtoms,
-  useRoomPreviewAtom,
-  useRoomPreviewSetAtom,
-  useRoomPreviewAtoms,
-  useIsRoomHostAtom,
-  useIsRoomHostAtoms,
-}
+export { useRoomIdAtoms, useRoomPreviewAtoms, useIsRoomHostAtoms }

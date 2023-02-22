@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useAtom, atom, useSetAtom, useAtomValue } from 'jotai'
+import { atom, useSetAtom, useAtomValue } from 'jotai'
 
 import { Bidding } from '@/api/bidding'
 import createAtomHooks from './helper/create-atom-hooks'
@@ -9,44 +9,41 @@ const countdownAtom = atom(0)
 
 const useCountdownAtoms = createAtomHooks(countdownAtom)
 
-function useInProgressBiddingsAtom({
-  resetOnUnmount = false,
-  biddingsAll = [],
-  readyToSync = false,
-}: {
-  resetOnUnmount?: boolean
-  biddingsAll?: Bidding[]
-  readyToSync?: boolean
-} = {}) {
-  const [inProgressBiddings, setInProgressBiddings] = useAtom(
-    inProgressBiddingsAtom
-  )
-  const hasMember = inProgressBiddings.length > 0
+// madness, jotai-tanstack-query provides infrastructure to better support this
+const useInProgressBiddingsAtoms = createAtomHooks(inProgressBiddingsAtom, {
+  setFn: ({
+    resetOnUnmount = false,
+    biddingsAll = [],
+    readyToSync = false,
+  }: {
+    resetOnUnmount?: boolean
+    biddingsAll?: Bidding[]
+    readyToSync?: boolean
+  } = {}) => {
+    const setInProgressBiddings = useSetAtom(inProgressBiddingsAtom)
+    useEffect(() => {
+      if (!readyToSync || biddingsAll.length === 0) return
 
-  useEffect(() => {
-    if (!readyToSync || biddingsAll.length === 0) return
-
-    const inProgressBiddings = biddingsAll.filter((b) => b.isInProgress)
-    setInProgressBiddings(inProgressBiddings)
-
-    if (resetOnUnmount) {
-      return () => {
-        setInProgressBiddings([])
+      const inProgressBiddings = biddingsAll.filter((b) => b.isInProgress)
+      setInProgressBiddings(inProgressBiddings)
+      if (resetOnUnmount) {
+        return () => {
+          setInProgressBiddings([])
+        }
       }
-    }
-  }, [biddingsAll, readyToSync])
+    }, [biddingsAll, readyToSync])
 
-  return [inProgressBiddings, hasMember] as const
-}
-function useInProgressBiddingsAtomValue() {
-  const inProgressBiddings = useAtomValue(inProgressBiddingsAtom)
-  const hasMember = inProgressBiddings.length > 0
-  return [inProgressBiddings, hasMember] as const
-}
+    return setInProgressBiddings
+  },
+  getFn: () => {
+    const inProgressBiddings = useAtomValue(inProgressBiddingsAtom)
+    const hasMember = inProgressBiddings.length > 0
+    return [inProgressBiddings, hasMember] as const
+  },
+})
 
 export {
-  useInProgressBiddingsAtom,
-  useInProgressBiddingsAtomValue,
   useCountdownAtoms,
-  inProgressBiddingsAtom,
+  useInProgressBiddingsAtoms,
+  inProgressBiddingsAtom as _inProgressBiddingsAtom,
 }

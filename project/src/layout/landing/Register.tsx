@@ -8,7 +8,7 @@ import {
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 import clsx from 'clsx'
 
-import { useUserAtomValue } from '@/store/useUserAtom'
+import { useUserAtoms } from '@/store/useUserAtom'
 import { useCreateUserWithEmailAndPassword } from '@/hooks/useToastyAuth'
 import { useRedirectOnValidUser } from '@/hooks/navigateUX'
 
@@ -24,7 +24,7 @@ export default function Register({
   isFadingIn: boolean
 }) {
   const [createEmailAccount] = useCreateUserWithEmailAndPassword()
-  const [user] = useUserAtomValue()
+  const [user] = useUserAtoms().get()
   const [redirUrl] = useRedirectOnValidUser(user)
   const [animationParent] = useAutoAnimate()
 

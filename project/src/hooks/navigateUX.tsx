@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { toast as toastForTyping } from 'react-toastify'
 
 import { debouncedToast } from '@/utils/debouncedToast'
-import { useUserAtomValue, UnifiedUser } from '@/store/useUserAtom'
+import { useUserAtoms, UnifiedUser } from '@/store/useUserAtom'
 
 function useRedirectOnValidUser(_user: UnifiedUser) {
   const navigate = useNavigate()
@@ -25,7 +25,7 @@ function useRedirectOnValidUser(_user: UnifiedUser) {
 function useNavigateWithBackLinkAndToast(
   toastArgs?: Parameters<typeof toastForTyping>
 ) {
-  const [user, isLoggedIn] = useUserAtomValue()
+  const [user, isLoggedIn] = useUserAtoms().get()
   const location = useLocation()
   let shouldIntercept = false
   let interceptedComponent = null

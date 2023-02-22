@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
 import { Timestamp } from 'firebase/firestore'
 
-import { useUserAtomValue } from '@/store/useUserAtom'
+import { useUserAtoms } from '@/store/useUserAtom'
 import { useRoomIdAtoms } from '@/store/useRoomAtom'
-import { useInProgressBiddingsAtomValue } from '@/store/useBiddingAtom'
+import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
 import { updateFirebaseDoc } from './helper/firebase-CRUD-throwable'
 
 // Offer is embeded in Bidding in Firestore, and current Firestore doesn't
@@ -20,9 +20,9 @@ interface Offer {
 }
 
 function useMakeOffer() {
-  const [user] = useUserAtomValue()
+  const [user] = useUserAtoms().get()
   const roomId = useRoomIdAtoms().get()
-  const [[bidding]] = useInProgressBiddingsAtomValue()
+  const [[bidding]] = useInProgressBiddingsAtoms().get()
   const mutation = useMutation({
     mutationFn: mutateFnMakeOffer,
   })

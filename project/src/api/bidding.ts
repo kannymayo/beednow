@@ -10,7 +10,7 @@ import {
 
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { useRoomIdAtoms, useIsRoomHostAtoms } from '@/store/useRoomAtom'
-import { useInProgressBiddingsAtomValue } from '@/store/useBiddingAtom'
+import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
 import { ItemFromAPI } from '@/api/item-details'
 import {
   upcreateFirebaseDoc,
@@ -106,7 +106,7 @@ function useMutationResetBidding(
   const LATENCY_COMPENSATION = 499
   const roomId = useRoomIdAtoms().get()
   const isRoomHost = useIsRoomHostAtoms().get()
-  const [inprogressBiddings] = useInProgressBiddingsAtomValue()
+  const [inprogressBiddings] = useInProgressBiddingsAtoms().get()
   const refClearAllFn = useRef<() => void>(() => null)
   const mutation = useMutation({
     mutationFn: mutateFnResetBidding,

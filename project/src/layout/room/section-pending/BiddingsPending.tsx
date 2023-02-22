@@ -10,7 +10,7 @@ import {
   Bidding,
 } from '@/api/bidding'
 import { useRoomIdAtoms } from '@/store/useRoomAtom'
-import { useInProgressBiddingsAtom } from '@/store/useBiddingAtom'
+import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
 import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
 import BiddingItem from '../common/BiddingItem'
 
@@ -23,7 +23,7 @@ export default function BiddingsPending() {
   const roomId = useRoomIdAtoms().get()
   const [{ data: biddings, isLoading: isBiddingsLoading }, hasPendingWrites] =
     useQueryBiddings(roomId)
-  const [] = useInProgressBiddingsAtom({
+  useInProgressBiddingsAtoms().set({
     resetOnUnmount: true,
     biddingsAll: biddings,
     readyToSync: !isBiddingsLoading,

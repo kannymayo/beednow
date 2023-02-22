@@ -2,14 +2,14 @@ import clsx from 'clsx'
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 import { useQueryRoom } from '@/api/room'
-import { useRoomPreviewAtom } from '@/store/useRoomAtom'
+import { useRoomPreviewAtoms } from '@/store/useRoomAtom'
 import { calRelativeDate } from '@/utils/calc-relative-date'
 
 export default function RoomListItem({ roomId }: { roomId: string }) {
   const [queryRoom] = useQueryRoom({
     roomId,
   })
-  const [roomUnderPreview, setRoomUnderPreview] = useRoomPreviewAtom()
+  const [roomUnderPreview, setRoomUnderPreview] = useRoomPreviewAtoms().getset()
   const isUnderPreview = roomUnderPreview?.id === roomId
 
   // queryFn can throw if Firestore has inconsistent data

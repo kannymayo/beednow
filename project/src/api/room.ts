@@ -1,7 +1,7 @@
 import { serverTimestamp } from 'firebase/firestore'
 import { useMutation } from '@tanstack/react-query'
 
-import { useUserAtomValue } from '@/store/useUserAtom'
+import { useUserAtoms } from '@/store/useUserAtom'
 import { useRoomIdAtoms } from '@/store/useRoomAtom'
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { getRandomName } from '@/utils/random-name'
@@ -42,7 +42,7 @@ function useQueryRoomActivities({
   enabled?: boolean
   subscribe?: boolean
 }) {
-  const [user] = useUserAtomValue()
+  const [user] = useUserAtoms().get()
   const queryKey = ['users', user?.uid, 'roomActivities']
 
   const [query] = useQueryFirebase<RoomActivity[]>({
@@ -55,7 +55,7 @@ function useQueryRoomActivities({
 }
 
 function useCreateRoom() {
-  const [user] = useUserAtomValue()
+  const [user] = useUserAtoms().get()
   const [joinRoom] = useJoinRoom()
   return [create]
 
@@ -75,7 +75,7 @@ function useCreateRoom() {
 }
 
 function useJoinRoom() {
-  const [user, isLoggedIn] = useUserAtomValue()
+  const [user, isLoggedIn] = useUserAtoms().get()
   const [updateRoomAcvitity] = useUpdateRoomAcvitity()
   return [joinRoom]
 
@@ -108,7 +108,7 @@ function useJoinRoom() {
 }
 
 function useMutationDeleteRoom() {
-  const [user] = useUserAtomValue()
+  const [user] = useUserAtoms().get()
   const mutation = useMutation({
     mutationFn: deleteRoom,
     onError: (err) => {
@@ -141,7 +141,7 @@ function useMutationDeleteRoom() {
  * TODO: check user ban list
  */
 function useUpdateRoomAcvitity() {
-  const [user] = useUserAtomValue()
+  const [user] = useUserAtoms().get()
   return [updateRoomActivity]
 
   async function updateRoomActivity(
@@ -187,7 +187,7 @@ function useQueryRoom({
 }
 
 function useQueryIsThatHostedbyMe(uidRoomHost?: string) {
-  const [user, isLoggedIn] = useUserAtomValue()
+  const [user, isLoggedIn] = useUserAtoms().get()
   const [query] = useQueryCurrentRoom()
   const room = query?.data
   // if uidRoomHost is not provided, check if the host of current room

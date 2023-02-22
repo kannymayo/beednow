@@ -7,7 +7,7 @@ import {
   useSignInWithGoogle,
 } from '@/hooks/useToastyAuth'
 import { useRedirectOnValidUser } from '@/hooks/navigateUX'
-import { useUserAtomValue } from '@/store/useUserAtom'
+import { useUserAtoms } from '@/store/useUserAtom'
 
 export default function LoginPage({
   children,
@@ -20,7 +20,7 @@ export default function LoginPage({
   toggleIsBtnDisabled: () => void
   isFadingIn: boolean
 }) {
-  const [user] = useUserAtomValue()
+  const [user] = useUserAtoms().get()
   const [signInWithEmail] = useSignInWithEmailAndPassword()
   const [signInWithGoogle] = useSignInWithGoogle()
   const [redirUrl] = useRedirectOnValidUser(user)
