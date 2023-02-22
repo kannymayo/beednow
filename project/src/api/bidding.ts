@@ -18,6 +18,13 @@ import {
   deleteFirebaseDoc,
 } from './helper/firebase-CRUD-throwable'
 import { Offer } from './offer'
+import {
+  useMutationPause,
+  useMutationResume,
+  useMutationExtend,
+  useMutationStage,
+  useMutationEnd,
+} from './offer-event'
 
 interface Bidding {
   id: string
@@ -47,55 +54,6 @@ function useAddItem() {
         ...item,
         createdAt: serverTimestamp(),
       },
-    })
-  }
-}
-
-function useMutationGrantMoreTime() {
-  const roomId = useRoomIdAtoms().get()
-  const mutation = useMutation({
-    mutationFn: mutateFnGrantMoreTime,
-  })
-
-  return [mutation]
-
-  async function mutateFnGrantMoreTime({
-    biddingId,
-    seconds = 15,
-    base,
-  }: {
-    biddingId: string
-    seconds?: number
-    base?: Timestamp
-  }) {
-    const now = new Date()
-    // Base provided and base in the fure, relatively set to
-    // x seconds from base
-    if (base) {
-      const baseDate = new Date(base.toMillis())
-      if (baseDate > now) {
-        return await upcreateFirebaseDoc({
-          segments: ['rooms', roomId, 'biddings', biddingId],
-          data: {
-            endsAt: (() => {
-              baseDate.setMilliseconds(
-                baseDate.getMilliseconds() + seconds * 1000
-              )
-              return baseDate
-            })(),
-          } as BiddingModification,
-        })
-      }
-    }
-    // else set to x seconds from now
-    return await upcreateFirebaseDoc({
-      segments: ['rooms', roomId, 'biddings', biddingId],
-      data: {
-        endsAt: (() => {
-          now.setMilliseconds(now.getMilliseconds() + seconds * 1000)
-          return now
-        })(),
-      } as BiddingModification,
     })
   }
 }
@@ -244,6 +202,10 @@ export {
   useQueryBiddings,
   useMutationDeleteItem,
   useMutationResetBidding,
-  useMutationGrantMoreTime,
+  useMutationPause as useMutationPauseBidding,
+  useMutationResume as useMutationResumeBidding,
+  useMutationExtend as useMutationExtendBidding,
+  useMutationStage as useMutationStageBidding,
+  useMutationEnd as useMutationEndBidding,
 }
-export type { Bidding }
+export type { Bidding, BiddingModification }

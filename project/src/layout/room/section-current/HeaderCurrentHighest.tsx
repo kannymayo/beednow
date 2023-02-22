@@ -12,7 +12,7 @@ export default function HeaderCurrentHighest() {
       <div className="stat-title cols-span-4 row-span-1 select-none">
         Currently at:
       </div>
-      <div className="stat-value col-span-3 row-span-2 flex items-center">
+      <div className="stat-value col-span-3 row-span-2 mr-1 flex items-center justify-end">
         {highestOffer?.amount || '0'}
       </div>
       <div className="stat-desc col-span-4 row-span-1">

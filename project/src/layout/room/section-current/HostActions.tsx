@@ -6,7 +6,7 @@ import {
 
 import {
   useMutationResetBidding,
-  useMutationGrantMoreTime,
+  useMutationExtendBidding,
   Bidding,
 } from '@/api/bidding'
 import InfoModal from '@/components/InfoModal'
@@ -21,8 +21,8 @@ export default function HostActions({
 }) {
   const MAX_COUNTDOWN = 60
   const [mutationReset] = useMutationResetBidding()
-  const [mutationGrantMoreTime] = useMutationGrantMoreTime()
-  const canGrantMoreTime = countdown <= MAX_COUNTDOWN - 10
+  const [mutationExtennd] = useMutationExtendBidding()
+  const canExtend = countdown <= MAX_COUNTDOWN - 10
 
   return (
     <div className="col-span-1 col-start-3 row-span-1 row-start-2 ">
@@ -47,7 +47,7 @@ export default function HostActions({
           </div>
         </RequiresConfirmByModal>
         <button
-          disabled={!canGrantMoreTime}
+          disabled={!canExtend}
           onClick={handleGrantMoreTime}
           className="btn btn-sm btn-warning w-full flex-nowrap justify-start gap-3 truncate capitalize"
         >
@@ -66,8 +66,7 @@ export default function HostActions({
   }
 
   async function handleGrantMoreTime() {
-    await mutationGrantMoreTime.mutateAsync({
-      biddingId: bidding.id,
+    await mutationExtennd.mutateAsync({
       seconds: 10,
       base: bidding.endsAt,
     })
