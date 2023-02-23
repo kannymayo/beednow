@@ -2,7 +2,7 @@ import SectionPending from './section-pending/BiddingsPending'
 import SectionWatchlist from './section-watchlist/BiddingsWatchlist'
 import SectionAction from './section-action/BiddingActions'
 import SectionChat from './section-chat/BiddingChat'
-import SectionOffers from './section-offers/BiddingOffers'
+import SectionTimeline from './section-timeline/BiddingTimeline'
 import SectionCurrent from './section-current/BiddingCurrent'
 
 export default function Room() {
@@ -15,7 +15,7 @@ export default function Room() {
         <SectionWatchlist />
       </div>
       <div className="col-start-2 row-start-1">
-        <SectionOffers />
+        <SectionTimeline />
       </div>
 
       <div className="col-start-3 row-start-1">

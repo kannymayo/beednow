@@ -38,7 +38,7 @@ function useMutationPause() {
         pausedAt: serverTimestamp(),
         offers: arrayUnion({
           userId: user.uid,
-          userName: user.displayName,
+          username: user.displayName,
           createdAt: serverTimestamp(),
           event: 'pause',
         }),
@@ -73,7 +73,7 @@ function useMutationResume() {
         endsAt: newEnd,
         offers: arrayUnion({
           userId: user.uid,
-          userName: user.displayName,
+          username: user.displayName,
           createdAt: serverTimestamp(),
           event: 'resume',
         }),
@@ -102,50 +102,30 @@ function useMutationExtend() {
     seconds?: number
     base?: Timestamp
   }) {
-    if (base) {
-      var newEnd = base.toDate()
-      newEnd.setMilliseconds(newEnd.getMilliseconds() + seconds * 1000)
+    const now = new Date()
+    let shouldUseBase = false
+    if (base && now.getTime() < base.toMillis()) shouldUseBase = true
+
+    if (shouldUseBase && base) {
+      // AND-ing with base to keep TS happy, not needed as we have control flag
+      const baseDate = base.toDate()
+      baseDate.setMilliseconds(baseDate.getMilliseconds() + seconds * 1000)
+      var newEnd = baseDate
     } else {
-      var newEnd = new Date()
-      newEnd.setMilliseconds(newEnd.getMilliseconds() + seconds * 1000)
+      now.setMilliseconds(now.getMilliseconds() + seconds * 1000)
+      var newEnd = now
     }
+
     return await updateFirebaseDoc({
       segments: ['rooms', roomId, 'biddings', bidding?.id],
       data: {
         endsAt: newEnd,
         offers: arrayUnion({
           userId: user.uid,
-          userName: user.displayName,
+          username: user.displayName,
+          amount: seconds,
           createdAt: new Date(),
           event: 'extend',
-        }),
-      } as BiddingModification,
-    })
-  }
-}
-
-/**
- * Sends event only
- */
-function useMutationStage() {
-  const [user] = useUserAtoms().get()
-  const roomId = useRoomIdAtoms().get()
-  const [[bidding], hasMember] = useInProgressBiddingsAtoms().get()
-  const mutation = useMutation({
-    mutationFn: mutateFnStageOffer,
-  })
-
-  return [mutation]
-
-  async function mutateFnStageOffer() {
-    return await updateFirebaseDoc({
-      segments: ['rooms', roomId, 'biddings', bidding?.id],
-      data: {
-        offers: arrayUnion({
-          userId: user.uid,
-          userName: user.displayName,
-          createdAt: serverTimestamp(),
-          event: 'stage',
         }),
       } as BiddingModification,
     })
@@ -182,6 +162,5 @@ export {
   useMutationPause,
   useMutationResume,
   useMutationExtend,
-  useMutationStage,
   useMutationEnd,
 }

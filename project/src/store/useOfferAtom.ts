@@ -1,4 +1,4 @@
-import { useAtomValue, atom } from 'jotai'
+import { atom } from 'jotai'
 import { produce } from 'immer'
 
 import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
@@ -19,8 +19,12 @@ const roOffersSortedAnnotatedAtom = atom((get) => {
     // a later offer is invalid if it is lower than any earlier offer
     let curMax = 0
     for (let i = 0; i < draft.length; i++) {
-      if (draft[i].amount > curMax) {
-        curMax = draft[i].amount
+      // skip events
+      if (draft[i].event) {
+        continue
+      }
+      if ((draft[i].amount || 0) > curMax) {
+        curMax = draft[i].amount || 0
         draft[i].isValid = true
       } else draft[i].isValid = false
     }
@@ -29,11 +33,15 @@ const roOffersSortedAnnotatedAtom = atom((get) => {
 const readOnlyHighestOfferAtom = atom((get) => {
   const offers = get(roOffersSortedAnnotatedAtom)
   if (offers.length === 0) return undefined
-  const maxAmount = Math.max(...offers.map((offer) => offer.amount))
+  const maxAmount = Math.max(
+    ...offers
+      .filter((offer) => offer.event === undefined)
+      .map((offer) => offer.amount || 0)
+  )
   return offers.find((offer) => offer.amount === maxAmount)
 })
 
-const useAnnotatedOffersAtoms = createAtomHooks(readOnlyOffersAtom)
+const useAnnotatedOffersAtoms = createAtomHooks(roOffersSortedAnnotatedAtom)
 
 const useHighestOfferAtoms = createAtomHooks(readOnlyHighestOfferAtom)
 

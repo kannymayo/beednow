@@ -1,9 +1,10 @@
 import { useRef, useEffect } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
-import { CurrencyDollarIcon, UserCircleIcon } from '@heroicons/react/24/outline'
 import { useDebounce } from 'ahooks'
 
 import { useAnnotatedOffersAtoms } from '@/store/useOfferAtom'
+import EntryOffer from './EntryOffer'
+import EntryEvent from './EntryEvent'
 
 export default function BidHistory() {
   const refScrollingContainer = useRef<HTMLDivElement>(null)
@@ -40,33 +41,25 @@ export default function BidHistory() {
         )}
 
         {/* The list of offeers */}
-        <ol ref={animationParent} className="pb-6">
-          {offers.map((offer) => (
-            <li
-              className="mb-1 grid h-8 grid-cols-3 border bg-white drop-shadow last:mb-0"
-              key={`${offer.userId}:${offer.createdAt}`}
-            >
-              {/* Amount */}
-              <div className="col-span-1 grid grid-cols-3  items-stretch">
-                <div className="cols-span-1 flex items-center justify-center bg-gradient-to-r from-yellow-600 to-amber-600">
-                  <CurrencyDollarIcon className="h-6 w-6 text-white " />
-                </div>
-                <span className="col-span-2 flex items-center justify-end px-2 font-mono text-lg font-thin">
-                  {offer.amount}
-                </span>
-              </div>
-
-              {/* User */}
-              <div className="col-span-2 grid grid-cols-7">
-                <div className="col-span-1 flex items-center justify-center border-x bg-gradient-to-r from-slate-400 to-zinc-400 text-white">
-                  <UserCircleIcon className="h-6 w-6" />
-                </div>
-                <span className="col-span-6 flex items-center px-2">
-                  {offer.userName}
-                </span>
-              </div>
-            </li>
-          ))}
+        <ol className="pb-6">
+          {offers.map((offer) => {
+            return offer.event ? (
+              <EntryEvent
+                key={offer.createdAt.toMillis()}
+                username={offer.username}
+                event={offer.event}
+                amount={offer.amount || 0}
+              />
+            ) : (
+              <EntryOffer
+                key={offer.createdAt.toMillis()}
+                userId={offer.username}
+                username={offer.username}
+                amount={offer.amount || 0}
+                isValid={offer.isValid || false}
+              />
+            )
+          })}
         </ol>
 
         {/* End indicator */}

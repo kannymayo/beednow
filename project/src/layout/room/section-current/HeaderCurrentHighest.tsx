@@ -16,7 +16,7 @@ export default function HeaderCurrentHighest() {
         {highestOffer?.amount || '0'}
       </div>
       <div className="stat-desc col-span-4 row-span-1">
-        {highestOffer?.userName || '-'}
+        {highestOffer?.username || '-'}
       </div>
     </div>
   )

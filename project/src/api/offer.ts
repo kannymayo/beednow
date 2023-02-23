@@ -9,14 +9,15 @@ import { updateFirebaseDoc } from './helper/firebase-CRUD-throwable'
 // Offer is embeded in Bidding in Firestore, and current Firestore doesn't
 // support serverTimestamp.
 // Did this because deleting subcollection is a pain in Firestore.
-interface Offer {
+type EventType = 'pause' | 'extend' | 'resume' | 'elapsed' | undefined
+interface Offer<TEvent extends EventType = undefined> {
   userId: string
-  userName: string
+  username: string
   createdAt: Timestamp
   // when there is no amount, it is an event joined to the timeline.
-  amount?: number
+  amount?: TEvent extends 'pause' | undefined ? number : never
   // set by current host
-  event?: 'pause' | 'extend' | 'stage' | 'resume'
+  event?: EventType
   // client-side only. persisting to DB is acceptable, since client overwrites
   // it all the time. just to keep TS happy about the derived data.
   isValid?: boolean
@@ -40,7 +41,7 @@ function useMakeOffer() {
       data: {
         offers: arrayUnion({
           userId: user.uid,
-          userName: user.displayName,
+          username: user.displayName,
           amount,
           createdAt: new Date(),
         }),
