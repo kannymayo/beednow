@@ -41,7 +41,7 @@ export default function BidHistory() {
         )}
 
         {/* The list of offeers */}
-        <ol className="pb-6">
+        <ol ref={animationParent} className="pb-6">
           {offers.map((offer) => {
             return offer.event ? (
               <EntryEvent

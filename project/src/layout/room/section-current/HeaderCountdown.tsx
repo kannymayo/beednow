@@ -4,6 +4,7 @@ import { useRef, useEffect } from 'react'
 import { Timestamp } from 'firebase/firestore'
 import { useCountDown } from 'ahooks'
 
+import { useMutationSendBiddingElapsed } from '@/api/bidding'
 import { useCountdownAtoms } from '@/store/useBiddingAtom'
 
 export default function Countdown({
@@ -22,8 +23,9 @@ export default function Countdown({
   updateSubscriberCountdown?: (countdown: number) => void
 } = {}) {
   const setCountdown = useCountdownAtoms().set()
+  const [mutationSendElapsed] = useMutationSendBiddingElapsed()
   const refShouldInstaScroll = useRef<boolean>(false)
-  const refPrevCountdown = useRef<number | undefined>(undefined)
+  const refPrevCountdownConfined = useRef<number | undefined>(undefined)
   const [countdownInMs] = useCountDown({
     targetDate: endsAt?.toDate(),
   })
@@ -34,6 +36,17 @@ export default function Countdown({
     max
   )
   const shouldShowNumber = !isEnded && endsAt && !wasOutOfRange
+  // send an elapsed event when countdown reaches 0
+  useEffect(() => {
+    // on trailing edge
+    if (
+      (countdownConfined === 0 && refPrevCountdownConfined.current) ||
+      0 > 0
+    ) {
+      mutationSendElapsed.mutate()
+    }
+  }, [countdownConfined === 0, refPrevCountdownConfined.current])
+
   // NA is represented by "--", and to make it shown, MAX + 1 is used
   // it is specially chosen to ensure a good animation from '--' to MAX
   const valueToDriveCountdown = shouldShowNumber ? countdownConfined : max + 1
@@ -43,18 +56,20 @@ export default function Countdown({
     '--value': valueToDriveCountdown,
   } as React.CSSProperties
 
-  if (refPrevCountdown.current !== undefined) {
-    if (Math.abs(refPrevCountdown.current - countdownConfined) > 5) {
+  // do an instant scroll when the countdown changes by more than 5
+  if (refPrevCountdownConfined.current !== undefined) {
+    if (Math.abs(refPrevCountdownConfined.current - countdownConfined) > 5) {
       refShouldInstaScroll.current = true
       setTimeout(() => {
         refShouldInstaScroll.current = false
       }, 1000)
     }
   }
+
   // update prev and subscriber
   useEffect(() => {
     updateSubscriberCountdown?.(countdownConfined)
-    refPrevCountdown.current = countdownConfined
+    refPrevCountdownConfined.current = countdownConfined
   }, [countdownConfined])
 
   // update store

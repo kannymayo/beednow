@@ -132,6 +132,32 @@ function useMutationExtend() {
   }
 }
 
+function useMutationSendElapsed() {
+  const [user] = useUserAtoms().get()
+  const roomId = useRoomIdAtoms().get()
+  const [[bidding], hasMember] = useInProgressBiddingsAtoms().get()
+  const mutation = useMutation({
+    mutationFn: mutateFnSendElapsed,
+  })
+
+  return [mutation]
+
+  async function mutateFnSendElapsed() {
+    return await updateFirebaseDoc({
+      segments: ['rooms', roomId, 'biddings', bidding?.id],
+      data: {
+        offers: arrayUnion({
+          userId: user.uid,
+          username: user.displayName,
+          // kinda conflicts with endsAt
+          createdAt: new Date(),
+          event: 'elapsed',
+        }),
+      } as BiddingModification,
+    })
+  }
+}
+
 /**
  * Mutates isEnded, isInProgress, endsAt (why not? like minor
  * correction)
@@ -163,4 +189,5 @@ export {
   useMutationResume,
   useMutationExtend,
   useMutationEnd,
+  useMutationSendElapsed,
 }

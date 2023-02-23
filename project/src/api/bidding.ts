@@ -22,7 +22,7 @@ import {
   useMutationPause,
   useMutationResume,
   useMutationExtend,
-  useMutationStage,
+  useMutationSendElapsed,
   useMutationEnd,
 } from './offer-event'
 
@@ -205,7 +205,7 @@ export {
   useMutationPause as useMutationPauseBidding,
   useMutationResume as useMutationResumeBidding,
   useMutationExtend as useMutationExtendBidding,
-  useMutationStage as useMutationStageBidding,
+  useMutationSendElapsed as useMutationSendBiddingElapsed,
   useMutationEnd as useMutationEndBidding,
 }
 export type { Bidding, BiddingModification }
