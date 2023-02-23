@@ -40,7 +40,7 @@ export default function ({ username, amount, event }: Partial<Offer>) {
   if (event === 'pause') {
     bodyText = ''
   } else if (event === 'resume') {
-    bodyText = 'Resumed'
+    bodyText = ''
   } else if (event === 'extend') {
     bodyText = `+${amount}s`
   } else if (event === 'elapsed') {
@@ -50,7 +50,7 @@ export default function ({ username, amount, event }: Partial<Offer>) {
     {
       'from-purple-600 to-violet-600': event === 'elapsed',
       'from-green-600 to-teal-600': event === 'extend',
-      'from-cyan-600 to-blue-600': event === 'pause',
+      'from-cyan-600 to-blue-600': event === 'pause' || event === 'resume',
     },
     'cols-span-1 flex items-center justify-center bg-gradient-to-r bg-slate-500'
   )
@@ -63,7 +63,11 @@ export default function ({ username, amount, event }: Partial<Offer>) {
   )
 
   const clsRoot = clsx(
-    'mb-1 grid h-8 grid-cols-2 border bg-white drop-shadow last:mb-0 hover:ring-1 hover:ring-inset hover:ring-slate-600 select-none box-content'
+    {
+      'border-t-2 border-cyan-600 border-0': event === 'pause',
+      'border-b-2 border-sky-600 border-0': event === 'resume',
+    },
+    'mb-1 grid h-8 grid-cols-2 border-1 bg-white drop-shadow last:mb-0 hover:ring-1 hover:ring-inset hover:ring-slate-600 select-none box-content'
   )
   return (
     <li className={clsRoot}>

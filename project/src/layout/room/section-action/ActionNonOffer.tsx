@@ -1,9 +1,15 @@
-import { HandRaisedIcon, BackwardIcon } from '@heroicons/react/24/outline'
+import clsx from 'clsx'
+import {
+  HandRaisedIcon,
+  BackwardIcon,
+  CheckIcon,
+} from '@heroicons/react/24/outline'
 
 import {
   useMutationPauseBidding,
   useMutationResumeBidding,
 } from '@/api/bidding'
+import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
 
 export default function ActionNonOffer({
   globalDisabled,
@@ -12,21 +18,33 @@ export default function ActionNonOffer({
 }) {
   const [mutationPause] = useMutationPauseBidding()
   const [mutationResume] = useMutationResumeBidding()
+  const [[bidding]] = useInProgressBiddingsAtoms().get()
+  const isPaused = bidding?.isPaused || false
 
+  const clsPauseBtn = clsx(
+    {
+      'bg-gradient-to-r from-lime-600 to-emerald-600 border-none': isPaused,
+      'btn-warning': !isPaused,
+    },
+    'btn btn-sm flex w-28 justify-start gap-2 capitalize font-light'
+  )
   return (
     <div className=" flex flex-col items-center justify-center gap-2">
       <button
-        onClick={handlePause}
+        onClick={handlePauseResume}
         disabled={globalDisabled}
-        className="btn btn-warning btn-sm flex w-28 justify-around"
+        className={clsPauseBtn}
       >
-        <HandRaisedIcon className="h-5 w-5" />
-        Wait
+        {isPaused ? (
+          <CheckIcon className="h-5 w-5" />
+        ) : (
+          <HandRaisedIcon className="h-5 w-5" />
+        )}
+        {isPaused ? 'Resume' : 'Pause'}
       </button>
       <button
-        onClick={handleResume}
         disabled={globalDisabled}
-        className="btn btn-warning btn-sm flex w-28 justify-around"
+        className="btn btn-warning btn-sm flex w-28 justify-start gap-2 font-light capitalize"
       >
         <BackwardIcon className="h-5 w-5" />
         Later
@@ -34,10 +52,11 @@ export default function ActionNonOffer({
     </div>
   )
 
-  function handlePause() {
-    mutationPause.mutate()
-  }
-  function handleResume() {
-    mutationResume.mutate()
+  function handlePauseResume() {
+    if (isPaused) {
+      mutationResume.mutate()
+    } else {
+      mutationPause.mutate()
+    }
   }
 }

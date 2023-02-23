@@ -9,19 +9,17 @@ import {
   useMutationExtendBidding,
   Bidding,
 } from '@/api/bidding'
+import { useCountdownAtoms } from '@/store/useBiddingAtom'
 import InfoModal from '@/components/InfoModal'
 import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'
 
-export default function HostActions({
-  countdown,
-  bidding,
-}: {
-  countdown: number
-  bidding: Bidding
-}) {
+export default function HostActions({ bidding }: { bidding: Bidding }) {
   const MAX_COUNTDOWN = 60
+  const countdown = useCountdownAtoms().get()
   const [mutationReset] = useMutationResetBidding()
   const [mutationExtennd] = useMutationExtendBidding()
+  // "protect" countdown animation from overcapping as it is currently based on
+  // static max
   const canExtend = countdown <= MAX_COUNTDOWN - 10
 
   return (
