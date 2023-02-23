@@ -39,7 +39,7 @@ function useMutationPause() {
         offers: arrayUnion({
           userId: user.uid,
           username: user.displayName,
-          createdAt: serverTimestamp(),
+          createdAt: new Date(),
           event: 'pause',
         }),
       } as BiddingModification,
@@ -74,7 +74,7 @@ function useMutationResume() {
         offers: arrayUnion({
           userId: user.uid,
           username: user.displayName,
-          createdAt: serverTimestamp(),
+          createdAt: new Date(),
           event: 'resume',
         }),
       } as BiddingModification,

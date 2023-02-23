@@ -63,7 +63,6 @@ export default function BidItem() {
                 isEnded={isEnded}
                 isPaused={isPaused}
                 endsAt={endsAt}
-                pausedAt={pausedAt}
                 updateSubscriberCountdown={setCoundown}
               />
             </div>

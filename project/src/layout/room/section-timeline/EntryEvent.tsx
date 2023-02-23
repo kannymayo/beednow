@@ -5,6 +5,7 @@ import {
   ClockIcon,
   BellIcon,
   CheckCircleIcon,
+  HandRaisedIcon,
 } from '@heroicons/react/24/outline'
 
 import { Offer } from '@/api/offer'
@@ -37,7 +38,7 @@ export default function ({ username, amount, event }: Partial<Offer>) {
   //  stage is silent (unless to host?)
   var bodyText
   if (event === 'pause') {
-    bodyText = 'Paused'
+    bodyText = ''
   } else if (event === 'resume') {
     bodyText = 'Resumed'
   } else if (event === 'extend') {
@@ -47,10 +48,11 @@ export default function ({ username, amount, event }: Partial<Offer>) {
 
   const clsTypeIconBox = clsx(
     {
-      'from-green-600 to-teal-600': event === 'elapsed',
-      'from-teal-600 to-cyan-600': event === 'extend',
+      'from-purple-600 to-violet-600': event === 'elapsed',
+      'from-green-600 to-teal-600': event === 'extend',
+      'from-cyan-600 to-blue-600': event === 'pause',
     },
-    'cols-span-1 flex items-center justify-center bg-gradient-to-r'
+    'cols-span-1 flex items-center justify-center bg-gradient-to-r bg-slate-500'
   )
 
   const clsBodyText = clsx(
@@ -61,7 +63,7 @@ export default function ({ username, amount, event }: Partial<Offer>) {
   )
 
   const clsRoot = clsx(
-    'mb-1 grid h-8 grid-cols-2 border bg-white drop-shadow last:mb-0 hover:ring-1 hover:ring-inset hover:ring-slate-600 select-none'
+    'mb-1 grid h-8 grid-cols-2 border bg-white drop-shadow last:mb-0 hover:ring-1 hover:ring-inset hover:ring-slate-600 select-none box-content'
   )
   return (
     <li className={clsRoot}>

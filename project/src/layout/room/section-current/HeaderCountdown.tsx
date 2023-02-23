@@ -9,14 +9,12 @@ import { useCountdownAtoms } from '@/store/useBiddingAtom'
 
 export default function Countdown({
   endsAt,
-  pausedAt,
   isEnded = false,
   isPaused = false,
   max = 60,
   updateSubscriberCountdown,
 }: {
   endsAt?: Timestamp | undefined
-  pausedAt?: Timestamp | undefined
   isEnded?: boolean
   isPaused?: boolean
   max?: number
@@ -24,32 +22,46 @@ export default function Countdown({
 } = {}) {
   const setCountdown = useCountdownAtoms().set()
   const [mutationSendElapsed] = useMutationSendBiddingElapsed()
+  const refCountdownSanitizedLastRender = useRef<number | undefined>(undefined)
   const refShouldInstaScroll = useRef<boolean>(false)
-  const refPrevCountdownConfined = useRef<number | undefined>(undefined)
+  const countdownSettings = isPaused
+    ? {
+        leftTime: 0,
+        interval: 5000,
+      }
+    : {
+        targetDate: endsAt?.toDate(),
+        interval: 333,
+      }
   const [countdownInMs] = useCountDown({
-    targetDate: endsAt?.toDate(),
+    ...countdownSettings,
   })
 
-  const [countdownConfined, wasOutOfRange] = confineToIntInRange(
-    countdownInMs / 1000,
-    0,
-    max
-  )
-  const shouldShowNumber = !isEnded && endsAt && !wasOutOfRange
-  // send an elapsed event when countdown reaches 0
+  // unless paused, countdown from hook is used
+  var countdownSanitized = refCountdownSanitizedLastRender.current || 0
+  var wasOutOfRange = false
+  if (!isPaused) {
+    ;[countdownSanitized, wasOutOfRange] = confineToIntInRange(
+      countdownInMs / 1000,
+      0,
+      max
+    )
+  }
+
+  // send an elapsed event when countdown reaches 0 on trailing edge
   useEffect(() => {
-    // on trailing edge
     if (
-      (countdownConfined === 0 && refPrevCountdownConfined.current) ||
-      0 > 0
+      countdownSanitized === 0 &&
+      refCountdownSanitizedLastRender.current === 1
     ) {
       mutationSendElapsed.mutate()
     }
-  }, [countdownConfined === 0, refPrevCountdownConfined.current])
+  }, [countdownSanitized === 0, refCountdownSanitizedLastRender.current])
 
   // NA is represented by "--", and to make it shown, MAX + 1 is used
   // it is specially chosen to ensure a good animation from '--' to MAX
-  const valueToDriveCountdown = shouldShowNumber ? countdownConfined : max + 1
+  const shouldShowNumber = !isEnded && endsAt && !wasOutOfRange
+  const valueToDriveCountdown = shouldShowNumber ? countdownSanitized : max + 1
   const numberTape = '--' + sequenceWithPrefix(max)
   const counterStyle = {
     '--max-value': max,
@@ -57,8 +69,10 @@ export default function Countdown({
   } as React.CSSProperties
 
   // do an instant scroll when the countdown changes by more than 5
-  if (refPrevCountdownConfined.current !== undefined) {
-    if (Math.abs(refPrevCountdownConfined.current - countdownConfined) > 5) {
+  if (refCountdownSanitizedLastRender.current !== undefined) {
+    if (
+      Math.abs(refCountdownSanitizedLastRender.current - countdownSanitized) > 5
+    ) {
       refShouldInstaScroll.current = true
       setTimeout(() => {
         refShouldInstaScroll.current = false
@@ -68,14 +82,14 @@ export default function Countdown({
 
   // update prev and subscriber
   useEffect(() => {
-    updateSubscriberCountdown?.(countdownConfined)
-    refPrevCountdownConfined.current = countdownConfined
-  }, [countdownConfined])
+    updateSubscriberCountdown?.(countdownSanitized)
+    refCountdownSanitizedLastRender.current = countdownSanitized
+  }, [countdownSanitized])
 
   // update store
   useEffect(() => {
-    setCountdown(countdownConfined)
-  }, [countdownConfined])
+    setCountdown(countdownSanitized)
+  }, [countdownSanitized])
 
   const clsTape = clsx(
     {
