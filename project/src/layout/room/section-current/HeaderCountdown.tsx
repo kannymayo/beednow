@@ -1,41 +1,76 @@
 import './HeaderCountdown.css'
 import clsx from 'clsx'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { Timestamp } from 'firebase/firestore'
 import { useCountDown } from 'ahooks'
 
 import { useMutationSendBiddingElapsed } from '@/api/bidding'
 import { useCountdownAtoms } from '@/store/useBiddingAtom'
+import { toast } from 'react-toastify'
 
 export default function Countdown({
   endsAt,
   isEnded = false,
   isPaused = false,
   max = 60,
-  updateSubscriberCountdown,
 }: {
   endsAt?: Timestamp | undefined
   isEnded?: boolean
   isPaused?: boolean
   max?: number
-  updateSubscriberCountdown?: (countdown: number) => void
 } = {}) {
+  const [mutationSendBiddingElapsed] = useMutationSendBiddingElapsed()
   const setCountdown = useCountdownAtoms().set()
-  const [mutationSendElapsed] = useMutationSendBiddingElapsed()
   const refCountdownSanitizedLastRender = useRef<number | undefined>(undefined)
-  const refShouldInstaScroll = useRef<boolean>(false)
+  const [shouldInstaScroll, setShouldInstaScroll] = useState(false)
+  const [shouldFireSecCountdown, setShouldFireSecCountdown] = useState(false)
+  // const [shouldFireHandleFinish, setShouldFireHandleFinish] = useState(false)
+  // const [isAutoFinishAborted, setIsAutoFinishAborted] = useState(false)
+  const refSecondaryCountdownSettings = useRef({ leftTime: 0, interval: 1000 })
+
+  // Date instance targetDate causes way too many re-renders. Initial 20x,
+  // subsequent tick 5-10X, but how come not infinite?
   const countdownSettings = isPaused
     ? {
         leftTime: 0,
         interval: 5000,
       }
     : {
-        targetDate: endsAt?.toDate(),
-        interval: 333,
+        // shallow comparison of Date causes extra renders. ref:ahooks src
+        targetDate: endsAt?.toDate().toISOString(),
+        interval: 1000,
       }
   const [countdownInMs] = useCountDown({
     ...countdownSettings,
   })
+  const [secCountdownInMs] = useCountDown({
+    ...refSecondaryCountdownSettings.current,
+    onEnd: () => {
+      // reset it, unless the secondary countdown cannot be fired for more
+      // than once until remount
+      refSecondaryCountdownSettings.current.leftTime = 0
+      toast(
+        <AutoFinishToast
+          onAbortAutoFinish={onAbortAutoFinish}
+          onManualFinish={onManualFinish}
+        />,
+        {
+          onClose: () => {
+            console.log('TimeElapsed?')
+          },
+          toastId: 'auto-finish countdown',
+        }
+      )
+    },
+  })
+
+  // an "event handler" for starting the secondary countdown
+  useEffect(() => {
+    if (shouldFireSecCountdown) {
+      refSecondaryCountdownSettings.current.leftTime = 3 * 1000
+      setShouldFireSecCountdown(false)
+    }
+  }, [shouldFireSecCountdown])
 
   // unless paused, countdown from hook is used
   var countdownSanitized = refCountdownSanitizedLastRender.current || 0
@@ -49,12 +84,14 @@ export default function Countdown({
   }
 
   // send an elapsed event when countdown reaches 0 on trailing edge
+  // also disable a "event" to start secondary countdown
   useEffect(() => {
     if (
       countdownSanitized === 0 &&
       refCountdownSanitizedLastRender.current === 1
     ) {
-      mutationSendElapsed.mutate()
+      mutationSendBiddingElapsed.mutate()
+      setShouldFireSecCountdown(true)
     }
   }, [countdownSanitized === 0, refCountdownSanitizedLastRender.current])
 
@@ -69,20 +106,19 @@ export default function Countdown({
   } as React.CSSProperties
 
   // do an instant scroll when the countdown changes by more than 5
-  if (refCountdownSanitizedLastRender.current !== undefined) {
-    if (
-      Math.abs(refCountdownSanitizedLastRender.current - countdownSanitized) > 5
-    ) {
-      refShouldInstaScroll.current = true
-      setTimeout(() => {
-        refShouldInstaScroll.current = false
-      }, 1000)
-    }
+  if (
+    shouldInstaScroll === false &&
+    refCountdownSanitizedLastRender.current !== undefined &&
+    Math.abs(refCountdownSanitizedLastRender.current - countdownSanitized) > 5
+  ) {
+    setShouldInstaScroll(true)
+    setTimeout(() => {
+      setShouldInstaScroll(false)
+    }, 1000)
   }
 
-  // update prev and subscriber
+  // update value of last render
   useEffect(() => {
-    updateSubscriberCountdown?.(countdownSanitized)
     refCountdownSanitizedLastRender.current = countdownSanitized
   }, [countdownSanitized])
 
@@ -93,7 +129,7 @@ export default function Countdown({
 
   const clsTape = clsx(
     {
-      'duration-1000': !refShouldInstaScroll.current,
+      'duration-1000': !shouldInstaScroll,
     },
     'relative whitespace-pre transition-all select-none'
   )
@@ -128,4 +164,47 @@ function confineToIntInRange(num: number, min: number, max: number) {
   _num = Math.round(_num)
   num = Math.round(num)
   return [_num, _num !== num] as const
+}
+
+function onManualFinish() {
+  console.log('clicked: manual finish')
+}
+function onAbortAutoFinish() {
+  console.log('clicked: abort auto finish')
+}
+
+function AutoFinishToast({
+  onManualFinish,
+  onAbortAutoFinish,
+  closeToast,
+}: {
+  onManualFinish: () => void
+  onAbortAutoFinish: () => void
+  closeToast?: any
+}) {
+  return (
+    <div className="grid h-16">
+      <span>Auto finish and start next</span>
+      <div className="flex flex-wrap justify-around">
+        <button
+          onClick={() => {
+            onManualFinish()
+            closeToast()
+          }}
+          className="btn btn-xs btn-success"
+        >
+          Finish now
+        </button>
+        <button
+          onClick={() => {
+            onAbortAutoFinish()
+            closeToast()
+          }}
+          className="btn btn-xs btn-warning"
+        >
+          Abort
+        </button>
+      </div>
+    </div>
+  )
 }
