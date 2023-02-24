@@ -4,7 +4,10 @@ import { useRef, useEffect, useState } from 'react'
 import { Timestamp } from 'firebase/firestore'
 import { useCountDown } from 'ahooks'
 
-import { useMutationSendBiddingElapsed } from '@/api/bidding'
+import {
+  useMutationSendBiddingElapsed,
+  useMutationEndBidding,
+} from '@/api/bidding'
 import { useCountdownAtoms } from '@/store/useBiddingAtom'
 import { toast } from 'react-toastify'
 
@@ -19,14 +22,12 @@ export default function Countdown({
   isPaused?: boolean
   max?: number
 } = {}) {
+  const [mutationEndBidding] = useMutationEndBidding()
   const [mutationSendBiddingElapsed] = useMutationSendBiddingElapsed()
   const setCountdown = useCountdownAtoms().set()
   const refCountdownSanitizedLastRender = useRef<number | undefined>(undefined)
+  const refWillToastCloseExecMutation = useRef(true)
   const [shouldInstaScroll, setShouldInstaScroll] = useState(false)
-  const [shouldFireSecCountdown, setShouldFireSecCountdown] = useState(false)
-  // const [shouldFireHandleFinish, setShouldFireHandleFinish] = useState(false)
-  // const [isAutoFinishAborted, setIsAutoFinishAborted] = useState(false)
-  const refSecondaryCountdownSettings = useRef({ leftTime: 0, interval: 1000 })
 
   // Date instance targetDate causes way too many re-renders. Initial 20x,
   // subsequent tick 5-10X, but how come not infinite?
@@ -38,39 +39,11 @@ export default function Countdown({
     : {
         // shallow comparison of Date causes extra renders. ref:ahooks src
         targetDate: endsAt?.toDate().toISOString(),
-        interval: 1000,
+        interval: 500,
       }
   const [countdownInMs] = useCountDown({
     ...countdownSettings,
   })
-  const [secCountdownInMs] = useCountDown({
-    ...refSecondaryCountdownSettings.current,
-    onEnd: () => {
-      // reset it, unless the secondary countdown cannot be fired for more
-      // than once until remount
-      refSecondaryCountdownSettings.current.leftTime = 0
-      toast(
-        <AutoFinishToast
-          onAbortAutoFinish={onAbortAutoFinish}
-          onManualFinish={onManualFinish}
-        />,
-        {
-          onClose: () => {
-            console.log('TimeElapsed?')
-          },
-          toastId: 'auto-finish countdown',
-        }
-      )
-    },
-  })
-
-  // an "event handler" for starting the secondary countdown
-  useEffect(() => {
-    if (shouldFireSecCountdown) {
-      refSecondaryCountdownSettings.current.leftTime = 3 * 1000
-      setShouldFireSecCountdown(false)
-    }
-  }, [shouldFireSecCountdown])
 
   // unless paused, countdown from hook is used
   var countdownSanitized = refCountdownSanitizedLastRender.current || 0
@@ -83,15 +56,16 @@ export default function Countdown({
     )
   }
 
-  // send an elapsed event when countdown reaches 0 on trailing edge
-  // also disable a "event" to start secondary countdown
+  // When countdown naturally elapsed
   useEffect(() => {
+    // send an elapsed event when countdown reaches 0 on trailing edge
+    // also disable a "event" to start secondary countdown
     if (
       countdownSanitized === 0 &&
       refCountdownSanitizedLastRender.current === 1
     ) {
       mutationSendBiddingElapsed.mutate()
-      setShouldFireSecCountdown(true)
+      startAutoFinish()
     }
   }, [countdownSanitized === 0, refCountdownSanitizedLastRender.current])
 
@@ -145,6 +119,35 @@ export default function Countdown({
       <div className="stat-desc select-none">Countdown</div>
     </div>
   )
+
+  function startAutoFinish() {
+    const toastId = 'auto-finish'
+    toast(<AutoFinishToast onAbort={onAbortAutoFinish} />, {
+      onClose: () => {
+        if (refWillToastCloseExecMutation.current) {
+          mutationEndBidding.mutate()
+        }
+        refWillToastCloseExecMutation.current = true
+      },
+      onOpen: () => {
+        // Hack to get rid of onclose getting immediately fired due to React
+        // StrictMode.
+        // https://github.com/fkhadra/react-toastify/issues/741
+        //
+        // This means, onClose called within 50ms of onOpen will be no-op
+        refWillToastCloseExecMutation.current = false
+        setTimeout(() => {
+          refWillToastCloseExecMutation.current = true
+        }, 50)
+      },
+      toastId,
+      autoClose: 3000,
+    })
+  }
+
+  function onAbortAutoFinish() {
+    refWillToastCloseExecMutation.current = false
+  }
 }
 
 function sequenceWithPrefix(upto: number) {
@@ -166,32 +169,25 @@ function confineToIntInRange(num: number, min: number, max: number) {
   return [_num, _num !== num] as const
 }
 
-function onManualFinish() {
-  console.log('clicked: manual finish')
-}
-function onAbortAutoFinish() {
-  console.log('clicked: abort auto finish')
-}
-
 function AutoFinishToast({
-  onManualFinish,
-  onAbortAutoFinish,
+  onAbort: onAbortAutoFinish,
   closeToast,
 }: {
-  onManualFinish: () => void
-  onAbortAutoFinish: () => void
+  onAbort: () => void
   closeToast?: any
 }) {
   return (
-    <div className="grid h-16">
-      <span>Auto finish and start next</span>
-      <div className="flex flex-wrap justify-around">
+    <div className="grid gap-2">
+      <span>
+        Current bidding will close in 3 seconds, and the next bidding will start
+      </span>
+      <div className="flex flex-wrap justify-end gap-2">
         <button
           onClick={() => {
-            onManualFinish()
+            // onClose will handle the mutation
             closeToast()
           }}
-          className="btn btn-xs btn-success"
+          className="btn btn-sm btn-success btn-outline border-2 font-light capitalize"
         >
           Finish now
         </button>
@@ -200,7 +196,7 @@ function AutoFinishToast({
             onAbortAutoFinish()
             closeToast()
           }}
-          className="btn btn-xs btn-warning"
+          className="btn btn-sm btn-warning btn-outline border-2 font-light capitalize"
         >
           Abort
         </button>
