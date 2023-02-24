@@ -64,6 +64,7 @@ export default function BidItem() {
                 isEnded={isEnded}
                 isPaused={isPaused}
                 endsAt={endsAt}
+                pausedAt={pausedAt}
               />
             </div>
           </div>
