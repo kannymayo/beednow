@@ -61,7 +61,7 @@ function useAddItem() {
 function useMutationResetBidding(
   { resetOnUnmount } = { resetOnUnmount: false }
 ) {
-  const LATENCY_COMPENSATION = 499
+  const LATENCY_COMPENSATION = 0
   const roomId = useRoomIdAtoms().get()
   const isRoomHost = useIsRoomHostAtoms().get()
   const [inprogressBiddings] = useInProgressBiddingsAtoms().get()

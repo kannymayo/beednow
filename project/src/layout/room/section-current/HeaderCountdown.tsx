@@ -10,7 +10,7 @@ import {
 } from '@/api/bidding'
 import { useCountdownAtoms } from '@/store/useBiddingAtom'
 import { toast } from 'react-toastify'
-import AnimatedTapedNum from './countdown/AnimatedTapedNum'
+import CountdownCircle from './countdown/CountdownCircle'
 
 export default function Countdown({
   endsAt,
@@ -74,7 +74,7 @@ export default function Countdown({
     }
   }
   refCountdown.current = refCountdown.current
-  const shouldShowNumber = !isEnded && endsAt && !wasOutOfRange
+  const isInCountdown = !isEnded && endsAt && !wasOutOfRange
 
   // broadcast countdown
   useEffect(() => {
@@ -83,15 +83,13 @@ export default function Countdown({
 
   return (
     <div className="stat overflow-hidden p-2 pb-0">
-      <div className="stat-value text-center font-mono text-7xl font-light">
-        <span className="inline-flex h-[1em] overflow-y-hidden">
-          <AnimatedTapedNum
-            shouldShowNumber={shouldShowNumber}
-            countdownLastRender={countdownLastRendered}
-            countdown={refCountdown.current}
-            max={max}
-          ></AnimatedTapedNum>
-        </span>
+      <div className="stat-value">
+        <CountdownCircle
+          endsAtMillis={endsAt?.toMillis()}
+          pausedAtMillis={pausedAt?.toMillis()}
+          isPaused={isPaused}
+          isActive={isInCountdown}
+        ></CountdownCircle>
       </div>
       <div className="stat-desc select-none">Countdown</div>
     </div>
