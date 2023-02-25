@@ -1,11 +1,7 @@
 import clsx from 'clsx'
-import { useState } from 'react'
 import { useDebounce } from 'ahooks'
 
-import {
-  useInProgressBiddingsAtoms,
-  useCountdownAtoms,
-} from '@/store/useBiddingAtom'
+import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
 import { useIsRoomHostAtoms } from '@/store/useRoomAtom'
 import HeaderSummary from './HeaderSummary'
 import HeaderCurrentHighest from './HeaderCurrentHighest'
