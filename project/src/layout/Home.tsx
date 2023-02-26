@@ -108,7 +108,7 @@ export default function EnterRoom() {
       {/* Enter Room */}
       <section className="flex-1 basis-1">
         <div className="mx-auto flex h-full w-full max-w-md flex-col justify-between gap-2 px-6">
-          <div className="flex-grid flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col">
             {headerSearchRoom}
             {formSearchRoom}
             {resultSearchRoom}

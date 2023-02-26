@@ -21,21 +21,6 @@ module.exports = {
     require('daisyui'),
     require('@tailwindcss/forms'),
     require('@tailwindcss/container-queries'),
-    plugin(function ({ addUtilities }) {
-      addUtilities({
-        '.scrollbar-hide': {
-          /* IE and Edge */
-          '-ms-overflow-style': 'none',
-
-          /* Firefox */
-          'scrollbar-width': 'none',
-
-          /* Safari and Chrome */
-          '&::-webkit-scrollbar': {
-            display: 'none',
-          },
-        },
-      })
-    }),
+    plugin(function ({ addUtilities }) {}),
   ],
 }

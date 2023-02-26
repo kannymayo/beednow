@@ -43,7 +43,7 @@ export default function BiddingItem({
             'ring-2 ring-rose-700 transition-shadow duration-500 ease-in':
               isInProgress,
           },
-          'card card-side group my-1 overflow-hidden rounded-md bg-slate-300  py-0 hover:bg-slate-400'
+          'card card-side group my-1 overflow-hidden rounded-sm bg-slate-300 py-0 hover:bg-slate-400'
         )}
       >
         {/* Icon */}
@@ -56,7 +56,7 @@ export default function BiddingItem({
             <img src={iconUrl} />
           </a>
         </figure>
-        <div className="card-body grid gap-0  px-1 py-0">
+        <div className="card-body grid gap-0 px-1 py-0">
           {/* Row of name + action */}
           <div className="flex items-center justify-between overflow-hidden">
             {/* Name */}

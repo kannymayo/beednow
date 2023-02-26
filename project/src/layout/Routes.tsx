@@ -7,14 +7,14 @@ import {
 } from 'react-router-dom'
 
 import Protected from '@/components/Protected'
-import EnterRoom from './Home'
+import Home from './Home'
 import WithHeader from './sides/WithHeader'
 import Room from './room/Room'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<WithHeader />}>
-      <Route path="/" element={<EnterRoom />} />
+      <Route path="/" element={<Home />} />
       <Route element={<Protected />}>
         <Route path="/room">
           <Route path=":roomId" element={<Room />} />

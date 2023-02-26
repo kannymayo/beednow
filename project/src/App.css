@@ -11,13 +11,49 @@ body {
   font-family: 'Karla', sans-serif;
   height: 100vh;
 }
-
+/* remove up/down control for number input */
 @layer base {
   input[type='number']::-webkit-inner-spin-button,
   input[type='number']::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
+}
+
+/* style for scrollbar */
+@layer utilities {
+  .subtle-scrollbar {
+    /* IE and Edge */
+    -ms-overflow-style: none;
+    /* Firefox */
+    scrollbar-width: none;
+    /* Safari and Chrome */
+  }
+  .subtle-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .subtle-scrollbar:hover::-webkit-scrollbar {
+    display: block;
+    width: 8px;
+    height: 8px;
+  }
+  .subtle-scrollbar:hover::-webkit-scrollbar {
+    display: block;
+    width: 8px;
+    height: 8px;
+  }
+  .subtle-scrollbar:hover::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .subtle-scrollbar:hover::-webkit-scrollbar-thumb {
+    border-radius: 100vh;
+    border: 4px solid #cbd5e1;
+  }
+}
+
+.sash {
+  --focus-border: #64748b;
+  background: var(--focus-border);
 }
 
 .requires-inprogress-bidding {
