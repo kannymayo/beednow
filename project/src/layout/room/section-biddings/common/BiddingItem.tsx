@@ -1,34 +1,29 @@
 import { useState } from 'react'
 import clsx from 'clsx'
-import {
-  TrashIcon,
-  XMarkIcon,
-  PlayCircleIcon,
-  BoltIcon,
-} from '@heroicons/react/24/outline'
-import { UseMutationResult } from '@tanstack/react-query'
 
 import { useIsRoomHostAtoms } from '@/store/useRoomAtom'
-import { Bidding, useMutationResetBidding } from '@/api/bidding'
-
-// Thanks, ChatGPT
-type MutateFnParams = ReturnType<
-  typeof useMutationResetBidding
->[0] extends UseMutationResult<unknown, unknown, infer T, unknown>
-  ? T
-  : never
+import { Bidding } from '@/api/bidding'
 
 export default function BiddingItem({
   item,
-  mutateDeleteAsync,
-  mutateResetBiddingAsync,
+  priAction,
+  priActionHint,
+  priActionIcon: PriActionIcon = () => <></>,
+  secAction,
+  secActionHint,
+  secActionIcon: SecActionIcon = () => <></>,
 }: {
   item: Bidding
-  mutateDeleteAsync: (id: string) => Promise<void>
-  mutateResetBiddingAsync: (o: MutateFnParams) => Promise<void>
+  priAction: (id: string) => void
+  priActionHint: string
+  priActionIcon: React.FC<{ className?: string }>
+  secAction: (id: string) => void
+  secActionHint: string
+  secActionIcon: React.FC<{ className?: string }>
 }) {
   const isRoomHost = useIsRoomHostAtoms().get()
-  const [isDeleteStaged, setIsDeleteStaged] = useState(false)
+  const [isPriActionStaged, setIsPriActionStaged] = useState(false)
+  const [isSecActionStaged, setIsSecActionStaged] = useState(false)
 
   const {
     id,
@@ -36,14 +31,14 @@ export default function BiddingItem({
     isInProgress,
   } = item
   return (
-    <li key={id}>
+    <li key={id} className="relative">
       <div
         className={clsx(
           {
-            'ring-2 ring-rose-700 transition-shadow duration-500 ease-in':
-              isInProgress,
+            'pr-1 before:w-1': isInProgress,
+            'before:w-0': !isInProgress,
           },
-          'card card-side group my-1 overflow-hidden rounded-sm bg-slate-300 py-0 hover:bg-slate-400'
+          'card card-side group my-1 overflow-hidden rounded-sm bg-slate-300 py-0 before:absolute before:right-0 before:h-full before:bg-rose-500 hover:bg-slate-400'
         )}
       >
         {/* Icon */}
@@ -64,21 +59,21 @@ export default function BiddingItem({
               {name}
             </div>
             {/* Only visible to host */}
+            {/* Primary button */}
             {isRoomHost ? (
-              <>
-                {/* Delete button */}
-                <button
-                  onMouseLeave={() => setIsDeleteStaged(false)}
-                  onClick={handleDelete}
-                  className="btn btn-xs btn-outline hidden border-none group-hover:flex"
-                >
-                  {isDeleteStaged ? (
-                    <XMarkIcon className="h-5 w-5" />
-                  ) : (
-                    <TrashIcon className="h-5 w-5" />
-                  )}
-                </button>
-              </>
+              <button
+                onMouseLeave={() => setIsPriActionStaged(false)}
+                onClick={handlePriAction}
+                className="btn btn-xs btn-outline hidden border-none group-hover:flex"
+              >
+                {isPriActionStaged ? (
+                  <span className="font-sm font-light capitalize">
+                    {priActionHint || 'do it'}
+                  </span>
+                ) : (
+                  <PriActionIcon className="h-5 w-5" />
+                )}
+              </button>
             ) : (
               <></>
             )}
@@ -92,39 +87,36 @@ export default function BiddingItem({
               </div>
             </div>
             {/* Start bidding button */}
-            {isRoomHost && !isInProgress ? (
+            {isRoomHost ? (
               <button
-                onClick={handleStartBidding}
+                onMouseLeave={() => setIsSecActionStaged(false)}
+                onClick={handleSecAction}
                 className="btn btn-xs btn-outline hidden border-none  group-hover:flex"
               >
-                <PlayCircleIcon className="h-5 w-5 -rotate-90" />
+                {isSecActionStaged ? (
+                  <span className="font-sm font-light capitalize">
+                    {secActionHint || 'do it'}
+                  </span>
+                ) : (
+                  <SecActionIcon className="h-5 w-5" />
+                )}
               </button>
             ) : (
               <></>
             )}
           </div>
         </div>
-        {isInProgress ? (
-          // animate-bounce when countdown starats
-          <div className="flex scale-100 items-center px-1 text-rose-700 transition-all">
-            <BoltIcon className="h-10 w-10" />
-          </div>
-        ) : (
-          <></>
-        )}
       </div>
     </li>
   )
 
-  async function handleDelete() {
-    if (isDeleteStaged) {
-      mutateDeleteAsync(item.id)
-    } else {
-      setIsDeleteStaged(true)
-    }
+  function handlePriAction() {
+    if (isPriActionStaged) priAction(item.id)
+    else setIsPriActionStaged(true)
   }
 
-  async function handleStartBidding() {
-    await mutateResetBiddingAsync({ biddingId: item.id })
+  function handleSecAction() {
+    if (isSecActionStaged) secAction(item.id)
+    else setIsSecActionStaged(true)
   }
 }

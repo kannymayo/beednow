@@ -116,7 +116,7 @@ function ImportModal() {
   )
 
   const importPreviewCls = clsx(
-    'card min-h-16 flex-1 place-items-stretch gap-2 overflow-y-auto rounded-sm px-2 py-1'
+    'card min-h-16 flex-1 place-items-stretch gap-2 overflow-y-auto rounded-sm px-2 py-1 subtle-scrollbar'
   )
   const importPreview = (
     <div className={importPreviewCls}>

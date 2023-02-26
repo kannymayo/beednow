@@ -64,7 +64,7 @@ export default function WithHeader() {
       htmlFor="finished-modal"
       className="btn btn-sm gap-1 rounded border-none bg-transparent hover:bg-indigo-500 active:bg-indigo-600"
     >
-      Finished
+      Report
       <DocumentCheckIcon className="h-6 w-6" />
     </label>
   )

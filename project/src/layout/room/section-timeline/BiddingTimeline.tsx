@@ -28,7 +28,7 @@ export default function BidHistory() {
     <div className="grid h-full w-full">
       <div
         ref={refScrollingContainer}
-        className="mx-1 overflow-y-auto overflow-x-hidden bg-slate-100 drop-shadow-lg"
+        className="subtle-scrollbar mx-1 overflow-y-auto overflow-x-hidden bg-slate-100 px-1 drop-shadow-lg"
       >
         {/* Empty message*/}
         {!shouldHideEmptyMsg && (

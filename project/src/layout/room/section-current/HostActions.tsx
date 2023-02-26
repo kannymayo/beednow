@@ -5,7 +5,7 @@ import {
 } from '@heroicons/react/24/outline'
 
 import {
-  useMutationResetBidding,
+  useMutationStartBidding,
   useMutationExtendBidding,
   Bidding,
 } from '@/api/bidding'
@@ -16,7 +16,7 @@ import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'
 export default function HostActions({ bidding }: { bidding: Bidding }) {
   const MAX_COUNTDOWN = 60
   const countdown = useCountdownAtoms().get()
-  const [mutationReset] = useMutationResetBidding()
+  const [mutationStart] = useMutationStartBidding()
   const [mutationExtennd] = useMutationExtendBidding()
   // "protect" countdown animation from overcapping as it is currently based on
   // static max
@@ -57,9 +57,10 @@ export default function HostActions({ bidding }: { bidding: Bidding }) {
   )
 
   async function handleResetBidding() {
-    await mutationReset.mutateAsync({
-      biddingId: bidding.id,
+    await mutationStart.mutateAsync({
+      id: bidding.id,
       initialCountdown: MAX_COUNTDOWN / 2,
+      willWipeHistory: true,
     })
   }
 

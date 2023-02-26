@@ -1,11 +1,13 @@
 import { useMemo, useRef } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
+import { TrashIcon, PlayCircleIcon } from '@heroicons/react/24/outline'
 
 import { useForm } from '@/hooks/form'
 import { useSignalScrolledTooDeep } from '@/hooks/useSignalScrolledTooDeep'
 import {
   useMutationDeleteItem,
-  useMutationResetBidding,
+  useMutationStartBidding,
+  useMutationResetAllInProgressBiddings,
   useQueryBiddings,
   Bidding,
 } from '@/api/bidding'
@@ -19,6 +21,7 @@ import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
 import BiddingItem from './common/BiddingItem'
 
 export default function BiddingsPending() {
+  const MAX_COUNTDOWN = 60
   const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
   const [showScrollToTop, refScrollingContainer, scrollToTop] =
     useSignalScrolledTooDeep()
@@ -26,6 +29,7 @@ export default function BiddingsPending() {
 
   const pendingBiddings = usePendingBiddingsAtoms().get()
   const roomId = useRoomIdAtoms().get()
+  // well, be a data syncer
   const [{ data: biddings, isLoading: isBiddingsLoading }, hasPendingWrites] =
     useQueryBiddings(roomId)
   useInProgressBiddingsAtoms().set({
@@ -40,9 +44,11 @@ export default function BiddingsPending() {
   })
 
   const [{ mutateAsync: mutateDeleteAsync }] = useMutationDeleteItem()
-  const [{ mutateAsync: mutateResetBiddingAsync }] = useMutationResetBidding({
-    resetOnUnmount: true,
-  })
+  const [{ mutateAsync: mutateResetBiddingAsync }] =
+    useMutationResetAllInProgressBiddings({
+      resetOnUnmount: true,
+    })
+  const [{ mutateAsync: mutateStartBiddingAsync }] = useMutationStartBidding()
 
   // if firestore has pending writes, use last saved result, because sorting
   // without serverTimestamp creates chaotic visual effect
@@ -95,8 +101,12 @@ export default function BiddingsPending() {
             <BiddingItem
               item={item}
               key={item.id}
-              mutateDeleteAsync={mutateDeleteAsync}
-              mutateResetBiddingAsync={mutateResetBiddingAsync}
+              priAction={cardPrimaryAction}
+              priActionHint="delete"
+              priActionIcon={TrashIcon}
+              secAction={cardSecondaryAction}
+              secActionHint="start"
+              secActionIcon={PlayCircleIcon}
             />
           ))}
       </ul>
@@ -121,5 +131,17 @@ export default function BiddingsPending() {
     const elInProgress = result.splice(idxInProgress, 1)
     result.unshift(elInProgress[0])
     return result
+  }
+
+  async function cardPrimaryAction(id: string) {
+    mutateDeleteAsync(id)
+  }
+
+  async function cardSecondaryAction(id: string) {
+    mutateResetBiddingAsync({ exceptBiddingId: id })
+    mutateStartBiddingAsync({
+      id,
+      initialCountdown: MAX_COUNTDOWN,
+    })
   }
 }

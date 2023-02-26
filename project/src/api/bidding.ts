@@ -66,10 +66,90 @@ function useAddItem() {
   }
 }
 
-function useMutationResetBidding(
+/**
+ * Join a finished bidding back to the pending list with selectable clean
+ * level. If in mutation fn, willWipeHistory is true, will wipe history of
+ * offers, and no matter what, the closing-* fields will be removed
+ */
+function useMutationRestoreBidding() {
+  const roomId = useRoomIdAtoms().get()
+  const mutation = useMutation({
+    mutationFn: mutateFnRestoreBidding,
+  })
+
+  return [mutation]
+
+  async function mutateFnRestoreBidding({
+    id,
+    willWipeHistory = false,
+  }: {
+    id: string
+    willWipeHistory?: boolean
+  }) {
+    const _offers = willWipeHistory ? { offers: [] } : undefined
+    return await updateFirebaseDoc({
+      segments: ['rooms', roomId, 'biddings', id],
+      data: {
+        isInProgress: false,
+        isEnded: false,
+        isPaused: false,
+        pausedAt: deleteField(),
+        endsAt: deleteField(),
+        hasClosingOffer: false,
+        closingAmount: deleteField(),
+        closingTime: deleteField(),
+        closingUserId: deleteField(),
+        closingUsername: deleteField(),
+        ..._offers,
+      } as BiddingModification,
+    })
+  }
+}
+
+function useMutationStartBidding() {
+  const LATENCY_COMPENSATION = 0
+  const roomId = useRoomIdAtoms().get()
+  const mutation = useMutation({
+    mutationFn: mutateFnStartBidding,
+  })
+
+  return [mutation]
+
+  async function mutateFnStartBidding({
+    id,
+    initialCountdown = 60,
+    willWipeHistory = false,
+  }: {
+    id: string
+    initialCountdown?: number
+    willWipeHistory?: boolean
+  }) {
+    const _offers = willWipeHistory ? { offers: [] } : undefined
+    return await updateFirebaseDoc({
+      segments: ['rooms', roomId, 'biddings', id],
+      data: {
+        isInProgress: true,
+        isEnded: false,
+        isPaused: false,
+        pausedAt: deleteField(),
+        endsAt: (() => {
+          const now = new Date()
+          now.setMilliseconds(
+            now.getMilliseconds() +
+              initialCountdown * 1000 +
+              LATENCY_COMPENSATION
+          )
+          return now
+        })(),
+        ..._offers,
+      } as BiddingModification,
+    })
+  }
+}
+
+function useMutationResetAllInProgressBiddings(
   { resetOnUnmount } = { resetOnUnmount: false }
 ) {
-  const LATENCY_COMPENSATION = 0
   const roomId = useRoomIdAtoms().get()
   const isRoomHost = useIsRoomHostAtoms().get()
   const [inprogressBiddings] = useInProgressBiddingsAtoms().get()
@@ -123,16 +203,14 @@ function useMutationResetBidding(
   }
 
   async function mutateFnResetBidding({
-    biddingId,
-    initialCountdown = 60,
+    exceptBiddingId,
   }: {
-    biddingId: string
-    initialCountdown?: number
+    exceptBiddingId: string
   }) {
-    // clear all inprogress bidding, except the one we are about to start
+    // clear all inprogress bidding, except the one specified
     if (inprogressBiddings) {
       const allDeletion = inprogressBiddings.map((inprogressBidding) => {
-        if (inprogressBidding.id === biddingId) return
+        if (inprogressBidding.id === exceptBiddingId) return
 
         return upcreateFirebaseDoc({
           segments: ['rooms', roomId, 'biddings', inprogressBidding.id],
@@ -146,28 +224,8 @@ function useMutationResetBidding(
           } as BiddingModification,
         })
       })
-      await Promise.all(allDeletion)
+      return Promise.all(allDeletion)
     }
-    // resets the specified bidding and give it a new end time
-    await upcreateFirebaseDoc({
-      segments: ['rooms', roomId, 'biddings', biddingId],
-      data: {
-        isInProgress: true,
-        isEnded: false,
-        isPaused: false,
-        pausedAt: deleteField(),
-        endsAt: (() => {
-          const now = new Date()
-          now.setMilliseconds(
-            now.getMilliseconds() +
-              initialCountdown * 1000 +
-              LATENCY_COMPENSATION
-          )
-          return now
-        })(),
-        offers: [],
-      } as BiddingModification,
-    })
   }
 }
 
@@ -248,12 +306,14 @@ function useQueryBiddings(roomId: string | undefined) {
 export {
   useAddItem,
   useQueryBiddings,
+  useMutationStartBidding,
+  useMutationEndBidding,
   useMutationDeleteItem,
-  useMutationResetBidding,
+  useMutationRestoreBidding,
+  useMutationResetAllInProgressBiddings,
   useMutationPause as useMutationPauseBidding,
   useMutationResume as useMutationResumeBidding,
   useMutationExtend as useMutationExtendBidding,
   useMutationSendElapsed as useMutationSendBiddingElapsed,
-  useMutationEndBidding,
 }
 export type { Bidding, BiddingModification }
