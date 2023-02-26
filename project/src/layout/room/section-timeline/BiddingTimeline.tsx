@@ -20,7 +20,7 @@ export default function BidHistory() {
         top: refScrollingContainer.current.scrollHeight,
         behavior: 'smooth',
       })
-    }, 250)
+    }, 350)
     return () => clearTimeout(timer)
   }, [offers.length])
 
@@ -33,7 +33,7 @@ export default function BidHistory() {
         {/* Empty message*/}
         {!shouldHideEmptyMsg && (
           <>
-            <div className="mt-6 w-full text-center text-sm">
+            <div className="mt-6 w-full select-none text-center text-sm">
               Bids will show up here
             </div>
             <div className="divider px-12"></div>
@@ -64,7 +64,9 @@ export default function BidHistory() {
 
         {/* End indicator */}
         {shouldShowEndMsg && (
-          <div className="divider px-12 text-sm text-slate-400">end</div>
+          <div className="divider select-none px-12 text-sm text-slate-400">
+            end
+          </div>
         )}
       </div>
     </div>

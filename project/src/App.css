@@ -11,6 +11,7 @@ body {
   font-family: 'Karla', sans-serif;
   height: 100vh;
 }
+
 /* remove up/down control for number input */
 @layer base {
   input[type='number']::-webkit-inner-spin-button,
@@ -22,37 +23,23 @@ body {
 
 /* style for scrollbar */
 @layer utilities {
-  .subtle-scrollbar {
-    /* IE and Edge */
-    -ms-overflow-style: none;
-    /* Firefox */
-    scrollbar-width: none;
-    /* Safari and Chrome */
-  }
   .subtle-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .subtle-scrollbar:hover::-webkit-scrollbar {
     display: block;
     width: 8px;
     height: 8px;
   }
-  .subtle-scrollbar:hover::-webkit-scrollbar {
-    display: block;
-    width: 8px;
-    height: 8px;
-  }
-  .subtle-scrollbar:hover::-webkit-scrollbar-track {
+  .subtle-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
-  .subtle-scrollbar:hover::-webkit-scrollbar-thumb {
+  .subtle-scrollbar::-webkit-scrollbar-thumb {
     border-radius: 100vh;
     border: 4px solid #cbd5e1;
   }
 }
 
+/* style split pane splitter */
 .sash {
-  --focus-border: #64748b;
+  --focus-border: #475569;
   background: var(--focus-border);
 }
 

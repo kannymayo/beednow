@@ -1,7 +1,5 @@
-import 'allotment/dist/style.css' 
 import { useMemo, useRef } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
-import { Allotment } from 'allotment' 
 
 import { useForm } from '@/hooks/form'
 import { useSignalScrolledTooDeep } from '@/hooks/useSignalScrolledTooDeep'
@@ -13,7 +11,7 @@ import {
 } from '@/api/bidding'
 import { useRoomIdAtoms } from '@/store/useRoomAtom'
 import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
-import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst' 
+import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
 import BiddingItem from '../common/BiddingItem'
 
 export default function BiddingsPending() {
@@ -48,59 +46,51 @@ export default function BiddingsPending() {
   }, [formValues.searchPhrase, biddings])
 
   return (
-    <Allotment vertical={true}>
-      <div
-        ref={refScrollingContainer}
-        className="subtle-scrollbar h-full overflow-y-scroll shadow-inner"
-      >
-        {/* Scroll to top */}
-        {showScrollToTop && (
-          <div className="sticky top-0 z-10 h-0 w-full">
-            <button
-              className="badge badge-accent badge-lg absolute top-10 left-1/2 -translate-x-1/2  shadow-lg transition-none transition-all hover:scale-110"
-              onClick={scrollToTop}
-            >
-              Top
-            </button>
-          </div>
-        )}
-
-        {/* Header */}
-        <div className="navbar bg-base-100">
-          <div className="flex-1">
-            <a className="btn btn-xs btn-ghost text-xs normal-case">Pending</a>
-          </div>
-
-          {/* Search */}
-          <div className="flex-none gap-2">
-            <div className="form-control">
-              <input
-                name="searchPhrase"
-                type="text"
-                placeholder="Search"
-                value={formValues.searchPhrase}
-                onChange={handleFormValues}
-                className="input input-bordered input-sm"
-              />
-            </div>
-          </div>
+    <div
+      ref={refScrollingContainer}
+      className="subtle-scrollbar h-full overflow-y-scroll shadow-inner"
+    >
+      {/* Scroll to top */}
+      {showScrollToTop && (
+        <div className="sticky top-0 z-10 h-0 w-full">
+          <button
+            className="badge badge-accent badge-lg absolute top-10 left-1/2 -translate-x-1/2  shadow-lg transition-none transition-all hover:scale-110"
+            onClick={scrollToTop}
+          >
+            Top
+          </button>
         </div>
+      )}
 
-        {/* List of items */}
-        <ul className="px-1" ref={animationParent}>
-          {displayedBiddings?.map &&
-            displayedBiddings.map((item) => (
-              <BiddingItem
-                item={item}
-                key={item.id}
-                mutateDeleteAsync={mutateDeleteAsync}
-                mutateResetBiddingAsync={mutateResetBiddingAsync}
-              />
-            ))}
-        </ul>
+      {/* Header */}
+      <div className="flex h-10 items-center gap-2 px-1">
+        <div className="text-center text-sm">Pending</div>
+
+        {/* Search */}
+        <input
+          name="searchPhrase"
+          type="text"
+          placeholder="Search"
+          size={6}
+          value={formValues.searchPhrase}
+          onChange={handleFormValues}
+          className="input input-bordered input-sm flex-1 rounded-md"
+        />
       </div>
-      <div>finished bidding</div>
-    </Allotment>
+
+      {/* List of items */}
+      <ul className="px-1" ref={animationParent}>
+        {displayedBiddings?.map &&
+          displayedBiddings.map((item) => (
+            <BiddingItem
+              item={item}
+              key={item.id}
+              mutateDeleteAsync={mutateDeleteAsync}
+              mutateResetBiddingAsync={mutateResetBiddingAsync}
+            />
+          ))}
+      </ul>
+    </div>
   )
 
   function filterAndSortItems(
