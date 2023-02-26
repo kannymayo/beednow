@@ -10,9 +10,13 @@ import {
   Bidding,
 } from '@/api/bidding'
 import { useRoomIdAtoms } from '@/store/useRoomAtom'
-import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
+import {
+  useInProgressBiddingsAtoms,
+  useBiddingsAtoms,
+  usePendingBiddingsAtoms,
+} from '@/store/useBiddingAtom'
 import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
-import BiddingItem from '../common/BiddingItem'
+import BiddingItem from './common/BiddingItem'
 
 export default function BiddingsPending() {
   const [formValues, handleFormValues] = useForm({ searchPhrase: '' })
@@ -20,10 +24,16 @@ export default function BiddingsPending() {
     useSignalScrolledTooDeep()
   const [animationParent] = useAutoAnimate<HTMLUListElement>()
 
+  const pendingBiddings = usePendingBiddingsAtoms().get()
   const roomId = useRoomIdAtoms().get()
   const [{ data: biddings, isLoading: isBiddingsLoading }, hasPendingWrites] =
     useQueryBiddings(roomId)
   useInProgressBiddingsAtoms().set({
+    resetOnUnmount: true,
+    biddingsAll: biddings,
+    readyToSync: !isBiddingsLoading,
+  })
+  useBiddingsAtoms().set({
     resetOnUnmount: true,
     biddingsAll: biddings,
     readyToSync: !isBiddingsLoading,
@@ -40,10 +50,10 @@ export default function BiddingsPending() {
   const displayedBiddings = useMemo(() => {
     if (hasPendingWrites) return refLastDisplayedBiddings.current
 
-    const result = filterAndSortItems(biddings, formValues.searchPhrase)
+    const result = filterAndSortItems(pendingBiddings, formValues.searchPhrase)
     refLastDisplayedBiddings.current = result
     return result
-  }, [formValues.searchPhrase, biddings])
+  }, [formValues.searchPhrase, pendingBiddings])
 
   return (
     <div

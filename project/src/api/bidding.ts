@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import {
   serverTimestamp,
-  where,
   deleteField,
   FieldValue,
   Timestamp,
@@ -184,17 +183,6 @@ function useQueryBiddings(roomId: string | undefined) {
     isSubscribed: true,
   })
   return [query, hasPendingWrites] as const
-}
-
-function useQueryInProgressBiddings() {
-  const roomId = useRoomIdAtoms().get()
-  const [query] = useQueryFirebase<Bidding[] | []>({
-    segments: ['rooms', roomId, 'biddings'],
-    isSubscribed: true,
-    queryConstraints: [where('isInProgress', '!=', false)],
-  })
-  const hasMember = (query.data?.length || 0) > 0
-  return [query, hasMember] as const
 }
 
 export {
