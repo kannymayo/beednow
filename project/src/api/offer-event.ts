@@ -158,36 +158,9 @@ function useMutationSendElapsed() {
   }
 }
 
-/**
- * Mutates isEnded, isInProgress, endsAt (why not? like minor
- * correction)
- */
-function useMutationEnd() {
-  const [user] = useUserAtoms().get()
-  const roomId = useRoomIdAtoms().get()
-  const [[bidding], hasMember] = useInProgressBiddingsAtoms().get()
-  const mutation = useMutation({
-    mutationFn: mutateFnEndOffer,
-  })
-
-  return [mutation]
-
-  async function mutateFnEndOffer() {
-    return await updateFirebaseDoc({
-      segments: ['rooms', roomId, 'biddings', bidding?.id],
-      data: {
-        isEnded: true,
-        isInProgress: false,
-        endsAt: serverTimestamp(),
-      } as BiddingModification,
-    })
-  }
-}
-
 export {
   useMutationPause,
   useMutationResume,
   useMutationExtend,
-  useMutationEnd,
   useMutationSendElapsed,
 }

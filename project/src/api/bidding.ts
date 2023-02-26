@@ -7,11 +7,14 @@ import {
   Timestamp,
 } from 'firebase/firestore'
 
+import { isVoid } from '@/utils/is-void'
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
+import { useHighestOfferAtoms } from '@/store/useOfferAtom'
 import { useRoomIdAtoms, useIsRoomHostAtoms } from '@/store/useRoomAtom'
 import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
 import { ItemFromAPI } from '@/api/item-details'
 import {
+  updateFirebaseDoc,
   upcreateFirebaseDoc,
   upcreateFirebaseDocWithAutoId,
   deleteFirebaseDoc,
@@ -22,7 +25,6 @@ import {
   useMutationResume,
   useMutationExtend,
   useMutationSendElapsed,
-  useMutationEnd,
 } from './offer-event'
 
 interface Bidding {
@@ -35,6 +37,13 @@ interface Bidding {
   pausedAt: Timestamp
   endsAt: Timestamp
   offers: Offer[]
+  // deducible from offers
+  hasClosingOffer: boolean
+  closingAmount: number
+  closingTime: Timestamp
+  closingUserId: string
+  closingUsername: string
+  closingUserAvatar: string
 }
 
 // well done, chatGPT
@@ -177,6 +186,57 @@ function useMutationDeleteItem() {
   }
 }
 
+/**
+ * Mutates isEnded, isInProgress, endsAt (why not? like minor
+ * correction)
+ */
+function useMutationEndBidding() {
+  const roomId = useRoomIdAtoms().get()
+  const highestOffer = useHighestOfferAtoms().get()
+  const [[bidding], hasMember] = useInProgressBiddingsAtoms().get()
+  const mutation = useMutation({
+    mutationFn: mutateFnEndOffer,
+  })
+
+  return [mutation]
+
+  async function mutateFnEndOffer() {
+    const closingAmount = highestOffer?.amount
+    const closingTime = highestOffer?.createdAt
+    const closingUserId = highestOffer?.userId
+    const closingUsername = highestOffer?.username
+
+    // no valid closing offer
+    if (
+      [closingAmount, closingTime, closingUserId, closingUsername].some(isVoid)
+    ) {
+      return await updateFirebaseDoc({
+        segments: ['rooms', roomId, 'biddings', bidding?.id],
+        data: {
+          isEnded: true,
+          isInProgress: false,
+          endsAt: serverTimestamp(),
+          hasClosingOffer: false,
+        } as BiddingModification,
+      })
+    } else {
+      return await updateFirebaseDoc({
+        segments: ['rooms', roomId, 'biddings', bidding?.id],
+        data: {
+          isEnded: true,
+          isInProgress: false,
+          endsAt: serverTimestamp(),
+          hasClosingOffer: true,
+          closingAmount,
+          closingTime,
+          closingUserId,
+          closingUsername,
+        } as BiddingModification,
+      })
+    }
+  }
+}
+
 function useQueryBiddings(roomId: string | undefined) {
   const [query, hasPendingWrites] = useQueryFirebase<Bidding[]>({
     segments: ['rooms', roomId, 'biddings'],
@@ -194,6 +254,6 @@ export {
   useMutationResume as useMutationResumeBidding,
   useMutationExtend as useMutationExtendBidding,
   useMutationSendElapsed as useMutationSendBiddingElapsed,
-  useMutationEnd as useMutationEndBidding,
+  useMutationEndBidding,
 }
 export type { Bidding, BiddingModification }
