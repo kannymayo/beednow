@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { TrophyIcon } from '@heroicons/react/24/outline'
+import { TrophyIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline'
 
 import { Bidding } from '@/api/bidding'
 import CardRow from './CardRow'
@@ -66,27 +66,35 @@ export default function BiddingItem({
           >
             <div className="mr-auto flex min-w-0 gap-1 ">
               {item.hasClosingOffer ? (
-                <>
-                  <div className="input-group-xs input-group flex flex-shrink select-none overflow-hidden">
-                    <div className="input input-xs flex items-center text-yellow-700">
-                      <TrophyIcon className="h-4 w-4" />
-                    </div>
-                    <span className="px-1 font-bold">{item.closingAmount}</span>
-                    <div className="input input-xs flex items-center text-slate-400">
-                      {(function () {
-                        const uname = item.closingUsername
-                        const idx = uname.indexOf('@')
-                        return uname.slice(0, idx)
-                      })()}
-                    </div>
+                // show closing offer amount and user
+                <div className="input-group-xs input-group flex flex-shrink select-none overflow-hidden">
+                  <div className="input input-xs flex items-center text-yellow-700">
+                    <TrophyIcon className="h-4 w-4" />
                   </div>
-                </>
+                  <span className="px-1 font-bold">{item.closingAmount}</span>
+                  <div className="input input-xs flex items-center text-slate-400">
+                    {(function () {
+                      const uname = item.closingUsername
+                      const idx = uname.indexOf('@')
+                      return uname.slice(0, idx)
+                    })()}
+                  </div>
+                </div>
+              ) : item.isEnded ? (
+                // no closing offer, but closed
+                <div className="input-group input-group-xs">
+                  <div className="input input-xs flex items-center text-yellow-700">
+                    <ExclamationCircleIcon className="h-4 w-4" />
+                  </div>
+                  <span className="pl-1 font-bold">failed</span>
+                </div>
               ) : (
+                // no closing offer, not closed
                 <>
-                  <div className="badge badge-primary shrink-0 rounded-sm px-1">
+                  <div className="badge shrink-0 rounded-sm px-1">
                     {type ?? slot}
                   </div>
-                  <div className="badge badge-primary shrink-0 rounded-sm px-1">
+                  <div className="badge shrink-0 rounded-sm px-1">
                     ilvl: {itemLevel}
                   </div>
                 </>
