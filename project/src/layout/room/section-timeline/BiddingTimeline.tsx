@@ -4,7 +4,10 @@ import { toast, ToastContainer } from 'react-toastify'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { useDebounce } from 'ahooks'
 
-import { useAnnotatedOffersAtoms } from '@/store/useOfferAtom'
+import {
+  useAnnotatedOffersAtoms,
+  useHighestOfferAtoms,
+} from '@/store/useOfferAtom'
 import EntryOffer from './EntryOffer'
 import EntryEvent from './EntryEvent'
 
@@ -12,9 +15,11 @@ export default function BidHistory() {
   const refScrollingContainer = useRef<HTMLDivElement>(null)
   const [animationParent] = useAutoAnimate()
   const offers = useAnnotatedOffersAtoms().get()
+  const highestOffer = useHighestOfferAtoms().get()
   const lenOffersDecounced = useDebounce(offers.length, { wait: 500 })
   const shouldHideEmptyMsg = offers.length > 0 || lenOffersDecounced > 0
   const shouldShowEndMsg = offers.length > 5
+  const highestAmount = highestOffer?.amount
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -52,11 +57,12 @@ export default function BidHistory() {
           )}
 
           {/* The list of offeers */}
-          <ol ref={animationParent} className="pb-6">
+          <ol ref={animationParent} className="grid gap-1 pb-6">
             {offers.map((offer) => {
               return offer.event ? (
                 <EntryEvent
                   key={offer.createdAt.toMillis()}
+                  userId={offer.userId}
                   username={offer.username}
                   event={offer.event}
                   amount={offer.amount || 0}
@@ -64,10 +70,11 @@ export default function BidHistory() {
               ) : (
                 <EntryOffer
                   key={offer.createdAt.toMillis()}
-                  userId={offer.username}
+                  userId={offer.userId}
                   username={offer.username}
                   amount={offer.amount || 0}
                   isValid={offer.isValid || false}
+                  isHighest={offer.amount === highestAmount && offer.isValid}
                 />
               )
             })}

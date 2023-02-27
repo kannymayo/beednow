@@ -11,7 +11,7 @@ export default function Room() {
       <div className="col-span-1 row-span-2">
         <SectionBiddings />
       </div>
-      <div className="absolute right-2 top-8 bottom-8 z-10 col-span-1 col-start-3 row-span-1 row-start-1 w-28">
+      <div className="absolute right-2 top-8 bottom-8 z-10 col-span-1 col-start-3 row-span-1 row-start-1 hidden w-28">
         <SectionWatchlist />
       </div>
       <div className="col-start-2 row-start-1">

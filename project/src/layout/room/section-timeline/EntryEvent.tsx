@@ -67,13 +67,15 @@ export default function ({ username, amount, event }: Partial<Offer>) {
       'border-t-2 border-cyan-600 border-0': event === 'pause',
       'border-b-2 border-sky-600 border-0': event === 'resume',
     },
-    'mb-1 grid h-8 grid-cols-2 border-1 bg-white drop-shadow last:mb-0 hover:ring-1 hover:ring-inset hover:ring-slate-600 select-none box-content'
+    'grid h-8 grid-cols-2 border-1 bg-white drop-shadow last:mb-0 hover:ring-1 hover:ring-inset hover:ring-slate-600 select-none box-content'
   )
   return (
     <li className={clsRoot}>
       {/* Amount */}
       <div className="col-span-1 grid grid-cols-6  items-stretch">
-        <div className={clsTypeIconBox}>{icon}</div>
+        <div className="col-span-1 my-1 flex items-center justify-center border-x text-zinc-500">
+          <BellIcon className="h-6 w-6" />
+        </div>
         <span className="col-span-5 flex items-center justify-end px-2 text-xs text-slate-400">
           {headerText}
         </span>
@@ -81,9 +83,7 @@ export default function ({ username, amount, event }: Partial<Offer>) {
 
       {/* User */}
       <div className="col-span-1 grid grid-cols-6">
-        <div className="col-span-1 my-1 flex items-center justify-center border-x text-zinc-500">
-          <BellIcon className="h-6 w-6" />
-        </div>
+        <div className={clsTypeIconBox}>{icon}</div>
         <span className={clsBodyText}>{bodyText}</span>
       </div>
     </li>

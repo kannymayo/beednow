@@ -1,7 +1,11 @@
 import clsx from 'clsx'
-import { TrophyIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline'
+import {
+  CurrencyDollarIcon,
+  ExclamationCircleIcon,
+} from '@heroicons/react/24/outline'
 
 import { Bidding } from '@/api/bidding'
+import { useUserAtoms } from '@/store/useUserAtom'
 import CardRow from './CardRow'
 
 export default function BiddingItem({
@@ -21,11 +25,13 @@ export default function BiddingItem({
   secActionHint: string
   secActionIcon: React.FC<{ className?: string }>
 }) {
+  const [user, isLoggedIn] = useUserAtoms().get()
   const {
     id,
     details: { name, iconUrl, type, slot, itemLevel, id: itemId },
     isInProgress,
   } = item
+  const isWonBySelf = user.uid === item.closingUserId
 
   const clsCardProper = clsx(
     {
@@ -68,16 +74,19 @@ export default function BiddingItem({
               {item.hasClosingOffer ? (
                 // show closing offer amount and user
                 <div className="input-group-xs input-group flex flex-shrink select-none overflow-hidden">
-                  <div className="input input-xs flex items-center text-yellow-700">
-                    <TrophyIcon className="h-4 w-4" />
+                  <div className="input input-xs flex items-center px-1 text-yellow-700">
+                    <CurrencyDollarIcon className="h-5 w-5" />
                   </div>
                   <span className="px-1 font-bold">{item.closingAmount}</span>
                   <div className="input input-xs flex items-center text-slate-400">
-                    {(function () {
-                      const uname = item.closingUsername
-                      const idx = uname.indexOf('@')
-                      return uname.slice(0, idx)
-                    })()}
+                    {isWonBySelf
+                      ? 'Me'
+                      : (function () {
+                          // remove after @
+                          const uname = item.closingUsername
+                          const idx = uname.indexOf('@')
+                          return uname.slice(0, idx)
+                        })()}
                   </div>
                 </div>
               ) : item.isEnded ? (

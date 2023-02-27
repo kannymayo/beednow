@@ -91,7 +91,7 @@ export default function Countdown({
           isActive={isInCountdown}
         ></CountdownCircle>
       </div>
-      <div className="stat-desc select-none">Countdown</div>
+      <div className="stat-desc select-none text-center">Countdown</div>
     </div>
   )
 
