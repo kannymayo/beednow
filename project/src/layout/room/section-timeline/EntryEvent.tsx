@@ -11,7 +11,14 @@ import {
 import { Offer } from '@/api/offer'
 
 export default function ({ username, amount, event }: Partial<Offer>) {
-  const clsTypeIcon = 'h-6 w-6 text-white'
+  const clsTypeIcon = clsx(
+    {
+      'text-purple-600': event === 'elapsed',
+      'text-green-600': event === 'extend',
+      'text-cyan-600': event === 'pause' || event === 'resume',
+    },
+    'h-6 w-6'
+  )
 
   var icon
   if (event === 'pause') {
@@ -46,15 +53,6 @@ export default function ({ username, amount, event }: Partial<Offer>) {
   } else if (event === 'elapsed') {
   }
 
-  const clsTypeIconBox = clsx(
-    {
-      'from-purple-600 to-violet-600': event === 'elapsed',
-      'from-green-600 to-teal-600': event === 'extend',
-      'from-cyan-600 to-blue-600': event === 'pause' || event === 'resume',
-    },
-    'cols-span-1 flex items-center justify-center bg-gradient-to-r bg-slate-500'
-  )
-
   const clsBodyText = clsx(
     {
       'text-green-800': event === 'extend',
@@ -62,6 +60,7 @@ export default function ({ username, amount, event }: Partial<Offer>) {
     'col-span-5 flex items-center justify-center px-2'
   )
 
+  // twin borders for pause/resume
   const clsRoot = clsx(
     {
       'border-t-2 border-cyan-600 border-0': event === 'pause',
@@ -73,7 +72,7 @@ export default function ({ username, amount, event }: Partial<Offer>) {
     <li className={clsRoot}>
       {/* Amount */}
       <div className="col-span-1 grid grid-cols-6  items-stretch">
-        <div className="col-span-1 my-1 flex items-center justify-center border-x text-zinc-500">
+        <div className="col-span-1 my-1 flex items-center justify-center border-r text-zinc-500">
           <BellIcon className="h-6 w-6" />
         </div>
         <span className="col-span-5 flex items-center justify-end px-2 text-xs text-slate-400">
@@ -83,7 +82,9 @@ export default function ({ username, amount, event }: Partial<Offer>) {
 
       {/* User */}
       <div className="col-span-1 grid grid-cols-6">
-        <div className={clsTypeIconBox}>{icon}</div>
+        <div className="'cols-span-1 bg-slate-500' my-1 flex items-center justify-center border-x">
+          {icon}
+        </div>
         <span className={clsBodyText}>{bodyText}</span>
       </div>
     </li>
