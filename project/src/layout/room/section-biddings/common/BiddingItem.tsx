@@ -1,17 +1,17 @@
-import { useState } from 'react'
 import clsx from 'clsx'
+import { TrophyIcon } from '@heroicons/react/24/outline'
 
-import { useIsRoomHostAtoms } from '@/store/useRoomAtom'
 import { Bidding } from '@/api/bidding'
+import CardRow from './CardRow'
 
 export default function BiddingItem({
   item,
   priAction,
   priActionHint,
-  priActionIcon: PriActionIcon = () => <></>,
+  priActionIcon = () => <></>,
   secAction,
   secActionHint,
-  secActionIcon: SecActionIcon = () => <></>,
+  secActionIcon = () => <></>,
 }: {
   item: Bidding
   priAction: (id: string) => void
@@ -21,26 +21,22 @@ export default function BiddingItem({
   secActionHint: string
   secActionIcon: React.FC<{ className?: string }>
 }) {
-  const isRoomHost = useIsRoomHostAtoms().get()
-  const [isPriActionStaged, setIsPriActionStaged] = useState(false)
-  const [isSecActionStaged, setIsSecActionStaged] = useState(false)
-
   const {
     id,
     details: { name, iconUrl, type, slot, itemLevel, id: itemId },
     isInProgress,
   } = item
+
+  const clsCardProper = clsx(
+    {
+      'pr-1 before:w-1': isInProgress,
+      'before:w-0': !isInProgress,
+    },
+    'card card-side group my-1 overflow-hidden rounded-sm bg-slate-300 py-0 before:absolute before:right-0 before:h-full before:bg-rose-500 hover:bg-slate-400'
+  )
   return (
     <li key={id} className="relative">
-      <div
-        className={clsx(
-          {
-            'pr-1 before:w-1': isInProgress,
-            'before:w-0': !isInProgress,
-          },
-          'card card-side group my-1 overflow-hidden rounded-sm bg-slate-300 py-0 before:absolute before:right-0 before:h-full before:bg-rose-500 hover:bg-slate-400'
-        )}
-      >
+      <div className={clsCardProper}>
         {/* Icon */}
         <figure className="flex-shrink-0">
           <a
@@ -51,72 +47,54 @@ export default function BiddingItem({
             <img src={iconUrl} />
           </a>
         </figure>
-        <div className="card-body grid gap-0 px-1 py-0">
-          {/* Row of name + action */}
-          <div className="flex items-center justify-between overflow-hidden">
-            {/* Name */}
+        <div className="card-body grid grid-rows-2 gap-0 px-1 py-0">
+          <CardRow
+            biddingId={id}
+            action={priAction}
+            actionHint={priActionHint}
+            actionIcon={priActionIcon}
+          >
             <div className="min-w-0 flex-1 truncate text-sm font-medium">
               {name}
             </div>
-            {/* Only visible to host */}
-            {/* Primary button */}
-            {isRoomHost ? (
-              <button
-                onMouseLeave={() => setIsPriActionStaged(false)}
-                onClick={handlePriAction}
-                className="btn btn-xs btn-outline hidden border-none group-hover:flex"
-              >
-                {isPriActionStaged ? (
-                  <span className="font-sm font-light capitalize">
-                    {priActionHint || 'do it'}
-                  </span>
-                ) : (
-                  <PriActionIcon className="h-5 w-5" />
-                )}
-              </button>
-            ) : (
-              <></>
-            )}
-          </div>
-          {/* Row of tags */}
-          <div className="card-actions flex-nowrap items-center justify-around">
+          </CardRow>
+          <CardRow
+            biddingId={id}
+            action={secAction}
+            actionHint={secActionHint}
+            actionIcon={secActionIcon}
+          >
             <div className="mr-auto flex min-w-0 gap-1 ">
-              <div className="badge badge-primary shrink-0">{type ?? slot}</div>
-              <div className="badge badge-primary shrink-0">
-                ilvl: {itemLevel}
-              </div>
+              {item.hasClosingOffer ? (
+                <>
+                  <div className="input-group-xs input-group flex flex-shrink select-none overflow-hidden">
+                    <div className="input input-xs flex items-center text-yellow-700">
+                      <TrophyIcon className="h-4 w-4" />
+                    </div>
+                    <span className="px-1 font-bold">{item.closingAmount}</span>
+                    <div className="input input-xs flex items-center text-slate-400">
+                      {(function () {
+                        const uname = item.closingUsername
+                        const idx = uname.indexOf('@')
+                        return uname.slice(0, idx)
+                      })()}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="badge badge-primary shrink-0 rounded-sm px-1">
+                    {type ?? slot}
+                  </div>
+                  <div className="badge badge-primary shrink-0 rounded-sm px-1">
+                    ilvl: {itemLevel}
+                  </div>
+                </>
+              )}
             </div>
-            {/* Start bidding button */}
-            {isRoomHost ? (
-              <button
-                onMouseLeave={() => setIsSecActionStaged(false)}
-                onClick={handleSecAction}
-                className="btn btn-xs btn-outline hidden border-none  group-hover:flex"
-              >
-                {isSecActionStaged ? (
-                  <span className="font-sm font-light capitalize">
-                    {secActionHint || 'do it'}
-                  </span>
-                ) : (
-                  <SecActionIcon className="h-5 w-5" />
-                )}
-              </button>
-            ) : (
-              <></>
-            )}
-          </div>
+          </CardRow>
         </div>
       </div>
     </li>
   )
-
-  function handlePriAction() {
-    if (isPriActionStaged) priAction(item.id)
-    else setIsPriActionStaged(true)
-  }
-
-  function handleSecAction() {
-    if (isSecActionStaged) secAction(item.id)
-    else setIsSecActionStaged(true)
-  }
 }
