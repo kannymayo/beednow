@@ -9,7 +9,7 @@ import {
   useMutationEndBidding,
 } from '@/api/bidding'
 import { useCountdownAtoms } from '@/store/useBiddingAtom'
-import { toast } from 'react-toastify'
+import { toasto } from '@/utils/toasto'
 import CountdownCircle from './countdown/CountdownCircle'
 
 export default function Countdown({
@@ -119,7 +119,7 @@ export default function Countdown({
     const refWillToastCloseExecMutation = useRef(true)
     const toastId = 'auto-finish'
     return () => {
-      toast(<AutoFinishToast onAbort={onAbortAutoFinish} />, {
+      toasto(<AutoFinishToast onAbort={onAbortAutoFinish} />, {
         onClose: () => {
           if (refWillToastCloseExecMutation.current) {
             mutationEndBidding.mutate()
@@ -138,7 +138,9 @@ export default function Countdown({
           }, 50)
         },
         toastId,
+        containerId: 'section-timeline',
         autoClose: 3000,
+        type: 'success',
       })
     }
 
@@ -156,7 +158,7 @@ function AutoFinishToast({
   closeToast?: any
 }) {
   return (
-    <div className="grid gap-2">
+    <div className="grid select-none gap-2">
       <span>
         Current bidding will close in 3 seconds, and the next bidding will start
       </span>

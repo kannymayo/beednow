@@ -27,7 +27,8 @@ function App() {
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
       <ToastContainer
-        position="bottom-right"
+        enableMultiContainer
+        containerId="default"
         autoClose={1600}
         newestOnTop
         pauseOnFocusLoss={false}

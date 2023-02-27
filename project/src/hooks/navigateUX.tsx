@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { toast as toastForTyping } from 'react-toastify'
 
-import { debouncedToast } from '@/utils/debouncedToast'
+import { toasto } from '@/utils/toasto'
 import { useUserAtoms, UnifiedUser } from '@/store/useUserAtom'
 
 function useRedirectOnValidUser(_user: UnifiedUser) {
@@ -35,7 +35,7 @@ function useNavigateWithBackLinkAndToast(
     interceptedComponent = (
       <Navigate to="/" state={{ redirUrl: location.pathname }} replace={true} />
     )
-    if (toastArgs) debouncedToast(...toastArgs)
+    if (toastArgs) toasto(...toastArgs)
   }
 
   return [shouldIntercept, interceptedComponent] as const

@@ -1,6 +1,6 @@
 import './BiddingImporter.css'
 import React, { useState, useEffect, useRef, useMemo, useReducer } from 'react'
-import { toast } from 'react-toastify'
+import { toasto } from '@/utils/toasto'
 import clsx from 'clsx'
 import produce from 'immer'
 
@@ -199,7 +199,7 @@ function ImportModal() {
     const msg = `Added ${selectedItems.length} item${
       selectedItems.length > 1 ? 's' : ''
     } to bidding`
-    toast(msg, {
+    toasto(msg, {
       type: 'info',
     })
   }

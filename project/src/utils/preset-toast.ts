@@ -1,4 +1,4 @@
-import { debouncedToast } from './debouncedToast'
+import { toasto } from './toasto'
 
 // a preset toast for error messages (auth for now)
 function errorToast(
@@ -7,7 +7,7 @@ function errorToast(
   field: string = ''
 ) {
   const preset = (msg: string) => {
-    debouncedToast(msg, { type: 'error', autoClose: 3000 })
+    toasto(msg, { type: 'error', autoClose: 3000 })
   }
 
   if (error && field) {

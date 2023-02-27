@@ -12,7 +12,7 @@ import { useJoinRoom, useMutationDeleteRoom } from '@/api/room'
 import { useQueryBiddings } from '@/api/bidding'
 import { useRoomPreviewAtoms } from '@/store/useRoomAtom'
 import { useUserAtoms } from '@/store/useUserAtom'
-import { debouncedToast } from '@/utils/debouncedToast'
+import { toasto } from '@/utils/toasto'
 import { calRelativeDate } from '@/utils/calc-relative-date'
 import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'
 
@@ -101,12 +101,12 @@ export default function RoomPreview() {
     try {
       await joinRoom(roomId)
       navigate(`/room/${roomId}`)
-      debouncedToast(`Joining room: ${name}`, {
+      toasto(`Joining room: ${name}`, {
         type: 'success',
       })
     } catch (e) {
       const err = e as Error
-      debouncedToast(err.message, {
+      toasto(err.message, {
         type: 'error',
       })
     }

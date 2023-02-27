@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import clsx from 'clsx'
-import { toast } from 'react-toastify'
+import { toasto } from '@/utils/toasto'
 
 import { ItemOccurrence, IOCGroupedAction } from './BiddingImporter'
 
@@ -99,7 +99,7 @@ export default function ImportableItem({
       </div>
     )
     navigator.clipboard.writeText(content)
-    toast(toastMsg, { type: 'info' })
+    toasto(toastMsg, { type: 'info' })
   }
 
   function toggleIsItemHovered() {

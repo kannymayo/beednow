@@ -1,0 +1,7 @@
+.section-timeline .Toastify__toast:has(.Toastify__progress-bar) {
+  padding-bottom: 1.25rem;
+}
+.section-timeline .Toastify__progress-bar {
+  margin-top: 1rem;
+  height: 1rem;
+}

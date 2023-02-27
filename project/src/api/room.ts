@@ -11,7 +11,7 @@ import {
   getFirebaseDoc,
   deleteFirebaseDoc,
 } from './helper/firebase-CRUD-throwable'
-import { debouncedToast } from '@/utils/debouncedToast'
+import { toasto } from '@/utils/toasto'
 
 interface FirebaseServerTimestamp {
   seconds: number
@@ -69,7 +69,7 @@ function useCreateRoom() {
       },
     })
     await joinRoom(roomId)
-    debouncedToast('Room created.', { type: 'success' })
+    toasto('Room created.', { type: 'success' })
     return roomId
   }
 }
@@ -113,10 +113,10 @@ function useMutationDeleteRoom() {
     mutationFn: deleteRoom,
     onError: (err) => {
       const error = err as Error
-      debouncedToast(error.message, { type: 'error' })
+      toasto(error.message, { type: 'error' })
     },
     onSuccess: () => {
-      debouncedToast('Room deleted.', { type: 'success' })
+      toasto('Room deleted.', { type: 'success' })
     },
   })
   return [mutation]
