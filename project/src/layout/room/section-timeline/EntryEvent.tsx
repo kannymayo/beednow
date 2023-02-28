@@ -5,7 +5,6 @@ import {
   ClockIcon,
   BellIcon,
   CheckCircleIcon,
-  HandRaisedIcon,
 } from '@heroicons/react/24/outline'
 
 import { Offer } from '@/api/offer'
@@ -15,6 +14,7 @@ export default function ({ username, amount, event }: Partial<Offer>) {
     {
       'text-purple-600': event === 'elapsed',
       'text-green-600': event === 'extend',
+      'text-red-600': event === 'shorten',
       'text-cyan-600': event === 'pause' || event === 'resume',
     },
     'h-6 w-6'
@@ -25,7 +25,7 @@ export default function ({ username, amount, event }: Partial<Offer>) {
     icon = <PauseCircleIcon className={clsTypeIcon} />
   } else if (event === 'resume') {
     icon = <PlayCircleIcon className={clsTypeIcon} />
-  } else if (event === 'extend') {
+  } else if (event === 'extend' || event === 'shorten') {
     icon = <ClockIcon className={clsTypeIcon} />
   } else if (event === 'elapsed') {
     icon = <CheckCircleIcon className={clsTypeIcon} />
@@ -40,6 +40,8 @@ export default function ({ username, amount, event }: Partial<Offer>) {
     headerText = 'Extended'
   } else if (event === 'elapsed') {
     headerText = "Time's up!"
+  } else if (event === 'shorten') {
+    headerText = 'Shortened'
   }
 
   //  stage is silent (unless to host?)
@@ -50,12 +52,14 @@ export default function ({ username, amount, event }: Partial<Offer>) {
     bodyText = ''
   } else if (event === 'extend') {
     bodyText = `+${amount}s`
-  } else if (event === 'elapsed') {
+  } else if (event === 'shorten') {
+    bodyText = `-${amount}s`
   }
 
   const clsBodyText = clsx(
     {
       'text-green-800': event === 'extend',
+      'text-red-800': event === 'shorten',
     },
     'col-span-5 flex items-center justify-center px-2'
   )

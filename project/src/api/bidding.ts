@@ -24,6 +24,7 @@ import {
   useMutationPause,
   useMutationResume,
   useMutationExtend,
+  useMutationShorten,
   useMutationSendElapsed,
 } from './offer-event'
 
@@ -251,14 +252,13 @@ function useMutationDeleteItem() {
 function useMutationEndBidding() {
   const roomId = useRoomIdAtoms().get()
   const highestOffer = useHighestOfferAtoms().get()
-  const [[bidding], hasMember] = useInProgressBiddingsAtoms().get()
   const mutation = useMutation({
     mutationFn: mutateFnEndOffer,
   })
 
   return [mutation]
 
-  async function mutateFnEndOffer() {
+  async function mutateFnEndOffer({ id }: { id: string }) {
     const closingAmount = highestOffer?.amount
     const closingTime = highestOffer?.createdAt
     const closingUserId = highestOffer?.userId
@@ -269,7 +269,7 @@ function useMutationEndBidding() {
       [closingAmount, closingTime, closingUserId, closingUsername].some(isVoid)
     ) {
       return await updateFirebaseDoc({
-        segments: ['rooms', roomId, 'biddings', bidding?.id],
+        segments: ['rooms', roomId, 'biddings', id],
         data: {
           isEnded: true,
           isInProgress: false,
@@ -279,7 +279,7 @@ function useMutationEndBidding() {
       })
     } else {
       return await updateFirebaseDoc({
-        segments: ['rooms', roomId, 'biddings', bidding?.id],
+        segments: ['rooms', roomId, 'biddings', id],
         data: {
           isEnded: true,
           isInProgress: false,
@@ -314,6 +314,7 @@ export {
   useMutationPause as useMutationPauseBidding,
   useMutationResume as useMutationResumeBidding,
   useMutationExtend as useMutationExtendBidding,
+  useMutationShorten as useMutationShortenBidding,
   useMutationSendElapsed as useMutationSendBiddingElapsed,
 }
 export type { Bidding, BiddingModification }

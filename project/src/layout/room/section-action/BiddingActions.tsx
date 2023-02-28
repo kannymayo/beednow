@@ -31,7 +31,7 @@ export default function BidAction() {
           {/* [A1,B3] */}
           <div className="col-span-2 col-start-1 row-span-3 row-start-1 flex items-stretch justify-between gap-2 px-2 xl:gap-16 xl:px-10">
             {/* [A1,A3]  Offer incrementally with Predicate*/}
-            <div className="flex flex-grow basis-1 flex-col gap-1">
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
               <ActionIncrement
                 globalDisabled={globalDisabled}
                 mutateMakeOfferAsync={mutationMakeOffer.mutateAsync}
@@ -45,10 +45,10 @@ export default function BidAction() {
 
           {/* [A4,B4] */}
           <div className="col-span-2 col-start-1 row-span-1 row-start-4 flex items-end justify-center px-2 xl:px-10">
-            <ActionSetBudget globalDisabled={globalDisabled} />
+            <ActionSetBudget />
           </div>
           {/* [A5,B6] */}
-          <div className="col-span-2 col-start-1 row-span-2 row-start-5 flex justify-center gap-8 px-2 xl:px-10">
+          <div className="col-span-2 col-start-1 row-span-2 row-start-5 flex justify-between gap-8 px-2 xl:px-10">
             <ActionNonOffer globalDisabled={globalDisabled} />
 
             <ActionAbsolute

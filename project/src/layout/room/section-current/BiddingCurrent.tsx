@@ -56,6 +56,7 @@ export default function BidItem() {
               />
               <HeaderCurrentHighest />
               <HeaderCountdown
+                biddingId={inProgressBidding?.id}
                 max={MAX_COUNTDOWN}
                 isEnded={isEnded}
                 isPaused={isPaused}

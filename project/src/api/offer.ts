@@ -9,7 +9,13 @@ import { updateFirebaseDoc } from './helper/firebase-CRUD-throwable'
 // Offer is embeded in Bidding in Firestore, and current Firestore doesn't
 // support serverTimestamp.
 // Did this because deleting subcollection is a pain in Firestore.
-type EventType = 'pause' | 'extend' | 'resume' | 'elapsed' | undefined
+type EventType =
+  | 'pause'
+  | 'extend'
+  | 'resume'
+  | 'elapsed'
+  | 'shorten'
+  | undefined
 interface Offer<TEvent extends EventType = undefined> {
   userId: string
   username: string

@@ -9,25 +9,29 @@ import {
   useMutationEndBidding,
 } from '@/api/bidding'
 import { useCountdownAtoms } from '@/store/useBiddingAtom'
+import { useIsRoomHostAtoms } from '@/store/useRoomAtom'
 import { toasto } from '@/utils/toasto'
 import CountdownCircle from './countdown/CountdownCircle'
 
 export default function Countdown({
+  biddingId,
   endsAt,
   pausedAt,
   isEnded = false,
   isPaused = false,
   max = 60,
 }: {
+  biddingId: string
   endsAt?: Timestamp | undefined
   pausedAt?: Timestamp | undefined
   isEnded?: boolean
   isPaused?: boolean
   max?: number
-} = {}) {
+}) {
   const [mutationEndBidding] = useMutationEndBidding()
   const [mutationSendBiddingElapsed] = useMutationSendBiddingElapsed()
   const setCountdown = useCountdownAtoms().set()
+  const isRoomHost = useIsRoomHostAtoms().get()
   const startAutoFinish = useStartAutoFinish()
 
   const refCountdown = useRef(0)
@@ -53,6 +57,7 @@ export default function Countdown({
   })
 
   onNaturalElapsed(() => {
+    if (!isRoomHost) return
     mutationSendBiddingElapsed.mutate()
     startAutoFinish()
   })
@@ -122,7 +127,7 @@ export default function Countdown({
       toasto(<AutoFinishToast onAbort={onAbortAutoFinish} />, {
         onClose: () => {
           if (refWillToastCloseExecMutation.current) {
-            mutationEndBidding.mutate()
+            mutationEndBidding.mutate({ id: biddingId })
           }
           refWillToastCloseExecMutation.current = true
         },

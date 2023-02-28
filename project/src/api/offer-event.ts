@@ -95,37 +95,47 @@ function useMutationExtend() {
 
   return [mutation]
 
-  async function mutateFnExtendOffer({
-    seconds = 15,
-    base,
-  }: {
-    seconds?: number
-    base?: Timestamp
-  }) {
-    const now = new Date()
-    let shouldUseBase = false
-    if (base && now.getTime() < base.toMillis()) shouldUseBase = true
-
-    if (shouldUseBase && base) {
-      // AND-ing with base to keep TS happy, not needed as we have control flag
-      const baseDate = base.toDate()
-      baseDate.setMilliseconds(baseDate.getMilliseconds() + seconds * 1000)
-      var newEnd = baseDate
-    } else {
-      now.setMilliseconds(now.getMilliseconds() + seconds * 1000)
-      var newEnd = now
-    }
+  async function mutateFnExtendOffer({ seconds = 15 }: { seconds?: number }) {
+    const isEndBehindNow = bidding?.endsAt.toMillis() < Date.now()
+    const baseMillis = isEndBehindNow ? Date.now() : bidding?.endsAt.toMillis()
 
     return await updateFirebaseDoc({
       segments: ['rooms', roomId, 'biddings', bidding?.id],
       data: {
-        endsAt: newEnd,
+        endsAt: new Date(baseMillis + seconds * 1000),
         offers: arrayUnion({
           userId: user.uid,
           username: user.displayName,
           amount: seconds,
           createdAt: new Date(),
           event: 'extend',
+        }),
+      } as BiddingModification,
+    })
+  }
+}
+
+function useMutationShorten() {
+  const [user] = useUserAtoms().get()
+  const roomId = useRoomIdAtoms().get()
+  const [[bidding], hasMember] = useInProgressBiddingsAtoms().get()
+  const mutation = useMutation({
+    mutationFn: mutateFnShortenOffer,
+  })
+
+  return [mutation]
+
+  async function mutateFnShortenOffer({ seconds = 15 }: { seconds?: number }) {
+    return await updateFirebaseDoc({
+      segments: ['rooms', roomId, 'biddings', bidding?.id],
+      data: {
+        endsAt: new Date(bidding.endsAt.toMillis() - seconds * 1000),
+        offers: arrayUnion({
+          userId: user.uid,
+          username: user.displayName,
+          amount: seconds,
+          createdAt: new Date(),
+          event: 'shorten',
         }),
       } as BiddingModification,
     })
@@ -162,5 +172,6 @@ export {
   useMutationPause,
   useMutationResume,
   useMutationExtend,
+  useMutationShorten,
   useMutationSendElapsed,
 }

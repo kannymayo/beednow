@@ -22,7 +22,9 @@ export default function RequiresConfirmByModal({
   return (
     <>
       {/* Modal Trigger */}
-      <label htmlFor={modalId}>{children}</label>
+      <label className="" htmlFor={modalId}>
+        {children}
+      </label>
 
       {/* Modal itself is added to body */}
       {createPortal(
