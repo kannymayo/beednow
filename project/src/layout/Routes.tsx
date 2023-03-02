@@ -8,7 +8,7 @@ import {
 
 import Protected from '@/components/Protected'
 import Home from './Home'
-import WithHeader from './sides/WithHeader'
+import WithHeader from './aside/WithHeader'
 import Room from './room/Room'
 
 const router = createBrowserRouter(
