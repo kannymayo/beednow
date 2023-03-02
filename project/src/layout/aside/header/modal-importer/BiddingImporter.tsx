@@ -90,71 +90,7 @@ function ImportModal() {
     JSON.stringify(itemDetailsQryRslts.map((r) => r.data?.id)),
   ])
 
-  var modalTitle = (
-    <h3 className="text-lg font-bold">
-      Add more items for bidding
-      <button
-        className="btn btn-secondary btn-xs ml-5"
-        onClick={handleAddDemoData}
-      >
-        Add Demo Data
-      </button>
-    </h3>
-  )
-
-  const importTextareaCls = clsx(
-    'textarea textarea-bordered scrollbar-hide m-1 flex-1 overflow-y-auto border-2 p-1 outline-0'
-  )
-  const importTextarea = (
-    <textarea
-      className={importTextareaCls}
-      data-placeholder="Paste here your text containing item IDs."
-      onChange={handleTextareaChange}
-      ref={refTextarea}
-      value={importString}
-    ></textarea>
-  )
-
-  const importPreviewCls = clsx(
-    'card min-h-16 flex-1 place-items-stretch gap-2 overflow-y-auto rounded-sm px-2 py-1 subtle-scrollbar'
-  )
-  const importPreview = (
-    <div className={importPreviewCls}>
-      {Object.entries(itemOccurrencesGrouped).map((tuple, index) => (
-        <ImportableItemGroup
-          group={tuple[1] as ItemOccurrence[]}
-          id={parseInt(tuple[0])}
-          key={tuple[0]}
-          dispatch={itemOccurrencesGroupedDispatch}
-        />
-      ))}
-    </div>
-  )
-
-  const summaryContainerCls = clsx(
-    'flex flex-grow-0 place-items-center justify-end gap-6'
-  )
-  const importSummaryAndAction = (
-    <div className={summaryContainerCls}>
-      {idList.length > 1 && (
-        <div className="flex place-items-center gap-1">
-          Detected
-          <div className="badge badge-accent">{validItemCount}</div>
-          items of
-          <div className="badge badge-accent">{validItemUniqueCount}</div>
-          types
-        </div>
-      )}
-      <button className="btn btn-primary btn-sm" onClick={handleImport}>
-        Import
-      </button>
-    </div>
-  )
-
-  const modalContainerCls = clsx(
-    'modal-box relative flex min-h-[16rem] max-w-xl flex-col gap-4 md:max-w-2xl lg:max-w-4xl'
-  )
-  const _RETURN = (
+  return (
     <>
       <input
         type="checkbox"
@@ -166,22 +102,66 @@ function ImportModal() {
       {/* MODEL BACKDROP */}
       <label htmlFor="import-modal" className="modal cursor-pointer">
         {/* MODEL CONTAINER with overwriting ability, so clicking inside won't dismiss?*/}
-        <label className={modalContainerCls} htmlFor="">
-          {modalTitle}
+        <label
+          className="modal-box relative flex min-h-[16rem] max-w-xl flex-col gap-4 md:max-w-2xl lg:max-w-4xl"
+          htmlFor=""
+        >
+          {/* Title */}
+          <h3 className="text-lg font-bold">
+            Add more items for bidding
+            <button
+              className="btn btn-secondary btn-xs ml-5"
+              onClick={handleAddDemoData}
+            >
+              Add Demo Data
+            </button>
+          </h3>
           <div className="flex flex-1 flex-col gap-4">
             <div className="flex max-h-96 w-full flex-1">
-              {importTextarea}
+              {/* Import textarea */}
+              <textarea
+                className="textarea textarea-bordered scrollbar-hide m-1 flex-1 overflow-y-auto border-2 p-1 outline-0"
+                data-placeholder="Paste here your text containing item IDs."
+                onChange={handleTextareaChange}
+                ref={refTextarea}
+                value={importString}
+              ></textarea>
               <div className="divider divider-horizontal"></div>
-              {importPreview}
+              {/* Import preview */}
+              <div className="card min-h-16 subtle-scrollbar flex-1 place-items-stretch gap-2 overflow-y-auto rounded-sm px-2 py-1">
+                {Object.entries(itemOccurrencesGrouped).map((tuple, index) => (
+                  <ImportableItemGroup
+                    group={tuple[1] as ItemOccurrence[]}
+                    id={parseInt(tuple[0])}
+                    key={tuple[0]}
+                    dispatch={itemOccurrencesGroupedDispatch}
+                  />
+                ))}
+              </div>
             </div>
-            {importSummaryAndAction}
+            {/* Summary */}
+            <div className="flex flex-grow-0 place-items-center justify-end gap-6">
+              {idList.length > 1 && (
+                <div className="flex place-items-center gap-1">
+                  Detected
+                  <div className="badge badge-accent">{validItemCount}</div>
+                  items of
+                  <div className="badge badge-accent">
+                    {validItemUniqueCount}
+                  </div>
+                  types
+                </div>
+              )}
+              {/* Confirm import */}
+              <button className="btn btn-primary btn-sm" onClick={handleImport}>
+                Import
+              </button>
+            </div>
           </div>
         </label>
       </label>
     </>
   )
-
-  return _RETURN
 
   function handleImport() {
     const selectedItems = Object.values(itemOccurrencesGrouped)
