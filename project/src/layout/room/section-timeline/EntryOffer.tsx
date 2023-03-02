@@ -77,7 +77,7 @@ export default function ({
       <div className="col-span-1 grid grid-cols-6">
         <div
           style={styleUserIcon}
-          className="col-span-1 flex items-center justify-center border-x  text-white saturate-50"
+          className="col-span-1 flex items-center justify-center border-x text-amber-600  brightness-90 saturate-50"
         >
           <UserCircleIcon className="h-6 w-6" />
         </div>

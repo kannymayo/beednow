@@ -29,8 +29,8 @@ export default function BidItem() {
   const equipEffects = inProgressBidding?.details?.equipEffects
   const usableClasses = inProgressBidding?.details?.usableClasses
   const weaponProps = inProgressBidding?.details?.weaponProps
-  const endsAt = inProgressBidding?.endsAt
-  const pausedAt = inProgressBidding?.pausedAt
+  const endsAtMillis = inProgressBidding?.endsAt?.toMillis()
+  const pausedAtMillis = inProgressBidding?.pausedAt?.toMillis()
   const isPaused = inProgressBidding?.isPaused
   const isEnded = inProgressBidding?.isEnded
 
@@ -60,8 +60,8 @@ export default function BidItem() {
                 max={MAX_COUNTDOWN}
                 isEnded={isEnded}
                 isPaused={isPaused}
-                endsAt={endsAt}
-                pausedAt={pausedAt}
+                endsAtMillis={endsAtMillis}
+                pausedAtMillis={pausedAtMillis}
               />
             </div>
           </div>

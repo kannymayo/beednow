@@ -108,7 +108,7 @@ export default function HostActions({ bidding }: { bidding: Bidding }) {
 
   async function handleFinishBidding() {
     await mutationEnd.mutateAsync({
-      id: bidding.id,
+      id: bidding?.id,
     })
   }
 }
