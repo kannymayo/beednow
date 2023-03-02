@@ -26,7 +26,8 @@ export default function WithHeader() {
     resetOnUnmount: true,
   })
   useEffect(() => {
-    if (user.uid) setIsRoomHost(user.uid === roomInfo?.hostedBy)
+    if (!user.uid || !roomInfo?.hostedBy) return setIsRoomHost(false)
+    setIsRoomHost(user.uid === roomInfo?.hostedBy)
   }, [roomInfo?.hostedBy, user.uid])
 
   // sync roomIdd in url to Atom
