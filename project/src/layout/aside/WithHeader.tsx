@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { ReactComponent as Logo } from '@/assets/logo.svg'
 import {
   ArrowDownTrayIcon,
   DocumentCheckIcon,
@@ -6,15 +7,17 @@ import {
 import { Link, Outlet } from 'react-router-dom'
 
 import { useParams } from 'react-router-dom'
-import { ReactComponent as Logo } from '@/assets/logo.svg'
-import { useUserAtoms } from '@/store/useUserAtom'
+
 import { useQueryCurrentRoom } from '@/api/room'
+import { useUserAtoms } from '@/store/useUserAtom'
 import { useIsRoomHostAtoms, useRoomIdAtoms } from '@/store/useRoomAtom'
+import { useFinishedBiddingsAtoms } from '@/store/useBiddingAtom'
 import ImportModal from './header/BiddingImporter'
 import BiddingsFinishedModal from './header/BiddingsFinished'
 import CurrentUser from './user/CurrentUser'
 
 export default function WithHeader() {
+  const finishedBiddings = useFinishedBiddingsAtoms().get()
   // update title for better bookmarking
   const [queryCurrentRoom] = useQueryCurrentRoom()
   const roomInfo = queryCurrentRoom.data
@@ -40,6 +43,12 @@ export default function WithHeader() {
     }
   }, [param])
 
+  const totalFinishedBiddings = finishedBiddings.length
+  const totalFinishedAmount = finishedBiddings.reduce(
+    (acc, cur) => acc + (cur.closingAmount || 0),
+    0
+  )
+
   const logoLink = (
     <Link
       to="/"
@@ -53,7 +62,7 @@ export default function WithHeader() {
   const btnForImportModal = (
     <label
       htmlFor="import-modal"
-      className="btn btn-sm gap-1 rounded border-none bg-transparent hover:bg-indigo-500 active:bg-indigo-600"
+      className="btn btn-sm gap-2 rounded border-none bg-transparent capitalize hover:bg-indigo-500 active:bg-indigo-600"
     >
       Import
       <ArrowDownTrayIcon className="h-6 w-6" />
@@ -63,9 +72,13 @@ export default function WithHeader() {
   const btnForFinishedModal = (
     <label
       htmlFor="finished-modal"
-      className="btn btn-sm gap-1 rounded border-none bg-transparent hover:bg-indigo-500 active:bg-indigo-600"
+      className="btn btn-sm gap-1 rounded border-none bg-transparent capitalize hover:bg-indigo-500 active:bg-indigo-600"
     >
-      Report
+      {totalFinishedAmount > 0 ? (
+        `Total: ${totalFinishedAmount}(${totalFinishedBiddings})`
+      ) : (
+        <></>
+      )}
       <DocumentCheckIcon className="h-6 w-6" />
     </label>
   )
