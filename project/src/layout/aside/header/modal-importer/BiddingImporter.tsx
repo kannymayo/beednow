@@ -1,13 +1,14 @@
 import './BiddingImporter.css'
-import React, { useState, useEffect, useRef, useMemo, useReducer } from 'react'
-import { toasto } from '@/utils/toasto'
-import clsx from 'clsx'
+import { useState, useEffect, useRef, useMemo, useReducer } from 'react'
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import produce from 'immer'
 
 import { useQueryItemDetailsMultiple, ItemFromAPI } from '@/api/item-details'
+import { toasto } from '@/utils/toasto'
 import { readGeneralExport } from '@/utils/read-export'
 import { useAddItem } from '@/api/bidding'
 import ImportableItemGroup from './importableItemGroup'
+import Modal from '@/components/Modal'
 
 interface IOCGroupedAction {
   type: 'toggle-single' | 'toggle-group' | 'sync'
@@ -47,8 +48,6 @@ interface ItemOccurrencesGrouped {
 
 function ImportModal() {
   const [addItem] = useAddItem()
-
-  const [isOpen, setIsOpen] = useState(false)
   const refTextarea = useRef<HTMLTextAreaElement>(null)
 
   const [itemOccurrencesGrouped, itemOccurrencesGroupedDispatch] = useReducer(
@@ -91,119 +90,103 @@ function ImportModal() {
   ])
 
   return (
-    <>
-      <input
-        type="checkbox"
-        id="import-modal"
-        className="modal-toggle"
-        checked={isOpen}
-        onChange={handleModalChange}
-      />
-      {/* MODEL BACKDROP */}
-      <label htmlFor="import-modal" className="modal cursor-pointer">
-        {/* MODEL CONTAINER with overwriting ability, so clicking inside won't dismiss?*/}
+    <Modal
+      triggerEl={
         <label
-          className="modal-box relative flex min-h-[16rem] max-w-xl flex-col gap-4 md:max-w-2xl lg:max-w-4xl"
-          htmlFor=""
+          htmlFor="import-modal"
+          className="btn btn-sm gap-2 rounded border-none bg-transparent capitalize hover:bg-indigo-500 active:bg-indigo-600"
         >
-          {/* Title */}
-          <h3 className="text-lg font-bold">
-            Add more items for bidding
-            <button
-              className="btn btn-secondary btn-xs ml-5"
-              onClick={handleAddDemoData}
-            >
-              Add Demo Data
-            </button>
-          </h3>
-          <div className="flex flex-1 flex-col gap-4">
-            <div className="flex max-h-96 w-full flex-1">
-              {/* Import textarea */}
-              <textarea
-                className="textarea textarea-bordered scrollbar-hide m-1 flex-1 overflow-y-auto border-2 p-1 outline-0"
-                data-placeholder="Paste here your text containing item IDs."
-                onChange={handleTextareaChange}
-                ref={refTextarea}
-                value={importString}
-              ></textarea>
-              <div className="divider divider-horizontal"></div>
-              {/* Import preview */}
-              <div className="card min-h-16 subtle-scrollbar flex-1 place-items-stretch gap-2 overflow-y-auto rounded-sm px-2 py-1">
-                {Object.entries(itemOccurrencesGrouped).map((tuple, index) => (
-                  <ImportableItemGroup
-                    group={tuple[1] as ItemOccurrence[]}
-                    id={parseInt(tuple[0])}
-                    key={tuple[0]}
-                    dispatch={itemOccurrencesGroupedDispatch}
-                  />
-                ))}
+          Import
+          <ArrowDownTrayIcon className="h-6 w-6" />
+        </label>
+      }
+    >
+      {(closeModal) => {
+        return (
+          <>
+            <h3 className="text-lg font-bold">
+              Add more items for bidding
+              <button
+                className="btn btn-secondary btn-xs ml-5"
+                onClick={handleAddDemoData}
+              >
+                Add Demo Data
+              </button>
+            </h3>
+            <div className="flex flex-1 flex-col gap-4">
+              <div className="flex max-h-96 w-full flex-1">
+                {/* Import textarea */}
+                <textarea
+                  className="textarea textarea-bordered scrollbar-hide m-1 flex-1 overflow-y-auto border-2 p-1 outline-0"
+                  data-placeholder="Paste here your text containing item IDs."
+                  onChange={(e) => setImportString(e.target.value)}
+                  ref={refTextarea}
+                  value={importString}
+                ></textarea>
+                <div className="divider divider-horizontal"></div>
+                {/* Import preview */}
+                <div className="card min-h-16 subtle-scrollbar flex-1 place-items-stretch gap-2 overflow-y-auto rounded-sm px-2 py-1">
+                  {Object.entries(itemOccurrencesGrouped).map(
+                    (tuple, index) => (
+                      <ImportableItemGroup
+                        group={tuple[1] as ItemOccurrence[]}
+                        id={parseInt(tuple[0])}
+                        key={tuple[0]}
+                        dispatch={itemOccurrencesGroupedDispatch}
+                      />
+                    )
+                  )}
+                </div>
+              </div>
+              {/* Summary */}
+              <div className="flex flex-grow-0 place-items-center justify-end gap-6">
+                {idList.length > 1 && (
+                  <div className="flex place-items-center gap-1">
+                    Detected
+                    <div className="badge badge-accent">{validItemCount}</div>
+                    items of
+                    <div className="badge badge-accent">
+                      {validItemUniqueCount}
+                    </div>
+                    types
+                  </div>
+                )}
+                {/* Confirm import */}
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={handleImport}
+                >
+                  Import
+                </button>
               </div>
             </div>
-            {/* Summary */}
-            <div className="flex flex-grow-0 place-items-center justify-end gap-6">
-              {idList.length > 1 && (
-                <div className="flex place-items-center gap-1">
-                  Detected
-                  <div className="badge badge-accent">{validItemCount}</div>
-                  items of
-                  <div className="badge badge-accent">
-                    {validItemUniqueCount}
-                  </div>
-                  types
-                </div>
-              )}
-              {/* Confirm import */}
-              <button className="btn btn-primary btn-sm" onClick={handleImport}>
-                Import
-              </button>
-            </div>
-          </div>
-        </label>
-      </label>
-    </>
+          </>
+        )
+
+        function handleImport() {
+          const selectedItems = Object.values(itemOccurrencesGrouped)
+            .flat()
+            .filter((item) => item.formState.selected)
+
+          // add items for mutation
+          selectedItems.forEach((item) => {
+            addItem({
+              name: item.details.name,
+              details: item.details,
+            })
+          })
+          closeModal()
+          setTimeout(() => setImportString(''), 300)
+          const msg = `Added ${selectedItems.length} item${
+            selectedItems.length > 1 ? 's' : ''
+          } to bidding`
+          toasto(msg, {
+            type: 'info',
+          })
+        }
+      }}
+    </Modal>
   )
-
-  function handleImport() {
-    const selectedItems = Object.values(itemOccurrencesGrouped)
-      .flat()
-      .filter((item) => item.formState.selected)
-
-    // add items for mutation
-    selectedItems.forEach((item) => {
-      addItem({
-        name: item.details.name,
-        details: item.details,
-      })
-    })
-    closeModal()
-    const msg = `Added ${selectedItems.length} item${
-      selectedItems.length > 1 ? 's' : ''
-    } to bidding`
-    toasto(msg, {
-      type: 'info',
-    })
-  }
-
-  function handleModalChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.checked) {
-      openModal()
-    } else {
-      closeModal()
-    }
-  }
-
-  function closeModal() {
-    setIsOpen(false)
-    setTimeout(() => setImportString(''), 300)
-  }
-
-  function openModal() {
-    setIsOpen(true)
-  }
-
-  function handleTextareaChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setImportString(e.target.value)
-  }
 
   function handleAddDemoData() {
     const idPool = [
