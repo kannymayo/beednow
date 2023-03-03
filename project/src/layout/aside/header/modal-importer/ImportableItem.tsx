@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import clsx from 'clsx'
 import { toasto } from '@/utils/toasto'
 
-import { ItemOccurrence, IOCGroupedAction } from './BiddingImporter'
+import { ItemOccurrence, IOCGroupedAction } from './Container'
 
 export default function ImportableItem({
   item,

@@ -2,7 +2,7 @@ import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { Link } from 'react-router-dom'
 
 import { useIsRoomHostAtoms } from '@/store/useRoomAtom'
-import ModalImporter from './modal-importer/BiddingImporter'
+import ModalImporter from './modal-importer/Container'
 import ModalSummary from './modal-summary/BiddingsFinished'
 import CurrentUser from './user/CurrentUser'
 

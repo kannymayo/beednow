@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { ItemOccurrence, IOCGroupedAction } from './BiddingImporter'
+import { ItemOccurrence, IOCGroupedAction } from './Container'
 import ImportableItem from './ImportableItem'
 import TristateCheckBox from '@/components/TristateCheckBox'
 
