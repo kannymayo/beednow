@@ -47,17 +47,17 @@ function ModalImporter(
         }))
 
         return (
-          <>
-            <h3 className="text-lg font-bold">
+          <div className="flex flex-1 flex-col gap-2">
+            <h3 className=" min-h-0 text-lg font-bold">
               Add more items for bidding
               <button
-                className="btn btn-secondary btn-xs ml-5"
+                className="btn btn-xs ml-5"
                 onClick={handleFillWithDemoData}
               >
                 Add Demo Data
               </button>
             </h3>
-            <div className="flex flex-1 flex-col gap-4">
+            <div className="flex flex-1 flex-col gap-2">
               <div className="flex max-h-96 w-full flex-1">
                 {/* Import textarea */}
                 <textarea
@@ -101,7 +101,7 @@ function ModalImporter(
                 </button>
               </div>
             </div>
-          </>
+          </div>
         )
       }}
     </Modal>

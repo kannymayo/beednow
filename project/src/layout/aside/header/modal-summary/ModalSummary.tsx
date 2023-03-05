@@ -1,6 +1,7 @@
 import { DocumentCheckIcon } from '@heroicons/react/24/outline'
 import { useFinishedBiddingsAtoms } from '@/store/useBiddingAtom'
 import Modal from '@/components/Modal'
+import SummaryBody from './Summary'
 
 export default function ModalSummary() {
   const finishedBiddings = useFinishedBiddingsAtoms().get()
@@ -14,6 +15,7 @@ export default function ModalSummary() {
   return (
     <>
       <Modal
+        className="h-5/6"
         triggerEl={
           <label
             htmlFor="finished-modal"
@@ -26,17 +28,12 @@ export default function ModalSummary() {
           </label>
         }
       >
-        {(closeModal) => {
-          return (
-            <>
-              <h3 className="text-lg font-bold">Finished Biddings</h3>
-              <p className="py-4">
-                Est invidunt no labore sea sed, stet no stet aliquyam clita,
-                labore et sed dolor labore diam amet, et at.
-              </p>
-            </>
-          )
-        }}
+        {(closeModal) => (
+          <SummaryBody
+            closeModal={closeModal}
+            finishedBiddings={finishedBiddings}
+          />
+        )}
       </Modal>
     </>
   )

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { useIsRoomHostAtoms } from '@/store/useRoomAtom'
 import ModalImporter from './modal-importer/Container'
-import ModalSummary from './modal-summary/BiddingsFinished'
+import ModalSummary from './modal-summary/ModalSummary'
 import CurrentUser from './user/CurrentUser'
 
 export default function Header() {

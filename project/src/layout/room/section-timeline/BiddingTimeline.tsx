@@ -1,7 +1,6 @@
 import './BiddingTimeline.css'
 import { useRef, useEffect } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
-import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { useDebounce } from 'ahooks'
 
 import {
@@ -12,8 +11,7 @@ import EntryOffer from './EntryOffer'
 import EntryEvent from './EntryEvent'
 
 export default function BidHistory() {
-  const refScrollingContainer = useRef<HTMLDivElement>(null)
-  const [animationParent] = useAutoAnimate()
+  const refLastEntry = useRef<HTMLDivElement>(null)
   const offers = useAnnotatedOffersAtoms().get()
   const highestOffer = useHighestOfferAtoms().get()
   const lenOffersDecounced = useDebounce(offers.length, { wait: 500 })
@@ -22,13 +20,9 @@ export default function BidHistory() {
   const highestAmount = highestOffer?.amount
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      refScrollingContainer.current?.scrollTo({
-        top: refScrollingContainer.current.scrollHeight,
-        behavior: 'smooth',
-      })
-    }, 350)
-    return () => clearTimeout(timer)
+    refLastEntry.current?.scrollIntoView({
+      behavior: 'smooth',
+    })
   }, [offers.length])
 
   const styleToastVariables = {
@@ -42,10 +36,7 @@ export default function BidHistory() {
       className="section-timeline h-full translate-x-0 overflow-hidden drop-shadow-lg"
     >
       <div className="grid h-full w-full">
-        <div
-          ref={refScrollingContainer}
-          className="subtle-scrollbar mx-1 overflow-y-auto overflow-x-hidden bg-slate-100 px-1"
-        >
+        <div className="subtle-scrollbar mx-1 overflow-y-auto overflow-x-hidden bg-slate-100 px-1">
           {/* Empty message*/}
           {!shouldHideEmptyMsg && (
             <>
@@ -57,7 +48,7 @@ export default function BidHistory() {
           )}
 
           {/* The list of offeers */}
-          <ol ref={animationParent} className="grid gap-1 pb-6">
+          <ol className="grid gap-1 pb-6">
             {offers.map((offer) => {
               return offer.event ? (
                 <EntryEvent
@@ -82,7 +73,10 @@ export default function BidHistory() {
 
           {/* End indicator */}
           {shouldShowEndMsg && (
-            <div className="divider select-none px-12 text-sm text-slate-400">
+            <div
+              ref={refLastEntry}
+              className="divider select-none px-12 text-sm text-slate-400"
+            >
               end
             </div>
           )}
