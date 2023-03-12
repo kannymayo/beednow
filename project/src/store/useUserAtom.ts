@@ -1,9 +1,10 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { useAuthState } from 'react-firebase-hooks/auth'
 
 import { auth } from '../api/firebase'
 import createAtomHooks from './helper/create-atom-hooks'
+import { getAnimalAvatar } from '@/utils/get-random-avatar'
 
 interface UnifiedUser {
   displayName?: string
@@ -15,7 +16,6 @@ interface UnifiedUser {
 }
 
 const userAtom = atomWithStorage<UnifiedUser>('user', {})
-const iconFallback = 'https://cdn-icons-png.flaticon.com/512/3940/3940403.png'
 
 // A blind conversion of the existing code, using multiple set() or getset()
 // will be counter-performant
@@ -31,7 +31,7 @@ const useUserAtoms = createAtomHooks(userAtom, {
       onUserChanged: async (user) => {
         if (user?.uid) {
           const uid = user?.uid
-          const photoURL = user?.photoURL || iconFallback
+          const photoURL = user?.photoURL || getAnimalAvatar()
           const displayName = user?.displayName || user?.email || 'Anonymous'
           const providerId = user?.providerData?.[0].providerId
           let provider = 'Email'
