@@ -1,6 +1,6 @@
 import './BiddingTimeline.css'
 import { useRef, useEffect } from 'react'
-import { toast, ToastContainer } from 'react-toastify'
+import { toast, ToastContainer, Zoom } from 'react-toastify'
 import { useDebounce } from 'ahooks'
 
 import {
@@ -86,6 +86,7 @@ export default function BidHistory() {
         enableMultiContainer
         containerId={'section-timeline'}
         position={toast.POSITION.BOTTOM_CENTER}
+        transition={Zoom}
       />
     </div>
   )
