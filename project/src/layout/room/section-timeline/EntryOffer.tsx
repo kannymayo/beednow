@@ -4,6 +4,7 @@ import {
   UserCircleIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline'
+import UserCircleIconSVG from '@/assets/icon-fallback-user.svg'
 
 import { Offer } from '@/api/offer'
 import { useUserAtoms } from '@/store/useUserAtom'
@@ -11,6 +12,7 @@ import { useUserAtoms } from '@/store/useUserAtom'
 export default function ({
   username,
   userId,
+  userAvatar,
   amount,
   isValid,
   isHighest,
@@ -55,7 +57,7 @@ export default function ({
     {
       'opacity-20 hover:opacity-100': !isValid,
     },
-    'overflow-hidden grid h-8 grid-cols-2  bg-white drop-shadow last:mb-0 hover:bg-slate-300 select-none box-content'
+    'overflow-hidden grid h-8 grid-cols-2 bg-white drop-shadow last:mb-0 hover:bg-slate-300 select-none box-content'
   )
   return (
     <li className={clsRoot}>
@@ -74,13 +76,14 @@ export default function ({
       </div>
 
       {/* User */}
-      <div className="col-span-1 grid grid-cols-6">
+      <div className="col-span-1 grid h-full grid-cols-6 overflow-hidden">
         <div
-          style={styleUserIcon}
-          className="col-span-1 flex items-center justify-center border-x text-amber-600  brightness-90 saturate-50"
-        >
-          <UserCircleIcon className="h-6 w-6" />
-        </div>
+          title={username}
+          style={{
+            backgroundImage: `url(${userAvatar})`,
+          }}
+          className="bg-slate-500 bg-opacity-40 bg-contain bg-center bg-no-repeat"
+        ></div>
         <span className={clsUsername}>{isFromSelf ? 'Me' : username}</span>
       </div>
     </li>

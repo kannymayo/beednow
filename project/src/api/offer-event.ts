@@ -39,6 +39,7 @@ function useMutationPause() {
         offers: arrayUnion({
           userId: user.uid,
           username: user.displayName,
+          userAvatar: user.photoURL,
           createdAt: new Date(),
           event: 'pause',
         }),
@@ -74,6 +75,7 @@ function useMutationResume() {
         offers: arrayUnion({
           userId: user.uid,
           username: user.displayName,
+          userAvatar: user.photoURL,
           createdAt: new Date(),
           event: 'resume',
         }),
@@ -106,6 +108,7 @@ function useMutationExtend() {
         offers: arrayUnion({
           userId: user.uid,
           username: user.displayName,
+          userAvatar: user.photoURL,
           amount: seconds,
           createdAt: new Date(),
           event: 'extend',
@@ -133,6 +136,7 @@ function useMutationShorten() {
         offers: arrayUnion({
           userId: user.uid,
           username: user.displayName,
+          userAvatar: user.photoURL,
           amount: seconds,
           createdAt: new Date(),
           event: 'shorten',
@@ -159,6 +163,7 @@ function useMutationSendElapsed() {
         offers: arrayUnion({
           userId: user.uid,
           username: user.displayName,
+          userAvatar: user.photoURL,
           // kinda conflicts with endsAt
           createdAt: new Date(),
           event: 'elapsed',

@@ -29,7 +29,7 @@ export default function CurrentUser() {
         <div className="truncate">{user.displayName}</div>
         {/* Avatar */}
         <div className="avatar mask mask-circle h-10 w-10 shrink-0">
-          <img src={user.photoURL} />
+          <img referrerPolicy="no-referrer" src={user.photoURL} />
         </div>
       </label>
 

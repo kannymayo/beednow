@@ -63,6 +63,7 @@ export default function BidHistory() {
                   key={offer.createdAt.toMillis()}
                   userId={offer.userId}
                   username={offer.username}
+                  userAvatar={offer.userAvatar}
                   amount={offer.amount || 0}
                   isValid={offer.isValid || false}
                   isHighest={offer.amount === highestAmount && offer.isValid}

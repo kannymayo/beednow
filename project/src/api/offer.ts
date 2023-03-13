@@ -19,6 +19,7 @@ type EventType =
 interface Offer<TEvent extends EventType = undefined> {
   userId: string
   username: string
+  userAvatar: string
   createdAt: Timestamp
   // when there is no amount, it is an event joined to the timeline.
   amount?: TEvent extends 'pause' | undefined ? number : never
@@ -48,6 +49,7 @@ function useMakeOffer() {
         offers: arrayUnion({
           userId: user.uid,
           username: user.displayName,
+          userAvatar: user.photoURL,
           amount,
           createdAt: new Date(),
         }),
