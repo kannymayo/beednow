@@ -26,17 +26,14 @@ export default function ({
     userColor =
       '#' + parseInt(userId, 36).toString(16).padStart(6, '0').slice(0, 6)
   }
-  const styleUserIcon = {
+  const randomColorForUser = {
     backgroundColor: userColor,
   } as React.CSSProperties
 
   // background for own offer
-  const clsUsername = clsx(
-    {
-      'text-white bg-gradient-to-r from-cyan-600 to-sky-600': isFromSelf,
-    },
-    'col-span-5 flex items-center justify-center px-2 text-xs'
-  )
+  const clsUsername = clsx({
+    'text-white bg-gradient-to-r from-cyan-600 to-sky-600': isFromSelf,
+  })
 
   // conditional for valid offer
   const clsIconBox = clsx(
@@ -48,8 +45,10 @@ export default function ({
   )
 
   const clsAmountSection = clsx(
-    { 'bg-gradient-to-r from-amber-600 to-yellow-600': isHighest },
-    'col-span-1 grid grid-cols-6 items-stretch '
+    {
+      'current-highest text-white': isHighest,
+    },
+    'col-span-5 flex items-center justify-end px-2 font-mono text-lg font-thin'
   )
 
   // conditional for valid offer
@@ -57,12 +56,12 @@ export default function ({
     {
       'opacity-20 hover:opacity-100': !isValid,
     },
-    'overflow-hidden grid h-8 grid-cols-2 bg-white drop-shadow last:mb-0 hover:bg-slate-300 select-none box-content'
+    'overflow-hidden grid h-8 grid-cols-2 bg-white drop-shadow last:mb-0 select-none box-content hover:bg-slate-200'
   )
   return (
     <li className={clsRoot}>
       {/* Amount */}
-      <div className={clsAmountSection}>
+      <div className="col-span-1 grid grid-cols-6 items-stretch">
         <div className={clsIconBox}>
           {isValid ? (
             <CurrencyDollarIcon className={'h-6 w-6 text-white'} />
@@ -70,21 +69,36 @@ export default function ({
             <ExclamationTriangleIcon className={'h-6 w-6 text-white'} />
           )}
         </div>
-        <span className="col-span-5 flex items-center justify-end px-2 font-mono text-lg font-thin">
-          {amount}
-        </span>
+        <span className={clsAmountSection}>{amount}</span>
       </div>
 
       {/* User */}
       <div className="col-span-1 grid h-full grid-cols-6 overflow-hidden">
         <div
-          title={username}
           style={{
-            backgroundImage: `url(${userAvatar})`,
+            ...randomColorForUser,
           }}
-          className="bg-slate-500 bg-opacity-40 bg-contain bg-center bg-no-repeat"
-        ></div>
-        <span className={clsUsername}>{isFromSelf ? 'Me' : username}</span>
+          title={username}
+          className="relative overflow-hidden"
+        >
+          {/* backdrop, colored based on uid */}
+          <div className="absolute inset-0 backdrop-brightness-75"></div>
+          <img
+            src={userAvatar}
+            referrerPolicy="no-referrer"
+            className="mask mask-circle absolute z-10 h-full w-full object-contain object-center"
+          />
+        </div>
+        <span className="relative col-span-5 flex items-center justify-center px-2 text-xs">
+          {isFromSelf ? (
+            <>
+              <div className="absolute right-0 h-full w-1.5 bg-amber-700"></div>
+              Me
+            </>
+          ) : (
+            username
+          )}
+        </span>
       </div>
     </li>
   )

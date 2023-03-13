@@ -70,7 +70,7 @@ export default function ({ username, amount, event }: Partial<Offer>) {
       'border-t-2 border-cyan-600 border-0': event === 'pause',
       'border-b-2 border-sky-600 border-0': event === 'resume',
     },
-    'grid h-8 grid-cols-2 border-1 bg-white drop-shadow last:mb-0 hover:ring-1 hover:ring-inset hover:ring-slate-600 select-none box-content'
+    'grid h-8 grid-cols-2 border-1 bg-white drop-shadow last:mb-0 select-none box-content hover:bg-slate-200'
   )
   return (
     <li className={clsRoot}>
