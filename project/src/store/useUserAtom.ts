@@ -2,7 +2,11 @@ import { useAtomValue, useSetAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { useAuthState } from 'react-firebase-hooks/auth'
 
-import { auth } from '../api/firebase'
+import { auth } from '@/api/firebase'
+import {
+  getFirebaseDoc,
+  upcreateFirebaseDoc,
+} from '@/api/helper/firebase-CRUD-throwable'
 import createAtomHooks from './helper/create-atom-hooks'
 import { getAnimalAvatar } from '@/utils/get-random-avatar'
 
@@ -31,7 +35,22 @@ const useUserAtoms = createAtomHooks(userAtom, {
       onUserChanged: async (user) => {
         if (user?.uid) {
           const uid = user?.uid
-          const photoURL = user?.photoURL || getAnimalAvatar()
+          const userProfile = await getFirebaseDoc({
+            segments: ['users', uid],
+          })
+          const avatarURL =
+            user?.photoURL ||
+            (userProfile as any)?.avatarURL ||
+            getAnimalAvatar()
+          // persist fallback-ed avatarURL to firestore if none in user profile
+          if (avatarURL !== (userProfile as any)?.avatarURL) {
+            await upcreateFirebaseDoc({
+              segments: ['users', uid],
+              data: {
+                avatarURL: avatarURL,
+              },
+            })
+          }
           const displayName = user?.displayName || user?.email || 'Anonymous'
           const providerId = user?.providerData?.[0].providerId
           let provider = 'Email'
@@ -40,7 +59,7 @@ const useUserAtoms = createAtomHooks(userAtom, {
               provider = 'Google'
               break
           }
-          setUser({ photoURL, displayName, provider, uid })
+          setUser({ photoURL: avatarURL, displayName, provider, uid })
         } else {
           setUser({})
         }

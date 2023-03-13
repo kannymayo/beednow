@@ -2,6 +2,8 @@ import clsx from 'clsx'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
 
+import { getRandomAvatar } from '@/utils/get-random-avatar'
+import { useQueryUserProfile, useMutationUpdateAvatar } from '@/api/user'
 import { useUserAtoms } from '@/store/useUserAtom'
 import { useSignOut } from '@/hooks/useToastyAuth'
 import { useRoomPreviewAtoms } from '@/store/useRoomAtom'
@@ -11,6 +13,12 @@ export default function CurrentUser() {
   const [signout] = useSignOut()
   const setRoomPreview = useRoomPreviewAtoms().set()
   const navigate = useNavigate()
+  const [{ data: userProfile }] = useQueryUserProfile({
+    userId: user?.uid || '',
+    isEnabled: isLoggedIn,
+    isSubscribed: true,
+  })
+  const [mutation] = useMutationUpdateAvatar()
 
   if (!isLoggedIn) return <></>
 
@@ -29,7 +37,10 @@ export default function CurrentUser() {
         <div className="truncate">{user.displayName}</div>
         {/* Avatar */}
         <div className="avatar mask mask-circle h-10 w-10 shrink-0">
-          <img referrerPolicy="no-referrer" src={user.photoURL} />
+          <img
+            referrerPolicy="no-referrer"
+            src={userProfile && userProfile.avatarURL}
+          />
         </div>
       </label>
 
@@ -54,6 +65,19 @@ export default function CurrentUser() {
           <div className="mx-4 break-words leading-5">{provider}</div>
         </div>
 
+        {/* For dev */}
+        <li className="menu-title select-none">
+          <span>Randomize avatar</span>
+        </li>
+        <div className="mt-[-6px] flex justify-center leading-5">
+          <button
+            onClick={handleRandomizeAvatar}
+            className="btn btn-xs min-w-0 font-light capitalize"
+          >
+            Randomize Avatar
+          </button>
+        </div>
+
         <div className="divider m-0 h-0"></div>
 
         {/* Menu Item Signout */}
@@ -74,5 +98,13 @@ export default function CurrentUser() {
     await signout()
     setRoomPreview(null)
     navigate('/')
+  }
+
+  function handleRandomizeAvatar() {
+    if (!uid) return
+    mutation.mutate({
+      userId: uid,
+      avatarURL: getRandomAvatar(),
+    })
   }
 }
