@@ -4,6 +4,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 
 import { useMutationSendBiddingElapsed } from '@/api/bidding'
 import { useCountdownAtoms } from '@/store/useBiddingAtom'
+import { useIsRoomHostAtoms } from '@/store/useRoomAtom'
 import { useStartAutoFinish } from './useStartAutoFinish'
 
 export default function CountdowwnCircle({
@@ -22,6 +23,7 @@ export default function CountdowwnCircle({
   const startAutoFinish = useStartAutoFinish()
   const [mutationSendBiddingElapsed] = useMutationSendBiddingElapsed()
   const setCountdown = useCountdownAtoms().set()
+  const isRoomHost = useIsRoomHostAtoms().get()
   const [timerKey, setTimerKey] = useState('')
 
   useEffect(() => {
@@ -46,8 +48,10 @@ export default function CountdowwnCircle({
           setCountdown(time)
         }}
         onComplete={() => {
-          startAutoFinish(biddingId)
-          mutationSendBiddingElapsed.mutate()
+          if (isRoomHost) {
+            startAutoFinish(biddingId)
+            mutationSendBiddingElapsed.mutate()
+          }
         }}
       >
         {({ remainingTime }: { remainingTime: number }) => remainingTime}
