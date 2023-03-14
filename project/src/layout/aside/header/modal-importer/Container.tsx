@@ -108,7 +108,6 @@ function ImportModal() {
       })
     })
     // close modal exposed by child
-    console.log(refModal.current)
     if (typeof refModal?.current?.closeModal === 'function') {
       refModal.current.closeModal()
     }

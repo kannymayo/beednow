@@ -19,8 +19,6 @@ export default function BidHistory() {
   const shouldShowEndMsg = offers.length > 5
   const highestAmount = highestOffer?.amount
 
-  console.log(offers)
-
   useEffect(() => {
     refLastEntry.current?.scrollIntoView({
       behavior: 'smooth',
