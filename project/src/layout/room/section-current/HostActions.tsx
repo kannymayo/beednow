@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import {
   QuestionMarkCircleIcon,
   ArrowPathIcon,
@@ -77,7 +78,10 @@ export default function HostActions({ bidding }: { bidding: Bidding }) {
         {/* Finish a bidding */}
         <button
           onClick={handleFinishBidding}
-          className="btn btn-sm btn-warning btn-outline w-full flex-nowrap justify-start gap-3 truncate border-2 border-slate-200 font-normal capitalize"
+          className={clsx(
+            { 'btn-outline border-2 border-slate-200': countdown !== 0 },
+            'btn btn-sm btn-warning w-full flex-nowrap justify-start gap-3 truncate font-normal capitalize'
+          )}
         >
           <PaperAirplaneIcon className="h-5 w-5 shrink-0" />
           Finish
