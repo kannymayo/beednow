@@ -3,7 +3,7 @@ import {
   QuestionMarkCircleIcon,
   ArrowPathIcon,
   PlusCircleIcon,
-  PaperAirplaneIcon,
+  GiftIcon,
   MinusCircleIcon,
 } from '@heroicons/react/24/outline'
 
@@ -83,7 +83,7 @@ export default function HostActions({ bidding }: { bidding: Bidding }) {
             'btn btn-sm btn-warning w-full flex-nowrap justify-start gap-3 truncate font-normal capitalize'
           )}
         >
-          <PaperAirplaneIcon className="h-5 w-5 shrink-0" />
+          <GiftIcon className="h-5 w-5 shrink-0" />
           Finish
         </button>
       </div>
