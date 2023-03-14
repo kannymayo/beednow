@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 import { atom, useSetAtom } from 'jotai'
 
-import { Room } from '@/api/room'
+import { Room, useQueryCurrentRoom } from '@/api/room'
 import createAtomHooks from './helper/create-atom-hooks'
 
+const roomAtom = atom<Room | null>(null)
 const roomIdAtom = atom<string>('')
 const roomPreviewAtom = atom<Room | null>(null)
 const isRoomHostAtom = atom<boolean>(false)
@@ -54,4 +55,33 @@ const useRoomIdAtoms = createAtomHooks(roomIdAtom, {
   },
 })
 
-export { useRoomIdAtoms, useRoomPreviewAtoms, useIsRoomHostAtoms }
+const useRoomAtoms = createAtomHooks(roomAtom, {
+  setFn: ({ isMaster = false }: { isMaster?: boolean }) => {
+    const [{ data: room }] = useQueryCurrentRoom()
+    const setRoom = useSetAtom(roomAtom)
+
+    useEffect(() => {
+      if (room) {
+        setRoom(room)
+      }
+      if (isMaster) {
+        return () => {
+          setRoom(null)
+        }
+      }
+    }, [room?.id, (room?.chats as any)?.length])
+    return setRoom
+  },
+})
+
+const readonlyChatsAtom = atom((get) => get(roomAtom)?.chats)
+
+const useChatAtoms = createAtomHooks(readonlyChatsAtom)
+
+export {
+  useRoomIdAtoms,
+  useRoomPreviewAtoms,
+  useIsRoomHostAtoms,
+  useChatAtoms,
+  useRoomAtoms,
+}

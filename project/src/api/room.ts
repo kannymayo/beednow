@@ -1,4 +1,4 @@
-import { serverTimestamp } from 'firebase/firestore'
+import { FieldValue, serverTimestamp, Timestamp } from 'firebase/firestore'
 import { useMutation } from '@tanstack/react-query'
 
 import { useUserAtoms } from '@/store/useUserAtom'
@@ -12,27 +12,26 @@ import {
   deleteFirebaseDoc,
 } from './helper/firebase-CRUD-throwable'
 import { toasto } from '@/utils/toasto'
-
-interface FirebaseServerTimestamp {
-  seconds: number
-  nanoseconds: number
-}
+import { ChatMsg } from './chat'
 
 interface Room {
+  biddings?: undefined // collection, not directly queried
+
   id: string
   name: string
   hostedBy: string
   joinedBy: string[]
   attendees: string[] // realtime
-  createdAt: FirebaseServerTimestamp
-  biddings?: string // collection
+  createdAt: Timestamp
+  chats?: ChatMsg[] | FieldValue
+
   bidOrder?: string[] // array of all bidding ids
 }
 
 interface RoomActivity {
   id: string // room id
   type: 'joined' | 'hosted'
-  lastModified: FirebaseServerTimestamp
+  lastModified: Timestamp
 }
 
 function useQueryRoomActivities({
