@@ -1,6 +1,8 @@
+import clsx from 'clsx'
 import { useEffect, useState } from 'react'
 import { useDebounce } from 'ahooks'
 import { useHighestOfferAtoms } from '@/store/useOfferAtom'
+import { useUserAtoms } from '@/store/useUserAtom'
 import { useBudgetAtoms } from '@/store/useBudgetAtom'
 
 export default function ActionIncrement({
@@ -12,6 +14,8 @@ export default function ActionIncrement({
 }) {
   const [intendedIncrement, setIntendedIncrement] = useState(0)
   const highestOffer = useHighestOfferAtoms().get()
+  const [{ uid: selfUserId }] = useUserAtoms().get()
+  const isSelfHighestOffer = highestOffer?.userId === selfUserId
   const budget = useBudgetAtoms().get()
   const intendedIncrementDebounced = useDebounce(intendedIncrement, {
     wait: 350,
@@ -27,6 +31,13 @@ export default function ActionIncrement({
     budget < 0 ? false : 500 + (highestOffer?.amount || 0) > budget
   const isOverBudgetPlus5000 =
     budget < 0 ? false : 5000 + (highestOffer?.amount || 0) > budget
+
+  const clsButton = clsx(
+    {
+      'bg-transparent text-slate-700 hover:text-white': isSelfHighestOffer,
+    },
+    'btn btn-sm btn-primary border-2'
+  )
 
   useEffect(() => {
     if (globalDisabled) {
@@ -47,7 +58,7 @@ export default function ActionIncrement({
         <button
           onClick={() => handleIncrementalBid(intendedIncrement)}
           disabled={isOverBudgetPlus100 || globalDisabled}
-          className="btn btn-sm btn-primary"
+          className={clsButton}
           value={100}
           onMouseEnter={handleMouseEnterIncrement}
           onMouseLeave={handleMouseLeaveIncrement}
@@ -57,7 +68,7 @@ export default function ActionIncrement({
         <button
           onClick={() => handleIncrementalBid(intendedIncrement)}
           disabled={isOverBudgetPlus500 || globalDisabled}
-          className="btn btn-sm btn-primary"
+          className={clsButton}
           value={500}
           onMouseEnter={handleMouseEnterIncrement}
           onMouseLeave={handleMouseLeaveIncrement}
@@ -67,7 +78,7 @@ export default function ActionIncrement({
         <button
           onClick={() => handleIncrementalBid(intendedIncrement)}
           disabled={isOverBudgetPlus5000 || globalDisabled}
-          className="btn btn-sm btn-primary"
+          className={clsButton}
           value={5000}
           onMouseEnter={handleMouseEnterIncrement}
           onMouseLeave={handleMouseLeaveIncrement}
