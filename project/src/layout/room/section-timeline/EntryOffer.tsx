@@ -1,10 +1,8 @@
 import clsx from 'clsx'
 import {
   CurrencyDollarIcon,
-  UserCircleIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline'
-import UserCircleIconSVG from '@/assets/icon-fallback-user.svg'
 
 import { Offer } from '@/api/offer'
 import { useUserAtoms } from '@/store/useUserAtom'
@@ -16,7 +14,8 @@ export default function ({
   amount,
   isValid,
   isHighest,
-}: Partial<Offer> & { isHighest?: boolean }) {
+  numCollapsed = 0,
+}: Partial<Offer> & { isHighest?: boolean; numCollapsed?: number }) {
   const [userSelf, isLoggedin] = useUserAtoms().get()
   const isFromSelf = userSelf.uid === userId
 
@@ -30,11 +29,6 @@ export default function ({
     backgroundColor: userColor,
   } as React.CSSProperties
 
-  // background for own offer
-  const clsUsername = clsx({
-    'text-white bg-gradient-to-r from-cyan-600 to-sky-600': isFromSelf,
-  })
-
   // conditional for valid offer
   const clsIconBox = clsx(
     {
@@ -42,13 +36,6 @@ export default function ({
       'from-yellow-600 to-amber-600': isValid,
     },
     'cols-span-1 flex items-center justify-center bg-gradient-to-r '
-  )
-
-  const clsAmountSection = clsx(
-    {
-      'current-highest text-white': isHighest,
-    },
-    'col-span-5 flex items-center justify-end px-2 font-mono text-lg font-thin'
   )
 
   // conditional for valid offer
@@ -62,6 +49,7 @@ export default function ({
     <li className={clsRoot}>
       {/* Amount */}
       <div className="col-span-1 grid grid-cols-6 items-stretch">
+        {/* Icon */}
         <div className={clsIconBox}>
           {isValid ? (
             <CurrencyDollarIcon className={'h-6 w-6 text-white'} />
@@ -69,11 +57,22 @@ export default function ({
             <ExclamationTriangleIcon className={'h-6 w-6 text-white'} />
           )}
         </div>
-        <span className={clsAmountSection}>{amount}</span>
+        {/* Body */}
+        <div
+          className={clsx(
+            {
+              'current-highest text-white': isHighest,
+            },
+            'col-span-5 flex items-center justify-end gap-1 px-2 font-mono text-lg font-thin'
+          )}
+        >
+          {amount}
+        </div>
       </div>
 
       {/* User */}
       <div className="col-span-1 grid h-full grid-cols-6 overflow-hidden">
+        {/* Icon */}
         <div
           style={{
             ...randomColorForUser,
@@ -89,8 +88,10 @@ export default function ({
             className="mask mask-circle absolute z-10 h-full w-full object-contain object-center"
           />
         </div>
-        <span className="relative col-span-5 flex items-center justify-center px-2 text-xs">
+        {/* Body */}
+        <div className="relative col-span-5 flex items-center justify-center px-2 text-xs">
           {isFromSelf ? (
+            // Offer placed by self has special wording and stripe indicator
             <>
               <div className="absolute right-0 h-full w-1.5 bg-amber-700"></div>
               Me
@@ -98,7 +99,18 @@ export default function ({
           ) : (
             username
           )}
-        </span>
+          {numCollapsed > 0 ? (
+            // Non-zero collapsed offers shown as pill
+            <div className="absolute right-3.5 flex h-full w-5 items-center">
+              <div
+                className="h-5 w-5 rounded-full bg-slate-400 text-center text-sm leading-5 text-white "
+                title={`${numCollapsed + 1} similar offers collapsed`}
+              >
+                {numCollapsed + 1}
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
     </li>
   )

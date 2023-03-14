@@ -4,7 +4,7 @@ import { toast, ToastContainer, Flip } from 'react-toastify'
 import { useDebounce } from 'ahooks'
 
 import {
-  useAnnotatedOffersAtoms,
+  useProcessedOffersAtoms,
   useHighestOfferAtoms,
 } from '@/store/useOfferAtom'
 import EntryOffer from './EntryOffer'
@@ -12,12 +12,14 @@ import EntryEvent from './EntryEvent'
 
 export default function BidHistory() {
   const refLastEntry = useRef<HTMLDivElement>(null)
-  const offers = useAnnotatedOffersAtoms().get()
+  const offers = useProcessedOffersAtoms().get()
   const highestOffer = useHighestOfferAtoms().get()
   const lenOffersDecounced = useDebounce(offers.length, { wait: 500 })
   const shouldHideEmptyMsg = offers.length > 0 || lenOffersDecounced > 0
   const shouldShowEndMsg = offers.length > 5
   const highestAmount = highestOffer?.amount
+
+  console.log(offers)
 
   useEffect(() => {
     refLastEntry.current?.scrollIntoView({
@@ -57,6 +59,7 @@ export default function BidHistory() {
                   username={offer.username}
                   event={offer.event}
                   amount={offer.amount || 0}
+                  numCollapsed={offer.collapsed?.length}
                 />
               ) : (
                 <EntryOffer
@@ -67,6 +70,7 @@ export default function BidHistory() {
                   amount={offer.amount || 0}
                   isValid={offer.isValid || false}
                   isHighest={offer.amount === highestAmount && offer.isValid}
+                  numCollapsed={offer.collapsed?.length}
                 />
               )
             })}
