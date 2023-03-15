@@ -25,13 +25,11 @@ export default function ({
   switch (event) {
     case 'pause':
       headerText = 'Paused'
-      iconColor = 'text-cyan-600'
       clsTypeIcon = clsx(iconColor, clsTypeIcon)
       icon = <PauseCircleIcon className={clsTypeIcon} />
       break
     case 'resume':
       headerText = 'Resumed'
-      iconColor = 'text-cyan-600'
       clsTypeIcon = clsx(iconColor, clsTypeIcon)
       icon = <PlayCircleIcon className={clsTypeIcon} />
       break
@@ -68,30 +66,41 @@ export default function ({
   return (
     <li
       className={clsx(
-        {
-          // twin borders for pause/resume
-          'border-0 border-t-2 border-cyan-600': event === 'pause',
-          'border-0 border-b-2 border-sky-600': event === 'resume',
-        },
-        'border-1 box-content grid h-8 select-none grid-cols-2 bg-white drop-shadow last:mb-0 hover:bg-slate-200'
+        'group grid h-8 select-none grid-cols-2 bg-white drop-shadow last:mb-0 hover:contrast-125'
       )}
     >
-      {/* Amount */}
-      <div className="col-span-1 grid grid-cols-6  items-stretch">
+      {/* First half */}
+      <div
+        className={clsx(
+          // grow when hovered
+          'bg-slate-500 transition-all group-hover:-ml-2 group-hover:rounded-l-md group-hover:pl-2',
+          'col-span-1 grid grid-cols-6 items-stretch'
+        )}
+      >
         {/* Icon */}
-        <div className="col-span-1 my-1 flex items-center justify-center border-r text-zinc-500">
+        <div className="col-span-1 my-1 flex items-center justify-center text-white">
           <BellIcon className="h-6 w-6" />
         </div>
         {/* Body */}
-        <div className="col-span-5 flex items-center justify-end gap-1 px-2 text-xs text-slate-400">
+        <div className="col-span-5 flex items-center justify-end gap-1 bg-white px-2 text-xs text-slate-600 transition-all group-hover:text-slate-900">
           {headerText}
         </div>
       </div>
 
-      {/* User */}
+      {/* Second half */}
       <div className="col-span-1 grid grid-cols-6">
         {/* Icon */}
-        <div className="'cols-span-1 bg-slate-500' my-1 flex items-center justify-center border-x">
+        <div
+          className={clsx(
+            {
+              'rounded-tr-xl bg-gradient-to-t from-red-800 to-amber-800 text-white':
+                event === 'pause',
+              'rounded-br-xl bg-gradient-to-b from-lime-800 to-teal-800':
+                event === 'resume',
+            },
+            'flex items-center justify-center border-x text-white transition-colors'
+          )}
+        >
           {icon}
         </div>
         {/* Body */}

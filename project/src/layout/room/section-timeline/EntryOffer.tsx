@@ -32,23 +32,23 @@ export default function ({
   // conditional for valid offer
   const clsIconBox = clsx(
     {
-      'from-slate-600 to-amber-600 ': !isValid,
+      'from-yellow-600 to-slate-600': !isValid,
       'from-yellow-600 to-amber-600': isValid,
     },
-    'cols-span-1 flex items-center justify-center bg-gradient-to-r '
+    'cols-span-1 flex items-center justify-center bg-gradient-to-r'
   )
 
-  // conditional for valid offer
-  const clsRoot = clsx(
-    {
-      'opacity-20 hover:opacity-100': !isValid,
-    },
-    'overflow-hidden grid h-8 grid-cols-2 bg-white drop-shadow last:mb-0 select-none box-content hover:bg-slate-200'
-  )
   return (
-    <li className={clsRoot}>
+    <li
+      className={clsx(
+        {
+          'opacity-20 hover:opacity-100': !isValid,
+        },
+        'group box-content grid h-8 select-none grid-cols-2 bg-white drop-shadow transition-all last:mb-0 hover:contrast-125'
+      )}
+    >
       {/* Amount */}
-      <div className="col-span-1 grid grid-cols-6 items-stretch">
+      <div className="col-span-1 grid grid-cols-6 items-stretch bg-yellow-600 transition-all group-hover:-ml-2 group-hover:rounded-l-md group-hover:pl-2">
         {/* Icon */}
         <div className={clsIconBox}>
           {isValid ? (
@@ -63,7 +63,7 @@ export default function ({
             {
               'current-highest text-white': isHighest,
             },
-            'col-span-5 flex items-center justify-end gap-1 px-2 font-mono text-lg font-thin'
+            'col-span-5 flex items-center justify-end gap-1 bg-white px-2 font-mono text-lg font-thin'
           )}
         >
           {amount}

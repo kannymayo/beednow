@@ -33,10 +33,10 @@ export default function BidHistory() {
     // toast container
     <div
       style={styleToastVariables}
-      className="section-timeline h-full translate-x-0 overflow-hidden drop-shadow-lg"
+      className="section-timeline h-full translate-x-0"
     >
       <div className="grid h-full w-full">
-        <div className="subtle-scrollbar mx-1 overflow-y-auto overflow-x-hidden bg-slate-100 px-1">
+        <div className="subtle-scrollbar relative z-10 mx-1 overflow-y-auto overflow-x-hidden pl-3 pr-1 pt-1 shadow-lg">
           {/* Empty message*/}
           {!shouldHideEmptyMsg && (
             <>
@@ -48,7 +48,7 @@ export default function BidHistory() {
           )}
 
           {/* The list of offeers */}
-          <ol className="grid gap-1 pb-6">
+          <ol className="grid gap-1.5 pb-6">
             {offers.map((offer) => {
               return offer.event ? (
                 <EntryEvent
