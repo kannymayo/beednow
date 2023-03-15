@@ -22,6 +22,7 @@ export default function Summary({
       <th>Winner</th>
       <th>Amount</th>
       <th>Bidders</th>
+      {/* Can be interpreted as duration under contestation */}
       <th>Duration</th>
       <th className="rounded-none">Closed at</th>
     </tr>

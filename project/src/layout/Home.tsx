@@ -97,7 +97,7 @@ export default function EnterRoom() {
           onClick={switchLoginReg}
           className="link link-info link-hover text-sm"
         >
-          Don’t have an account yet? Sign up
+          Don't have an account yet? Sign up
         </a>
       </div>
     </Login>

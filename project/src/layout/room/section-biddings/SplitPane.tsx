@@ -7,7 +7,7 @@ import BiddingsFinished from './BiddingsFinished'
 
 export default function SplitPane() {
   return (
-    <Allotment vertical={true}>
+    <Allotment vertical={true} defaultSizes={[2, 1]}>
       <div className="flex h-full flex-col">
         <BiddingsPending />
       </div>
