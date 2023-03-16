@@ -1,8 +1,9 @@
 import clsx from 'clsx'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 
 import { useUserAtoms } from '@/store/useUserAtom'
 import { useQueryRoomActivities } from '@/api/room'
+import { Loader } from '@mantine/core'
 import RoomListItem from './room-preview/RoomListItem'
 
 export default function MyRooms() {
@@ -49,11 +50,15 @@ export default function MyRooms() {
         </h1>
         {tabRoomsCategories}
 
-        <ul className="  overflow-y-auto">
-          {displayedActivities?.map((RoomActivity) => (
-            <RoomListItem roomId={RoomActivity.id} key={RoomActivity.id} />
-          ))}
-        </ul>
+        <div className="flex-1">
+          <Suspense fallback={<Loader className="mx-auto mt-4" />}>
+            <ul className="overflow-y-auto">
+              {displayedActivities?.map((RoomActivity) => (
+                <RoomListItem key={RoomActivity.id} roomId={RoomActivity.id} />
+              ))}
+            </ul>
+          </Suspense>
+        </div>
       </div>
     </section>
   )

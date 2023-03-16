@@ -1,34 +1,23 @@
 import clsx from 'clsx'
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
-import { useQueryRoom } from '@/api/room'
+// import { useQueryRoom } from '@/api/room'
+import { useAsyncAtomRoom } from '@/store/helper/firebase-atom-family'
 import { useRoomPreviewAtoms } from '@/store/useRoomAtom'
 import { calRelativeDate } from '@/utils/calc-relative-date'
 
 export default function RoomListItem({ roomId }: { roomId: string }) {
-  const [queryRoom] = useQueryRoom({
+  const room = useAsyncAtomRoom({
     roomId,
-  })
+  }).getter
   const [roomUnderPreview, setRoomUnderPreview] = useRoomPreviewAtoms().getset()
   const isUnderPreview = roomUnderPreview?.id === roomId
 
-  // queryFn can throw if Firestore has inconsistent data
-  if (queryRoom.isError) {
-    return <></>
-  }
-
-  let roomName, hostedBy, joinedBy, date, seconds, strRelativeDate
-  if (queryRoom.isSuccess) {
-    ;({
-      name: roomName,
-      id: roomId,
-      hostedBy,
-      joinedBy,
-      createdAt: { seconds },
-    } = queryRoom.data)
-    date = new Date(seconds * 1000).toLocaleDateString()
-    strRelativeDate = calRelativeDate(new Date(seconds * 1000), new Date())
-  }
+  const {
+    name: roomName,
+    createdAt: { seconds },
+  } = room
+  const strRelativeDate = calRelativeDate(new Date(seconds * 1000), new Date())
 
   const clsList = clsx(
     {
@@ -38,25 +27,13 @@ export default function RoomListItem({ roomId }: { roomId: string }) {
   )
   return (
     <div onClick={setForPreview} className={clsList}>
-      {queryRoom.isLoading ? (
-        <div className="flex h-12 w-full items-center justify-center">
-          <div className="spinner" />
-        </div>
-      ) : (
-        <>
-          <div className="font-bold">{queryRoom?.data?.name}</div>
-          <div className="badge badge-info tracking-tight">
-            {strRelativeDate}
-          </div>
-          <DocumentMagnifyingGlassIcon className="text-primary invisible absolute right-2 ml-2 h-7 w-7 capitalize group-hover:visible" />
-        </>
-      )}
+      <div className="font-bold">{roomName}</div>
+      <div className="badge badge-info tracking-tight">{strRelativeDate}</div>
+      <DocumentMagnifyingGlassIcon className="text-primary invisible absolute right-2 ml-2 h-7 w-7 capitalize group-hover:visible" />
     </div>
   )
 
   async function setForPreview() {
-    if (queryRoom.isSuccess) {
-      setRoomUnderPreview(queryRoom.data)
-    }
+    setRoomUnderPreview(room)
   }
 }
