@@ -1,8 +1,7 @@
 import clsx from 'clsx'
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
-// import { useQueryRoom } from '@/api/room'
-import { useAsyncAtomRoom } from '@/store/helper/firebase-atom-family'
+import { useAsyncAtomRoom } from '@/store/useRoomAtom'
 import { useRoomPreviewAtoms } from '@/store/useRoomAtom'
 import { calRelativeDate } from '@/utils/calc-relative-date'
 

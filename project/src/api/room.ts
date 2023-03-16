@@ -166,25 +166,6 @@ function useQueryCurrentRoom() {
   return [query]
 }
 
-function useQueryRoom({
-  roomId = '',
-  isSubscribed = false,
-  queryOptions,
-}: {
-  roomId?: string
-  isSubscribed?: boolean
-  queryOptions?: Parameters<typeof useQueryFirebase>[0]['queryOptions']
-}) {
-  const queryKey = ['rooms', roomId]
-  const [query] = useQueryFirebase<Room>({
-    segments: queryKey,
-    isSubscribed,
-    queryOptions,
-  })
-
-  return [query, queryKey] as const
-}
-
 function useQueryIsThatHostedbyMe(uidRoomHost?: string) {
   const [user, isLoggedIn] = useUserAtoms().get()
   const [query] = useQueryCurrentRoom()
@@ -205,7 +186,6 @@ export {
   useUpdateRoomAcvitity,
   useJoinRoom,
   useMutationDeleteRoom,
-  useQueryRoom,
   useQueryRoomActivities,
   useQueryCurrentRoom,
 }

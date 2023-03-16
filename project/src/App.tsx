@@ -7,7 +7,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import Routes from '@/layout/Routes'
 
-const qc = new QueryClient({
+export const qc = new QueryClient({
   defaultOptions: {
     queries: {
       retry: false,

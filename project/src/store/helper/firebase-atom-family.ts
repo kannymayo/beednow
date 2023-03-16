@@ -1,10 +1,10 @@
-import { Atom, useAtomValue } from 'jotai'
+import { Atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { atomsWithQuery } from 'jotai-tanstack-query'
 import { useQueryClient } from '@tanstack/react-query'
 import { doc, getDoc, onSnapshot, DocumentReference } from 'firebase/firestore'
 
-import { Room } from '@/api/room'
+import { qc } from '@/App'
 import { db } from '@/api/firebase'
 import { isVoid } from '@/utils/is-void'
 
@@ -49,6 +49,9 @@ const listenerAttached = new Set<string>()
  * wrapped in a hook. If using useQueryClient() lead to violation of rules of
  * hook, I would very much like to use a module export of queryClient from
  * <App>
+ * Update: Done switching to module export of queryClient. Perhaps not a big
+ * deal, as async atoms are to used within ErrorBoundary anyway. But good to see
+ * less errors in console.
  *
  */
 const firebaseAtomFamily = atomFamily(
@@ -63,7 +66,6 @@ const firebaseAtomFamily = atomFamily(
     isEnabled?: boolean
     queryOptions?: any
   }) => {
-    const qc = useQueryClient()
     let shouldEnable = false
     let refDoc: DocumentReference | null = null
     try {
@@ -77,6 +79,7 @@ const firebaseAtomFamily = atomFamily(
         queryKey: segments,
         queryFn: queryFnDoc,
         enabled: isEnabled && shouldEnable,
+        refetchOnWindowFocus: false,
         ...queryOptions,
         meta: {
           refDoc,
@@ -107,7 +110,9 @@ const firebaseAtomFamily = atomFamily(
     }
     return dataAtom as unknown as Atom<any>
   },
-  (a, b) => a.segments.join(',') === b.segments.join(',')
+  (a, b) => {
+    return a.segments.join(',') === b.segments.join(',')
+  }
 )
 
 async function queryFnDoc({
@@ -123,20 +128,4 @@ async function queryFnDoc({
   return { ...snapshotDoc.data(), id: snapshotDoc.id }
 }
 
-function useAsyncAtomRoom({
-  roomId,
-  isSubscribed = false,
-}: {
-  roomId: string
-  isSubscribed?: boolean
-}) {
-  const statusAtom = firebaseAtomFamily({
-    segments: ['rooms', roomId],
-    isSubscribed,
-  })
-  return {
-    getter: useAtomValue<Room>(statusAtom),
-  }
-}
-
-export { firebaseAtomFamily, useAsyncAtomRoom }
+export { firebaseAtomFamily }
