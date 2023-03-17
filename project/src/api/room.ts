@@ -2,7 +2,7 @@ import { FieldValue, serverTimestamp, Timestamp } from 'firebase/firestore'
 import { useMutation } from '@tanstack/react-query'
 
 import { useUserAtoms } from '@/store/useUserAtom'
-import { useRoomIdAtoms } from '@/store/useRoomAtom'
+import { useAtomRoomId } from '@/store/useRoomAtom'
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { getRandomName } from '@/utils/random-name'
 import {
@@ -158,7 +158,7 @@ function useUpdateRoomAcvitity() {
 }
 
 function useQueryCurrentRoom() {
-  const roomId = useRoomIdAtoms().get()
+  const roomId = useAtomRoomId().getter
   const [query] = useQueryFirebase<Room>({
     segments: ['rooms', roomId],
     isSubscribed: true,

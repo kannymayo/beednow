@@ -11,7 +11,7 @@ import {
   useQueryBiddings,
   Bidding,
 } from '@/api/bidding'
-import { useRoomIdAtoms } from '@/store/useRoomAtom'
+import { useAtomRoomId } from '@/store/useRoomAtom'
 import {
   useInProgressBiddingsAtoms,
   useBiddingsAtoms,
@@ -28,7 +28,7 @@ export default function BiddingsPending() {
   const [animationParent] = useAutoAnimate<HTMLUListElement>()
 
   const pendingBiddings = usePendingBiddingsAtoms().get()
-  const roomId = useRoomIdAtoms().get()
+  const roomId = useAtomRoomId().getter
   // well, be a data syncer
   const [{ data: biddings, isLoading: isBiddingsLoading }, hasPendingWrites] =
     useQueryBiddings(roomId)

@@ -6,8 +6,13 @@ import { firebaseAtomFamily } from './helper/firebase-atom-family'
 import createAtomHooks from './helper/create-atom-hooks'
 
 const roomAtom = atom<Room | null>(null)
-const roomIdAtom = atom<string>('')
+
 const roomPreviewAtom = atom<Room | null>(null)
+
+const roomIdAtom = atom<string>('')
+roomIdAtom.onMount = (setAtom) => {
+  return () => setAtom('')
+}
 
 const isRoomHostAtom = atom<boolean>(false)
 isRoomHostAtom.onMount = (setAtom) => {
@@ -26,21 +31,6 @@ const useRoomPreviewAtoms = createAtomHooks(roomPreviewAtom, {
     }, [])
 
     return setRoomPreview
-  },
-})
-
-const useRoomIdAtoms = createAtomHooks(roomIdAtom, {
-  setFn: ({ resetOnUnmount = false }: { resetOnUnmount?: boolean } = {}) => {
-    const setRoomId = useSetAtom(roomIdAtom)
-    useEffect(() => {
-      if (resetOnUnmount) {
-        return () => {
-          setRoomId('')
-        }
-      }
-    }, [])
-
-    return setRoomId
   },
 })
 
@@ -90,10 +80,18 @@ function useAtomIsRoomHost() {
   }
 }
 
+function useAtomRoomId() {
+  return {
+    getter: useAtomValue(roomIdAtom),
+    setter: useSetAtom(roomIdAtom),
+    tuple: [useAtomValue(roomIdAtom), useSetAtom(roomIdAtom)] as const,
+  }
+}
+
 export {
-  useRoomIdAtoms,
   useAsyncAtomRoom,
   useAtomIsRoomHost,
+  useAtomRoomId,
   useRoomPreviewAtoms,
   useChatAtoms,
   useRoomAtoms,

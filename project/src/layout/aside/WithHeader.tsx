@@ -4,7 +4,7 @@ import { Loader } from '@mantine/core'
 
 import { useQueryCurrentRoom } from '@/api/room'
 import { useUserAtoms } from '@/store/useUserAtom'
-import { useAtomIsRoomHost, useRoomIdAtoms } from '@/store/useRoomAtom'
+import { useAtomIsRoomHost, useAtomRoomId } from '@/store/useRoomAtom'
 import Header from './header/Header'
 
 export default function WithHeader() {
@@ -23,7 +23,7 @@ export default function WithHeader() {
 
   // sync roomIdd in url to Atom
   const param = useParams()
-  const setRoomId = useRoomIdAtoms().set({ resetOnUnmount: true })
+  const setRoomId = useAtomRoomId().setter
   useEffect(() => {
     setRoomId(param.roomId || '')
     return () => {
