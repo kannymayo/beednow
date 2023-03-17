@@ -10,7 +10,7 @@ import {
 import { isVoid } from '@/utils/is-void'
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { useHighestOfferAtoms } from '@/store/useOfferAtom'
-import { useRoomIdAtoms, useIsRoomHostAtoms } from '@/store/useRoomAtom'
+import { useRoomIdAtoms, useAtomIsRoomHost } from '@/store/useRoomAtom'
 import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
 import { ItemFromAPI } from '@/api/item-details'
 import {
@@ -152,7 +152,7 @@ function useMutationResetAllInProgressBiddings(
   { resetOnUnmount } = { resetOnUnmount: false }
 ) {
   const roomId = useRoomIdAtoms().get()
-  const isRoomHost = useIsRoomHostAtoms().get()
+  const isRoomHost = useAtomIsRoomHost().getter
   const [inprogressBiddings] = useInProgressBiddingsAtoms().get()
   const refClearAllFn = useRef<() => void>(() => null)
   const mutation = useMutation({

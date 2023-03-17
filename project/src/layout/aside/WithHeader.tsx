@@ -4,7 +4,7 @@ import { Loader } from '@mantine/core'
 
 import { useQueryCurrentRoom } from '@/api/room'
 import { useUserAtoms } from '@/store/useUserAtom'
-import { useIsRoomHostAtoms, useRoomIdAtoms } from '@/store/useRoomAtom'
+import { useAtomIsRoomHost, useRoomIdAtoms } from '@/store/useRoomAtom'
 import Header from './header/Header'
 
 export default function WithHeader() {
@@ -15,9 +15,7 @@ export default function WithHeader() {
 
   // sync isRoomHost to Atom
   const [[user]] = useUserAtoms().getset()
-  const [isRoomHost, setIsRoomHost] = useIsRoomHostAtoms().getset({
-    resetOnUnmount: true,
-  })
+  const setIsRoomHost = useAtomIsRoomHost().setter
   useEffect(() => {
     if (!user.uid || !roomInfo?.hostedBy) return setIsRoomHost(false)
     setIsRoomHost(user.uid === roomInfo?.hostedBy)

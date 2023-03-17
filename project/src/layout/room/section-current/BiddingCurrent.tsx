@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { useDebounce } from 'ahooks'
 
 import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
-import { useIsRoomHostAtoms } from '@/store/useRoomAtom'
+import { useAtomIsRoomHost } from '@/store/useRoomAtom'
 import HeaderSummary from './HeaderSummary'
 import HeaderCurrentHighest from './HeaderCurrentHighest'
 import HeaderCountdown from './HeaderCountdown'
@@ -13,7 +13,7 @@ import HostActions from './HostActions'
 export default function BidItem() {
   const MAX_COUNTDOWN = 60
   const [inProgressBiddings, hasMember] = useInProgressBiddingsAtoms().get()
-  const isRoomHost = useIsRoomHostAtoms().get()
+  const isRoomHost = useAtomIsRoomHost().getter
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
   })

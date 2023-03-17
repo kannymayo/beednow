@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { useIsRoomHostAtoms } from '@/store/useRoomAtom'
+import { useAtomIsRoomHost } from '@/store/useRoomAtom'
 
 export default function CardRow({
   biddingId,
@@ -15,7 +15,7 @@ export default function CardRow({
   actionIcon: React.FC<{ className?: string }>
   children: React.ReactNode
 }) {
-  const isRoomHost = useIsRoomHostAtoms().get()
+  const isRoomHost = useAtomIsRoomHost().getter
   const [isActionStaged, setIsActionStaged] = useState(false)
   return (
     <div className="flex items-center justify-between gap-1 overflow-hidden">

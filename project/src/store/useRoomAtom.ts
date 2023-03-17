@@ -8,23 +8,11 @@ import createAtomHooks from './helper/create-atom-hooks'
 const roomAtom = atom<Room | null>(null)
 const roomIdAtom = atom<string>('')
 const roomPreviewAtom = atom<Room | null>(null)
+
 const isRoomHostAtom = atom<boolean>(false)
-
-const useIsRoomHostAtoms = createAtomHooks(isRoomHostAtom, {
-  setFn: ({ resetOnUnmount = false } = {}) => {
-    const setIsRoomHost = useSetAtom(isRoomHostAtom)
-
-    useEffect(() => {
-      if (resetOnUnmount) {
-        return () => {
-          setIsRoomHost(false)
-        }
-      }
-    }, [])
-
-    return setIsRoomHost
-  },
-})
+isRoomHostAtom.onMount = (setAtom) => {
+  return () => setAtom(false)
+}
 
 const useRoomPreviewAtoms = createAtomHooks(roomPreviewAtom, {
   setFn: ({ resetOnUnmount = false }: { resetOnUnmount?: boolean } = {}) => {
@@ -76,7 +64,6 @@ const useRoomAtoms = createAtomHooks(roomAtom, {
 })
 
 const readonlyChatsAtom = atom((get) => get(roomAtom)?.chats)
-
 const useChatAtoms = createAtomHooks(readonlyChatsAtom)
 
 function useAsyncAtomRoom({
@@ -95,11 +82,19 @@ function useAsyncAtomRoom({
   }
 }
 
+function useAtomIsRoomHost() {
+  return {
+    getter: useAtomValue(isRoomHostAtom),
+    setter: useSetAtom(isRoomHostAtom),
+    tuple: [useAtomValue(isRoomHostAtom), useSetAtom(isRoomHostAtom)] as const,
+  }
+}
+
 export {
   useRoomIdAtoms,
   useAsyncAtomRoom,
+  useAtomIsRoomHost,
   useRoomPreviewAtoms,
-  useIsRoomHostAtoms,
   useChatAtoms,
   useRoomAtoms,
 }
