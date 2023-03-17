@@ -6,12 +6,12 @@ import { getRandomAvatar } from '@/utils/get-random-avatar'
 import { useQueryUserProfile, useMutationUpdateAvatar } from '@/api/user'
 import { useUserAtoms } from '@/store/useUserAtom'
 import { useSignOut } from '@/hooks/useToastyAuth'
-import { useRoomPreviewAtoms } from '@/store/useRoomAtom'
+import { useAtomRoomPreview } from '@/store/useRoomAtom'
 
 export default function CurrentUser() {
   const [user, isLoggedIn] = useUserAtoms().get()
   const [signout] = useSignOut()
-  const setRoomPreview = useRoomPreviewAtoms().set()
+  const setRoomPreview = useAtomRoomPreview().setter
   const navigate = useNavigate()
   const [{ data: userProfile }] = useQueryUserProfile({
     userId: user?.uid || '',

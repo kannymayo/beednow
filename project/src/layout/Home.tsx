@@ -6,7 +6,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { useCreateRoom } from '@/api/room'
 import { useUserAtoms } from '@/store/useUserAtom'
-import { useRoomPreviewAtoms, useAsyncAtomRoom } from '@/store/useRoomAtom'
+import { useAtomRoomPreview, useAsyncAtomRoom } from '@/store/useRoomAtom'
 import Login from './landing/Login'
 import Register from './landing/Register'
 import MyRooms from './landing/RoomsOverview'
@@ -35,7 +35,7 @@ export default function EnterRoom() {
   const navigate = useNavigate()
   const [user] = useUserAtoms().get()
   const [createNewRoom] = useCreateRoom()
-  const setRoomPreview = useRoomPreviewAtoms().set()
+  const setRoomPreview = useAtomRoomPreview().setter
   const [isFadingIn, setIsFadingIn] = useState(false)
   const [isBtnDisabled, setIsBtnDisabled] = useState(false)
   const [isAtLogin, setIsAtLogin] = useState(true)

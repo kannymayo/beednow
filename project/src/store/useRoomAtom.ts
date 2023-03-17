@@ -8,6 +8,9 @@ import createAtomHooks from './helper/create-atom-hooks'
 const roomAtom = atom<Room | null>(null)
 
 const roomPreviewAtom = atom<Room | null>(null)
+roomPreviewAtom.onMount = (setAtom) => {
+  return () => setAtom(null)
+}
 
 const roomIdAtom = atom<string>('')
 roomIdAtom.onMount = (setAtom) => {
@@ -18,21 +21,6 @@ const isRoomHostAtom = atom<boolean>(false)
 isRoomHostAtom.onMount = (setAtom) => {
   return () => setAtom(false)
 }
-
-const useRoomPreviewAtoms = createAtomHooks(roomPreviewAtom, {
-  setFn: ({ resetOnUnmount = false }: { resetOnUnmount?: boolean } = {}) => {
-    const setRoomPreview = useSetAtom(roomPreviewAtom)
-    useEffect(() => {
-      if (resetOnUnmount) {
-        return () => {
-          setRoomPreview(null)
-        }
-      }
-    }, [])
-
-    return setRoomPreview
-  },
-})
 
 const useRoomAtoms = createAtomHooks(roomAtom, {
   setFn: ({ isMaster = false }: { isMaster?: boolean }) => {
@@ -88,11 +76,22 @@ function useAtomRoomId() {
   }
 }
 
+function useAtomRoomPreview() {
+  return {
+    getter: useAtomValue(roomPreviewAtom),
+    setter: useSetAtom(roomPreviewAtom),
+    tuple: [
+      useAtomValue(roomPreviewAtom),
+      useSetAtom(roomPreviewAtom),
+    ] as const,
+  }
+}
+
 export {
   useAsyncAtomRoom,
   useAtomIsRoomHost,
   useAtomRoomId,
-  useRoomPreviewAtoms,
+  useAtomRoomPreview,
   useChatAtoms,
   useRoomAtoms,
 }

@@ -10,7 +10,7 @@ import {
 
 import { useJoinRoom, useMutationDeleteRoom } from '@/api/room'
 import { useQueryBiddings } from '@/api/bidding'
-import { useRoomPreviewAtoms } from '@/store/useRoomAtom'
+import { useAtomRoomPreview } from '@/store/useRoomAtom'
 import { useUserAtoms } from '@/store/useUserAtom'
 import { toasto } from '@/utils/toasto'
 import { calRelativeDate } from '@/utils/calc-relative-date'
@@ -19,9 +19,7 @@ import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'
 export default function RoomPreview() {
   const navigate = useNavigate()
   const [joinRoom] = useJoinRoom()
-  const [roomUnderPreview, setRoomUnderPreview] = useRoomPreviewAtoms().getset({
-    resetOnUnmount: true,
-  })
+  const [roomUnderPreview, setRoomUnderPreview] = useAtomRoomPreview().tuple
   const [user] = useUserAtoms().get()
   const [queryBiddings] = useQueryBiddings(roomUnderPreview?.id)
   const [{ mutateAsync: mutateAsyncDeleteRoom }] = useMutationDeleteRoom()

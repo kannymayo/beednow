@@ -2,14 +2,14 @@ import clsx from 'clsx'
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 import { useAsyncAtomRoom } from '@/store/useRoomAtom'
-import { useRoomPreviewAtoms } from '@/store/useRoomAtom'
+import { useAtomRoomPreview } from '@/store/useRoomAtom'
 import { calRelativeDate } from '@/utils/calc-relative-date'
 
 export default function RoomListItem({ roomId }: { roomId: string }) {
   const room = useAsyncAtomRoom({
     roomId,
   }).getter
-  const [roomUnderPreview, setRoomUnderPreview] = useRoomPreviewAtoms().getset()
+  const [roomUnderPreview, setRoomUnderPreview] = useAtomRoomPreview().tuple
   const isUnderPreview = roomUnderPreview?.id === roomId
 
   const {
