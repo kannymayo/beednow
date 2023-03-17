@@ -53,7 +53,7 @@ type BiddingModification = {
 }
 
 function useAddItem() {
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   return [addItem]
 
   async function addItem(item: { details: ItemFromAPI; [any: string]: any }) {
@@ -73,7 +73,7 @@ function useAddItem() {
  * offers, and no matter what, the closing-* fields will be removed
  */
 function useMutationRestoreBidding() {
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const mutation = useMutation({
     mutationFn: mutateFnRestoreBidding,
   })
@@ -109,7 +109,7 @@ function useMutationRestoreBidding() {
 
 function useMutationStartBidding() {
   const LATENCY_COMPENSATION = 0
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const mutation = useMutation({
     mutationFn: mutateFnStartBidding,
   })
@@ -151,8 +151,8 @@ function useMutationStartBidding() {
 function useMutationResetAllInProgressBiddings(
   { resetOnUnmount } = { resetOnUnmount: false }
 ) {
-  const roomId = useAtomRoomId().getter
-  const isRoomHost = useAtomIsRoomHost().getter
+  const roomId = useAtomRoomId().getter()
+  const isRoomHost = useAtomIsRoomHost().getter()
   const [inprogressBiddings] = useInProgressBiddingsAtoms().get()
   const refClearAllFn = useRef<() => void>(() => null)
   const mutation = useMutation({
@@ -231,7 +231,7 @@ function useMutationResetAllInProgressBiddings(
 }
 
 function useMutationDeleteItem() {
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const mutation = useMutation({
     mutationFn: deleteItem,
   })
@@ -250,7 +250,7 @@ function useMutationDeleteItem() {
  * correction)
  */
 function useMutationEndBidding() {
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const highestOffer = useHighestOfferAtoms().get()
   const mutation = useMutation({
     mutationFn: mutateFnEndOffer,

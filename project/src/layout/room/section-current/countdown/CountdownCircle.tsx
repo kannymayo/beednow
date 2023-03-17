@@ -23,7 +23,7 @@ export default function CountdowwnCircle({
   const startAutoFinish = useStartAutoFinish()
   const [mutationSendBiddingElapsed] = useMutationSendBiddingElapsed()
   const setCountdown = useCountdownAtoms().set()
-  const isRoomHost = useAtomIsRoomHost().getter
+  const isRoomHost = useAtomIsRoomHost().getter()
   const [timerKey, setTimerKey] = useState('')
 
   useEffect(() => {

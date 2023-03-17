@@ -21,7 +21,7 @@ const RoomDataSuspense = ({
 }) => {
   const room = useAsyncAtomRoom({
     roomId,
-  }).getter
+  }).getter()
 
   // won't fire when throws
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function EnterRoom() {
   const navigate = useNavigate()
   const [user] = useUserAtoms().get()
   const [createNewRoom] = useCreateRoom()
-  const setRoomPreview = useAtomRoomPreview().setter
+  const setRoomPreview = useAtomRoomPreview().setter()
   const [isFadingIn, setIsFadingIn] = useState(false)
   const [isBtnDisabled, setIsBtnDisabled] = useState(false)
   const [isAtLogin, setIsAtLogin] = useState(true)

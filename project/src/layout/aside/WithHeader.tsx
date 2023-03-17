@@ -15,7 +15,7 @@ export default function WithHeader() {
 
   // sync isRoomHost to Atom
   const [[user]] = useUserAtoms().getset()
-  const setIsRoomHost = useAtomIsRoomHost().setter
+  const setIsRoomHost = useAtomIsRoomHost().setter()
   useEffect(() => {
     if (!user.uid || !roomInfo?.hostedBy) return setIsRoomHost(false)
     setIsRoomHost(user.uid === roomInfo?.hostedBy)
@@ -23,7 +23,7 @@ export default function WithHeader() {
 
   // sync roomIdd in url to Atom
   const param = useParams()
-  const setRoomId = useAtomRoomId().setter
+  const setRoomId = useAtomRoomId().setter()
   useEffect(() => {
     setRoomId(param.roomId || '')
     return () => {

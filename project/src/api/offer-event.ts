@@ -21,7 +21,7 @@ import { BiddingModification } from './bidding'
 
 function useMutationPause() {
   const [user] = useUserAtoms().get()
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const [[bidding], hasMember] = useInProgressBiddingsAtoms().get()
 
   const mutation = useMutation({
@@ -53,7 +53,7 @@ function useMutationPause() {
  */
 function useMutationResume() {
   const [user] = useUserAtoms().get()
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const [[bidding], hasMember] = useInProgressBiddingsAtoms().get()
   const mutation = useMutation({
     mutationFn: mutateFnResumeOffer,
@@ -89,7 +89,7 @@ function useMutationResume() {
  */
 function useMutationExtend() {
   const [user] = useUserAtoms().get()
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const [[bidding], hasMember] = useInProgressBiddingsAtoms().get()
   const mutation = useMutation({
     mutationFn: mutateFnExtendOffer,
@@ -120,7 +120,7 @@ function useMutationExtend() {
 
 function useMutationShorten() {
   const [user] = useUserAtoms().get()
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const [[bidding], hasMember] = useInProgressBiddingsAtoms().get()
   const mutation = useMutation({
     mutationFn: mutateFnShortenOffer,
@@ -148,7 +148,7 @@ function useMutationShorten() {
 
 function useMutationSendElapsed() {
   const [user] = useUserAtoms().get()
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const [[bidding], hasMember] = useInProgressBiddingsAtoms().get()
   const mutation = useMutation({
     mutationFn: mutateFnSendElapsed,

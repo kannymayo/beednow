@@ -11,7 +11,7 @@ import { useAtomRoomPreview } from '@/store/useRoomAtom'
 export default function CurrentUser() {
   const [user, isLoggedIn] = useUserAtoms().get()
   const [signout] = useSignOut()
-  const setRoomPreview = useAtomRoomPreview().setter
+  const setRoomPreview = useAtomRoomPreview().setter()
   const navigate = useNavigate()
   const [{ data: userProfile }] = useQueryUserProfile({
     userId: user?.uid || '',

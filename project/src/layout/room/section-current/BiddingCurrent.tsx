@@ -13,7 +13,7 @@ import HostActions from './HostActions'
 export default function BidItem() {
   const MAX_COUNTDOWN = 60
   const [inProgressBiddings, hasMember] = useInProgressBiddingsAtoms().get()
-  const isRoomHost = useAtomIsRoomHost().getter
+  const isRoomHost = useAtomIsRoomHost().getter()
   const hasMemberDebounced = useDebounce(hasMember, {
     wait: 200,
   })

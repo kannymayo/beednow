@@ -21,7 +21,7 @@ interface ChatMsg {
 }
 
 function useMutationSendChat() {
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const [{ uid, photoURL, displayName: username }] = useUserAtoms().get()
   const mutation = useMutation(async ({ content }: { content: string }) => {
     const chatMsg: ChatMsg = {

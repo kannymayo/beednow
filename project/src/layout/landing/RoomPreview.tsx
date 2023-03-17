@@ -19,7 +19,7 @@ import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'
 export default function RoomPreview() {
   const navigate = useNavigate()
   const [joinRoom] = useJoinRoom()
-  const [roomUnderPreview, setRoomUnderPreview] = useAtomRoomPreview().tuple
+  const [roomUnderPreview, setRoomUnderPreview] = useAtomRoomPreview().tuple()
   const [user] = useUserAtoms().get()
   const [queryBiddings] = useQueryBiddings(roomUnderPreview?.id)
   const [{ mutateAsync: mutateAsyncDeleteRoom }] = useMutationDeleteRoom()

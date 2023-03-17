@@ -32,7 +32,7 @@ interface Offer<TEvent extends EventType = undefined> {
 
 function useMakeOffer() {
   const [user] = useUserAtoms().get()
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const [[bidding]] = useInProgressBiddingsAtoms().get()
   const mutation = useMutation({
     mutationFn: mutateFnMakeOffer,

@@ -158,7 +158,7 @@ function useUpdateRoomAcvitity() {
 }
 
 function useQueryCurrentRoom() {
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   const [query] = useQueryFirebase<Room>({
     segments: ['rooms', roomId],
     isSubscribed: true,

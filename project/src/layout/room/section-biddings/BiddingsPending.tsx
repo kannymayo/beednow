@@ -28,7 +28,7 @@ export default function BiddingsPending() {
   const [animationParent] = useAutoAnimate<HTMLUListElement>()
 
   const pendingBiddings = usePendingBiddingsAtoms().get()
-  const roomId = useAtomRoomId().getter
+  const roomId = useAtomRoomId().getter()
   // well, be a data syncer
   const [{ data: biddings, isLoading: isBiddingsLoading }, hasPendingWrites] =
     useQueryBiddings(roomId)

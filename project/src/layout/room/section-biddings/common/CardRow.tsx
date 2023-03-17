@@ -15,7 +15,7 @@ export default function CardRow({
   actionIcon: React.FC<{ className?: string }>
   children: React.ReactNode
 }) {
-  const isRoomHost = useAtomIsRoomHost().getter
+  const isRoomHost = useAtomIsRoomHost().getter()
   const [isActionStaged, setIsActionStaged] = useState(false)
   return (
     <div className="flex items-center justify-between gap-1 overflow-hidden">

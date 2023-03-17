@@ -56,34 +56,33 @@ function useAsyncAtomRoom({
     isSubscribed,
   })
   return {
-    getter: useAtomValue<Room>(statusAtom),
+    getter: () => useAtomValue<Room>(statusAtom),
   }
 }
 
 function useAtomIsRoomHost() {
   return {
-    getter: useAtomValue(isRoomHostAtom),
-    setter: useSetAtom(isRoomHostAtom),
-    tuple: [useAtomValue(isRoomHostAtom), useSetAtom(isRoomHostAtom)] as const,
+    getter: () => useAtomValue(isRoomHostAtom),
+    setter: () => useSetAtom(isRoomHostAtom),
+    tuple: () =>
+      [useAtomValue(isRoomHostAtom), useSetAtom(isRoomHostAtom)] as const,
   }
 }
 
 function useAtomRoomId() {
   return {
-    getter: useAtomValue(roomIdAtom),
-    setter: useSetAtom(roomIdAtom),
-    tuple: [useAtomValue(roomIdAtom), useSetAtom(roomIdAtom)] as const,
+    getter: () => useAtomValue(roomIdAtom),
+    setter: () => useSetAtom(roomIdAtom),
+    tuple: () => [useAtomValue(roomIdAtom), useSetAtom(roomIdAtom)] as const,
   }
 }
 
 function useAtomRoomPreview() {
   return {
-    getter: useAtomValue(roomPreviewAtom),
-    setter: useSetAtom(roomPreviewAtom),
-    tuple: [
-      useAtomValue(roomPreviewAtom),
-      useSetAtom(roomPreviewAtom),
-    ] as const,
+    getter: () => useAtomValue(roomPreviewAtom),
+    setter: () => useSetAtom(roomPreviewAtom),
+    tuple: () =>
+      [useAtomValue(roomPreviewAtom), useSetAtom(roomPreviewAtom)] as const,
   }
 }
 

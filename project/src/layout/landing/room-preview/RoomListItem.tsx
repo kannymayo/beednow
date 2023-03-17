@@ -8,8 +8,8 @@ import { calRelativeDate } from '@/utils/calc-relative-date'
 export default function RoomListItem({ roomId }: { roomId: string }) {
   const room = useAsyncAtomRoom({
     roomId,
-  }).getter
-  const [roomUnderPreview, setRoomUnderPreview] = useAtomRoomPreview().tuple
+  }).getter()
+  const [roomUnderPreview, setRoomUnderPreview] = useAtomRoomPreview().tuple()
   const isUnderPreview = roomUnderPreview?.id === roomId
 
   const {

@@ -7,7 +7,7 @@ import ModalSummary from './modal-summary/ModalSummary'
 import CurrentUser from './user/CurrentUser'
 
 export default function Header() {
-  const isRoomHost = useAtomIsRoomHost().getter
+  const isRoomHost = useAtomIsRoomHost().getter()
   return (
     <header className="body-font h-full bg-slate-400 text-gray-200">
       <div className="container mx-auto flex h-full  max-w-2xl items-center md:flex-row lg:max-w-3xl xl:max-w-5xl">
