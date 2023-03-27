@@ -2,7 +2,6 @@ import { FieldValue, serverTimestamp, Timestamp } from 'firebase/firestore'
 import { useMutation } from '@tanstack/react-query'
 
 import { useUserAtoms } from '@/store/useUserAtom'
-import { useAtomRoomId } from '@/store/useRoomAtom'
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { getRandomName } from '@/utils/random-name'
 import {
@@ -157,37 +156,12 @@ function useUpdateRoomAcvitity() {
   }
 }
 
-function useQueryCurrentRoom() {
-  const roomId = useAtomRoomId().getter()
-  const [query] = useQueryFirebase<Room>({
-    segments: ['rooms', roomId],
-    isSubscribed: true,
-  })
-  return [query]
-}
-
-function useQueryIsThatHostedbyMe(uidRoomHost?: string) {
-  const [user, isLoggedIn] = useUserAtoms().get()
-  const [query] = useQueryCurrentRoom()
-  const room = query?.data
-  // if uidRoomHost is not provided, check if the host of current room
-  // is the same as the logged-in user
-  if (!uidRoomHost) {
-    if (!isLoggedIn || !room) return [false]
-    return [room?.hostedBy === user?.uid]
-  } else {
-    if (!isLoggedIn) return [false]
-    return [uidRoomHost === user?.uid]
-  }
-}
-
 export {
   useCreateRoom,
   useUpdateRoomAcvitity,
   useJoinRoom,
   useMutationDeleteRoom,
   useQueryRoomActivities,
-  useQueryCurrentRoom,
 }
 
 export type { Room }

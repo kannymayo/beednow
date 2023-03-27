@@ -78,7 +78,7 @@ const firebaseAtomFamily = atomFamily(
       () => ({
         queryKey: segments,
         queryFn: queryFnDoc,
-        enabled: isEnabled && shouldEnable,
+        enabled: !!(isEnabled && shouldEnable),
         refetchOnWindowFocus: false,
         ...queryOptions,
         meta: {

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { atom, useSetAtom, useAtomValue } from 'jotai'
 
-import { Room, useQueryCurrentRoom } from '@/api/room'
+import { Room } from '@/api/room'
 import { firebaseAtomFamily } from './helper/firebase-atom-family'
 import createAtomHooks from './helper/create-atom-hooks'
 
@@ -22,9 +22,20 @@ isRoomHostAtom.onMount = (setAtom) => {
   return () => setAtom(false)
 }
 
+function useAsyncAtomCurrentRoom({ isSubscribed = false } = {}) {
+  const roomId = useAtomValue(roomIdAtom)
+  const asyncAtomCurrentRoom = firebaseAtomFamily({
+    segments: ['rooms', roomId],
+    isSubscribed,
+  })
+  return {
+    getter: () => useAtomValue<Room>(asyncAtomCurrentRoom),
+  }
+}
+
 const useRoomAtoms = createAtomHooks(roomAtom, {
   setFn: ({ isMaster = false }: { isMaster?: boolean }) => {
-    const [{ data: room }] = useQueryCurrentRoom()
+    const room = useAsyncAtomCurrentRoom().getter()
     const setRoom = useSetAtom(roomAtom)
 
     useEffect(() => {
@@ -88,6 +99,7 @@ function useAtomRoomPreview() {
 
 export {
   useAsyncAtomRoom,
+  useAsyncAtomCurrentRoom,
   useAtomIsRoomHost,
   useAtomRoomId,
   useAtomRoomPreview,
