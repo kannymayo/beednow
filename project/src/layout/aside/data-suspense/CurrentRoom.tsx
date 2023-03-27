@@ -61,6 +61,8 @@ function CurrentRoomData({
 
   // sync isRoomHost to Atom
   useEffect(() => {
+    // Q: why reachable when isPending is true? By right useEffect won't fire
+    // if the component suspends (in this case, it suspends in a transition)
     if (!isLoggedIn || !currentRoom?.hostedBy) {
       setIsRoomHost(false)
       return

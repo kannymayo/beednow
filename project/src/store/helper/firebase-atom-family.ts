@@ -74,7 +74,7 @@ const firebaseAtomFamily = atomFamily(
       refDoc = doc(db, _segments[0], ..._segments.slice(1))
       shouldEnable = true
     } catch (e) {}
-    const [dataAtom, statusAtom] = atomsWithQuery(
+    const [dataAtom] = atomsWithQuery(
       () => ({
         queryKey: segments,
         queryFn: queryFnDoc,
@@ -88,7 +88,7 @@ const firebaseAtomFamily = atomFamily(
       () => qc as any
     )
     // add firebase listener
-    statusAtom.onMount = () => {
+    dataAtom.onMount = () => {
       const listenerKey = JSON.stringify(segments)
       if (!isSubscribed) return
       if (!refDoc) return
@@ -111,7 +111,11 @@ const firebaseAtomFamily = atomFamily(
     return dataAtom as unknown as Atom<any>
   },
   (a, b) => {
-    return a.segments.join(',') === b.segments.join(',')
+    return (
+      a.segments.join(',') === b.segments.join(',') &&
+      a.isSubscribed === b.isSubscribed &&
+      a.isEnabled === b.isEnabled
+    )
   }
 )
 
