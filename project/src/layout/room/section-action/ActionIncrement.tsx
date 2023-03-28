@@ -1,9 +1,9 @@
 import clsx from 'clsx'
 import { useEffect, useState } from 'react'
 import { useDebounce } from 'ahooks'
-import { useHighestOfferAtoms } from '@/store/useOfferAtom'
-import { useUserAtoms } from '@/store/useUserAtom'
-import { useBudgetAtoms } from '@/store/useBudgetAtom'
+import { useHighestOfferAtoms } from '@/atoms/offer'
+import { useUserAtoms } from '@/atoms/user'
+import { useBudgetAtoms } from '@/atoms/budget'
 
 export default function ActionIncrement({
   globalDisabled,

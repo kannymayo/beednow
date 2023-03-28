@@ -10,11 +10,8 @@ import {
 
 import { useJoinRoom, useMutationDeleteRoom } from '@/api/room'
 import { useQueryBiddings } from '@/api/bidding'
-import {
-  useAsyncAtomRoomPreview,
-  useAtomRoomIdPreview,
-} from '@/store/useRoomAtom'
-import { useUserAtoms } from '@/store/useUserAtom'
+import { useAsyncAtomRoomPreview, useAtomRoomIdPreview } from '@/atoms/room'
+import { useUserAtoms } from '@/atoms/user'
 import { toasto } from '@/utils/toasto'
 import { calRelativeDate } from '@/utils/calc-relative-date'
 import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'

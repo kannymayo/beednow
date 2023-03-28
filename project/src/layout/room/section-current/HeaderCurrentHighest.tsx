@@ -1,6 +1,6 @@
 import { CurrencyDollarIcon } from '@heroicons/react/24/solid'
-import { useHighestOfferAtoms } from '@/store/useOfferAtom'
-import { useUserAtoms } from '@/store/useUserAtom'
+import { useHighestOfferAtoms } from '@/atoms/offer'
+import { useUserAtoms } from '@/atoms/user'
 
 export default function HeaderCurrentHighest() {
   const [userSelf, isLoggedin] = useUserAtoms().get()

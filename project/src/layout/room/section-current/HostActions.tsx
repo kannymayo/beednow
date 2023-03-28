@@ -14,7 +14,7 @@ import {
   useMutationEndBidding,
   Bidding,
 } from '@/api/bidding'
-import { useCountdownAtoms } from '@/store/useBiddingAtom'
+import { useCountdownAtoms } from '@/atoms/bidding'
 import InfoModal from '@/components/InfoModal'
 import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'
 

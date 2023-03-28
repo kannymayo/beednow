@@ -6,7 +6,7 @@ import {
   LockClosedIcon,
 } from '@heroicons/react/24/outline'
 
-import { useBudgetAtoms } from '@/store/useBudgetAtom'
+import { useBudgetAtoms } from '@/atoms/budget'
 import { useForm } from '@/hooks/form'
 import { toasto } from '@/utils/toasto'
 import InfoModal from '@/components/InfoModal'

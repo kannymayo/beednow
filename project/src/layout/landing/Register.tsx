@@ -8,7 +8,7 @@ import {
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 import clsx from 'clsx'
 
-import { useUserAtoms } from '@/store/useUserAtom'
+import { useUserAtoms } from '@/atoms/user'
 import { useCreateUserWithEmailAndPassword } from '@/hooks/useToastyAuth'
 import { useRedirectOnValidUser } from '@/hooks/navigateUX'
 

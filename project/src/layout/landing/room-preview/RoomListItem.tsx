@@ -1,8 +1,8 @@
 import clsx from 'clsx'
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
-import { useAsyncAtomRoom } from '@/store/useRoomAtom'
-import { useAtomRoomIdPreview } from '@/store/useRoomAtom'
+import { useAsyncAtomRoom } from '@/atoms/room'
+import { useAtomRoomIdPreview } from '@/atoms/room'
 import { calRelativeDate } from '@/utils/calc-relative-date'
 
 export default function RoomListItem({ roomId }: { roomId: string }) {

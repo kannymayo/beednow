@@ -1,7 +1,7 @@
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { Link } from 'react-router-dom'
 
-import { useAtomIsRoomHost } from '@/store/useRoomAtom'
+import { useAtomIsRoomHost } from '@/atoms/room'
 import ModalImporter from './modal-importer/Container'
 import ModalSummary from './modal-summary/ModalSummary'
 import CurrentUser from './user/CurrentUser'

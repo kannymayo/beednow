@@ -5,7 +5,7 @@ import {
 } from '@heroicons/react/24/outline'
 
 import { useMutationRestoreBidding } from '@/api/bidding'
-import { useFinishedBiddingsAtoms } from '@/store/useBiddingAtom'
+import { useFinishedBiddingsAtoms } from '@/atoms/bidding'
 import BiddingItem from './common/BiddingItem'
 
 export default function BiddingsFinished() {

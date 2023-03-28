@@ -1,9 +1,6 @@
 import { useDebounce } from 'ahooks'
 
-import {
-  useInProgressBiddingsAtoms,
-  useCountdownAtoms,
-} from '@/store/useBiddingAtom'
+import { useInProgressBiddingsAtoms, useCountdownAtoms } from '@/atoms/bidding'
 import { useMakeOffer } from '@/api/offer'
 import ActionAbsolute from './ActionAbsolute'
 import ActionNonOffer from './ActionNonOffer'

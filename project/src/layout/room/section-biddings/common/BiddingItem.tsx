@@ -5,7 +5,7 @@ import {
 } from '@heroicons/react/24/outline'
 
 import { Bidding } from '@/api/bidding'
-import { useUserAtoms } from '@/store/useUserAtom'
+import { useUserAtoms } from '@/atoms/user'
 import CardRow from './CardRow'
 
 export default function BiddingItem({

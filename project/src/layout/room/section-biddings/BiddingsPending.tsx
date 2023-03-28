@@ -11,12 +11,12 @@ import {
   useQueryBiddings,
   Bidding,
 } from '@/api/bidding'
-import { useAtomRoomIdCurrent } from '@/store/useRoomAtom'
+import { useAtomRoomIdCurrent } from '@/atoms/room'
 import {
   useInProgressBiddingsAtoms,
   useBiddingsAtoms,
   usePendingBiddingsAtoms,
-} from '@/store/useBiddingAtom'
+} from '@/atoms/bidding'
 import { factoryCompareNewerfirst } from '@/utils/factory-compare-newerfirst'
 import BiddingItem from './common/BiddingItem'
 

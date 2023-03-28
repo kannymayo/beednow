@@ -7,7 +7,7 @@ import {
   useSignInWithGoogle,
 } from '@/hooks/useToastyAuth'
 import { useRedirectOnValidUser } from '@/hooks/navigateUX'
-import { useUserAtoms } from '@/store/useUserAtom'
+import { useUserAtoms } from '@/atoms/user'
 
 export default function LoginPage({
   children,

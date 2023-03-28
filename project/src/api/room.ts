@@ -1,7 +1,7 @@
 import { FieldValue, serverTimestamp, Timestamp } from 'firebase/firestore'
 import { useMutation } from '@tanstack/react-query'
 
-import { useUserAtoms } from '@/store/useUserAtom'
+import { useUserAtoms } from '@/atoms/user'
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
 import { getRandomName } from '@/utils/random-name'
 import {

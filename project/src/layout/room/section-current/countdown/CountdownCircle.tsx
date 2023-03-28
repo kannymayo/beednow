@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 
 import { useMutationSendBiddingElapsed } from '@/api/bidding'
-import { useCountdownAtoms } from '@/store/useBiddingAtom'
-import { useAtomIsRoomHost } from '@/store/useRoomAtom'
+import { useCountdownAtoms } from '@/atoms/bidding'
+import { useAtomIsRoomHost } from '@/atoms/room'
 import { useStartAutoFinish } from './useStartAutoFinish'
 
 export default function CountdowwnCircle({

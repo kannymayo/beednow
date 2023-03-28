@@ -1,8 +1,8 @@
 import clsx from 'clsx'
 import { useDebounce } from 'ahooks'
 
-import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
-import { useAtomIsRoomHost } from '@/store/useRoomAtom'
+import { useInProgressBiddingsAtoms } from '@/atoms/bidding'
+import { useAtomIsRoomHost } from '@/atoms/room'
 import HeaderSummary from './HeaderSummary'
 import HeaderCurrentHighest from './HeaderCurrentHighest'
 import HeaderCountdown from './HeaderCountdown'

@@ -4,9 +4,9 @@ import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
 
 import { getRandomAvatar } from '@/utils/get-random-avatar'
 import { useQueryUserProfile, useMutationUpdateAvatar } from '@/api/user'
-import { useUserAtoms } from '@/store/useUserAtom'
+import { useUserAtoms } from '@/atoms/user'
 import { useSignOut } from '@/hooks/useToastyAuth'
-import { useAtomRoomIdPreview } from '@/store/useRoomAtom'
+import { useAtomRoomIdPreview } from '@/atoms/room'
 
 export default function CurrentUser() {
   const [user, isLoggedIn] = useUserAtoms().get()

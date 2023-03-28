@@ -3,10 +3,7 @@ import { useRef, useEffect } from 'react'
 import { toast, ToastContainer, Flip } from 'react-toastify'
 import { useDebounce } from 'ahooks'
 
-import {
-  useProcessedOffersAtoms,
-  useHighestOfferAtoms,
-} from '@/store/useOfferAtom'
+import { useProcessedOffersAtoms, useHighestOfferAtoms } from '@/atoms/offer'
 import EntryOffer from './EntryOffer'
 import EntryEvent from './EntryEvent'
 

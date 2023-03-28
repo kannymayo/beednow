@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline'
 
 import { useMutationSendChat, ChatMsg } from '@/api/chat'
-import { useUserAtoms } from '@/store/useUserAtom'
-import { useAsyncAtomCurrentChats } from '@/store/useRoomAtom'
+import { useUserAtoms } from '@/atoms/user'
+import { useAsyncAtomCurrentChats } from '@/atoms/room'
 import ChatBubble from './ChatBubble'
 
 export default function BidChat() {

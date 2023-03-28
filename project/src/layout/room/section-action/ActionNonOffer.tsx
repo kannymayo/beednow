@@ -9,7 +9,7 @@ import {
   useMutationPauseBidding,
   useMutationResumeBidding,
 } from '@/api/bidding'
-import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
+import { useInProgressBiddingsAtoms } from '@/atoms/bidding'
 
 export default function ActionNonOffer({
   globalDisabled,

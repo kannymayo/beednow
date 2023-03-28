@@ -1,8 +1,8 @@
 import { FieldValue, arrayUnion, Timestamp } from 'firebase/firestore'
 import { useMutation } from '@tanstack/react-query'
 
-import { useUserAtoms } from '@/store/useUserAtom'
-import { useAtomRoomIdCurrent } from '@/store/useRoomAtom'
+import { useUserAtoms } from '@/atoms/user'
+import { useAtomRoomIdCurrent } from '@/atoms/room'
 import { upcreateFirebaseDoc } from './helper/firebase-CRUD-throwable'
 import { Room } from './room'
 

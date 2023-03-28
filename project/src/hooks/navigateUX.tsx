@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { toast as toastForTyping } from 'react-toastify'
 
 import { toasto } from '@/utils/toasto'
-import { useUserAtoms, UnifiedUser } from '@/store/useUserAtom'
+import { useUserAtoms, UnifiedUser } from '@/atoms/user'
 
 function useRedirectOnValidUser(_user: UnifiedUser) {
   const navigate = useNavigate()

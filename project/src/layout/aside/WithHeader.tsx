@@ -2,7 +2,7 @@ import { useEffect, Suspense } from 'react'
 import { Outlet, useParams } from 'react-router-dom'
 import { Loader } from '@mantine/core'
 
-import { useAtomRoomIdCurrent } from '@/store/useRoomAtom'
+import { useAtomRoomIdCurrent } from '@/atoms/room'
 import CurrentRoomDataSuspense from './data-suspense/CurrentRoom'
 import Header from './header/Header'
 

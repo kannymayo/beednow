@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { useAtomIsRoomHost } from '@/store/useRoomAtom'
+import { useAtomIsRoomHost } from '@/atoms/room'
 
 export default function CardRow({
   biddingId,

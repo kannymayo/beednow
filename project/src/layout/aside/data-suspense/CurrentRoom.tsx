@@ -1,8 +1,8 @@
 import { useEffect, Suspense, useTransition, useState } from 'react'
 
-import { useAsyncAtomRoom } from '@/store/useRoomAtom'
-import { useUserAtoms } from '@/store/useUserAtom'
-import { useAtomIsRoomHost } from '@/store/useRoomAtom'
+import { useAsyncAtomRoom } from '@/atoms/room'
+import { useUserAtoms } from '@/atoms/user'
+import { useAtomIsRoomHost } from '@/atoms/room'
 
 /**
  * "Data Suspense" is a suspense that is purely used for data manipulation,

@@ -1,5 +1,5 @@
 import { DocumentCheckIcon } from '@heroicons/react/24/outline'
-import { useFinishedBiddingsAtoms } from '@/store/useBiddingAtom'
+import { useFinishedBiddingsAtoms } from '@/atoms/bidding'
 import Modal from '@/components/Modal'
 import SummaryBody from './Summary'
 

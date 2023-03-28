@@ -9,9 +9,9 @@ import {
 
 import { isVoid } from '@/utils/is-void'
 import { useQueryFirebase } from '@/hooks/firebase-react-query-hooks'
-import { useHighestOfferAtoms } from '@/store/useOfferAtom'
-import { useAtomRoomIdCurrent, useAtomIsRoomHost } from '@/store/useRoomAtom'
-import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
+import { useHighestOfferAtoms } from '@/atoms/offer'
+import { useAtomRoomIdCurrent, useAtomIsRoomHost } from '@/atoms/room'
+import { useInProgressBiddingsAtoms } from '@/atoms/bidding'
 import { ItemFromAPI } from '@/api/item-details'
 import {
   updateFirebaseDoc,

@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { useState, Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
-import { useUserAtoms } from '@/store/useUserAtom'
+import { useUserAtoms } from '@/atoms/user'
 import { useQueryRoomActivities } from '@/api/room'
 import { Loader } from '@mantine/core'
 import RoomListItem from './room-preview/RoomListItem'

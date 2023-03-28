@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
 import { Timestamp, arrayUnion, serverTimestamp } from 'firebase/firestore'
 
-import { useUserAtoms } from '@/store/useUserAtom'
-import { useAtomRoomIdCurrent } from '@/store/useRoomAtom'
-import { useInProgressBiddingsAtoms } from '@/store/useBiddingAtom'
+import { useUserAtoms } from '@/atoms/user'
+import { useAtomRoomIdCurrent } from '@/atoms/room'
+import { useInProgressBiddingsAtoms } from '@/atoms/bidding'
 import { updateFirebaseDoc } from './helper/firebase-CRUD-throwable'
 
 import { BiddingModification } from './bidding'
