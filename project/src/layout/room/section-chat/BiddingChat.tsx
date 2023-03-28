@@ -3,15 +3,15 @@ import { PaperAirplaneIcon } from '@heroicons/react/24/outline'
 
 import { useMutationSendChat, ChatMsg } from '@/api/chat'
 import { useUserAtoms } from '@/store/useUserAtom'
-import { useRoomAtoms } from '@/store/useRoomAtom'
+import { useAsyncAtomCurrentRoom } from '@/store/useRoomAtom'
 import ChatBubble from './ChatBubble'
 
 export default function BidChat() {
   const [mutationSendChat] = useMutationSendChat()
+  const currentRoom = useAsyncAtomCurrentRoom({
+    isSubscribed: true,
+  }).getter()
   const [user] = useUserAtoms().get()
-  const [room] = useRoomAtoms().getset({
-    isMaster: true,
-  })
   const refScrollingContainer = useRef<HTMLDivElement>(null)
   const [chatMsg, setChatMsg] = useState('')
 
@@ -21,7 +21,7 @@ export default function BidChat() {
       top: 9999999,
       behavior: 'smooth',
     })
-  }, [(room?.chats as any)?.length])
+  }, [(currentRoom.chats as any)?.length])
 
   return (
     <div className="grid h-full w-full">
@@ -30,8 +30,8 @@ export default function BidChat() {
           ref={refScrollingContainer}
           className="subtle-scrollbar flex-1 overflow-y-auto bg-white px-1"
         >
-          {(room?.chats as any)?.length > 0
-            ? (room?.chats as any)?.map((chat: ChatMsg) => (
+          {(currentRoom.chats as any)?.length > 0
+            ? (currentRoom.chats as any)?.map((chat: ChatMsg) => (
                 <ChatBubble
                   key={(chat.createdAt as any)?.toMillis()}
                   avatarURL={chat.sentByUserAvatar}

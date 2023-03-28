@@ -33,25 +33,6 @@ function useAsyncAtomCurrentRoom({ isSubscribed = false } = {}) {
   }
 }
 
-const useRoomAtoms = createAtomHooks(roomAtom, {
-  setFn: ({ isMaster = false }: { isMaster?: boolean }) => {
-    const room = useAsyncAtomCurrentRoom().getter()
-    const setRoom = useSetAtom(roomAtom)
-
-    useEffect(() => {
-      if (room) {
-        setRoom(room)
-      }
-      if (isMaster) {
-        return () => {
-          setRoom(null)
-        }
-      }
-    }, [room?.id, (room?.chats as any)?.length])
-    return setRoom
-  },
-})
-
 const readonlyChatsAtom = atom((get) => get(roomAtom)?.chats)
 const useChatAtoms = createAtomHooks(readonlyChatsAtom)
 
@@ -104,5 +85,4 @@ export {
   useAtomRoomId,
   useAtomRoomPreview,
   useChatAtoms,
-  useRoomAtoms,
 }
