@@ -1,8 +1,17 @@
 import { Atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { atomsWithQuery } from 'jotai-tanstack-query'
-import { useQueryClient } from '@tanstack/react-query'
-import { doc, getDoc, onSnapshot, DocumentReference } from 'firebase/firestore'
+import {
+  doc,
+  query,
+  collection,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  Query,
+  DocumentReference,
+  QueryConstraint,
+} from 'firebase/firestore'
 
 import { qc } from '@/App'
 import { db } from '@/api/firebase'
@@ -79,7 +88,6 @@ const firebaseAtomFamily = atomFamily(
         queryKey: segments,
         queryFn: queryFnDoc,
         enabled: !!(isEnabled && shouldEnable),
-        refetchOnWindowFocus: false,
         ...queryOptions,
         meta: {
           refDoc,
@@ -132,4 +140,107 @@ async function queryFnDoc({
   return { ...snapshotDoc.data(), id: snapshotDoc.id }
 }
 
-export { firebaseAtomFamily }
+const firebaseCollectionAtomFamily = atomFamily(
+  ({
+    segments,
+    isSubscribed = false,
+    isEnabled = true,
+    queryOptions,
+    queryConstraints,
+  }: {
+    segments: (string | undefined)[]
+    isSubscribed?: boolean
+    isEnabled?: boolean
+    queryOptions?: any
+    queryConstraints?: QueryConstraint[]
+  }) => {
+    let shouldEnable = false
+    let refQuery: Query | null = null
+    try {
+      if (segments.some(isVoid)) throw new Error('Contains invalid segment.')
+      const _segments = segments as string[]
+      refQuery = query(
+        collection(db, _segments[0], ..._segments.slice(1)),
+        ...(queryConstraints || [])
+      )
+      shouldEnable = true
+    } catch (e) {}
+    const [dataAtom] = atomsWithQuery(
+      () => ({
+        queryKey: segments,
+        queryFn: queryFnCollection,
+        enabled: !!(isEnabled && shouldEnable),
+        ...queryOptions,
+        meta: {
+          refQuery,
+        },
+      }),
+      () => qc as any
+    )
+
+    // add firebase listener
+    dataAtom.onMount = () => {
+      const listenerKey = JSON.stringify(segments)
+      if (!isSubscribed) return
+      if (!refQuery) return
+      if (!isEnabled || !shouldEnable) return
+      if (listenerAttached.has(listenerKey)) return
+      const queryKey = segments
+
+      listenerAttached.add(listenerKey)
+      const unsubscribe = onSnapshot(
+        refQuery,
+        {
+          includeMetadataChanges: true,
+        },
+        (snapshotQuery) => {
+          // we used to access pending via snapshot.metadata.pendingWrites
+          // and store it in a state, here we can't as it is not a hook.
+          // in a suspense style, the rewrite would have pendingWrites to be
+          // reflected in a re-suspension? But how?
+
+          // here is the attempt, not tested yet (with sequence of adding
+          // to biddings)
+          qc.setQueryDefaults(queryKey, {
+            enabled: !snapshotQuery.metadata.hasPendingWrites,
+          })
+          qc.setQueryData(
+            queryKey,
+            snapshotQuery.docs.map((doc) => {
+              return { ...doc?.data(), id: doc?.id }
+            })
+          )
+        }
+      )
+      return () => {
+        listenerAttached.delete(listenerKey)
+        unsubscribe()
+      }
+    }
+    return dataAtom as unknown as Atom<any>
+  },
+  (a, b) => {
+    return (
+      a.segments.join(',') === b.segments.join(',') &&
+      a.isSubscribed === b.isSubscribed &&
+      a.isEnabled === b.isEnabled
+    )
+  }
+)
+
+async function queryFnCollection({
+  meta: { refQuery },
+}: {
+  queryKey: string[]
+  meta: { refQuery: Query | null }
+}) {
+  if (!refQuery) throw Error('Malformed collection/query')
+
+  const snapshotQry = await getDocs(refQuery)
+  if (snapshotQry.empty) return []
+  return snapshotQry.docs.map((doc) => {
+    return { ...doc.data(), id: doc?.id }
+  })
+}
+
+export { firebaseAtomFamily, firebaseCollectionAtomFamily }
