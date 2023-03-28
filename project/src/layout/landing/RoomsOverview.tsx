@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import { useState, Suspense } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 
 import { useUserAtoms } from '@/store/useUserAtom'
 import { useQueryRoomActivities } from '@/api/room'
@@ -51,13 +52,18 @@ export default function MyRooms() {
         {tabRoomsCategories}
 
         <div className="flex-1">
-          <Suspense fallback={<Loader className="mx-auto mt-4" />}>
-            <ul className="overflow-y-auto">
-              {displayedActivities?.map((RoomActivity) => (
-                <RoomListItem key={RoomActivity.id} roomId={RoomActivity.id} />
-              ))}
-            </ul>
-          </Suspense>
+          <ErrorBoundary fallback={<></>} resetKeys={[activeTab]}>
+            <Suspense fallback={<Loader className="mx-auto mt-4" />}>
+              <ul className="overflow-y-auto">
+                {displayedActivities?.map((RoomActivity) => (
+                  <RoomListItem
+                    key={RoomActivity.id}
+                    roomId={RoomActivity.id}
+                  />
+                ))}
+              </ul>
+            </Suspense>
+          </ErrorBoundary>
         </div>
       </div>
     </section>

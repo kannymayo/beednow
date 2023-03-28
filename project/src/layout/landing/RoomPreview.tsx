@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import {
@@ -10,16 +10,42 @@ import {
 
 import { useJoinRoom, useMutationDeleteRoom } from '@/api/room'
 import { useQueryBiddings } from '@/api/bidding'
-import { useAtomRoomPreview } from '@/store/useRoomAtom'
+import {
+  useAsyncAtomRoomPreview,
+  useAtomRoomIdPreview,
+} from '@/store/useRoomAtom'
 import { useUserAtoms } from '@/store/useUserAtom'
 import { toasto } from '@/utils/toasto'
 import { calRelativeDate } from '@/utils/calc-relative-date'
 import RequiresConfirmByModal from '@/components/RequiresConfirmByModal'
 
-export default function RoomPreview() {
+export default function SuspenseRoomPreview() {
+  // forces a refresh, coz suspended component won't react to atom changes
+  const refresher = useAtomRoomIdPreview().getter()
+  return (
+    <Suspense fallback={<RoomPreviewPlaceholder />}>
+      <RoomPreview />
+    </Suspense>
+  )
+}
+
+function RoomPreviewPlaceholder() {
+  return (
+    <div className="card h-full">
+      <div className="card-body h-full justify-between p-4">
+        <div className="text-slate-600">
+          To preview, type the room ID or click on a room in the list.
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function RoomPreview() {
+  const roomUnderPreview = useAsyncAtomRoomPreview().getter()
+  const setRoomIdPreview = useAtomRoomIdPreview().setter()
   const navigate = useNavigate()
   const [joinRoom] = useJoinRoom()
-  const [roomUnderPreview, setRoomUnderPreview] = useAtomRoomPreview().tuple()
   const [user] = useUserAtoms().get()
   const [queryBiddings] = useQueryBiddings(roomUnderPreview?.id)
   const [{ mutateAsync: mutateAsyncDeleteRoom }] = useMutationDeleteRoom()
@@ -117,6 +143,6 @@ export default function RoomPreview() {
       new Promise((resolve) => setTimeout(resolve, 750)),
     ])
     setIsPreviewDisabled(false)
-    setRoomUnderPreview(null)
+    setRoomIdPreview('')
   }
 }

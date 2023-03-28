@@ -2,7 +2,7 @@ import { FieldValue, arrayUnion, Timestamp } from 'firebase/firestore'
 import { useMutation } from '@tanstack/react-query'
 
 import { useUserAtoms } from '@/store/useUserAtom'
-import { useAtomRoomId } from '@/store/useRoomAtom'
+import { useAtomRoomIdCurrent } from '@/store/useRoomAtom'
 import { upcreateFirebaseDoc } from './helper/firebase-CRUD-throwable'
 import { Room } from './room'
 
@@ -21,7 +21,7 @@ interface ChatMsg {
 }
 
 function useMutationSendChat() {
-  const roomId = useAtomRoomId().getter()
+  const roomId = useAtomRoomIdCurrent().getter()
   const [{ uid, photoURL, displayName: username }] = useUserAtoms().get()
   const mutation = useMutation(async ({ content }: { content: string }) => {
     const chatMsg: ChatMsg = {

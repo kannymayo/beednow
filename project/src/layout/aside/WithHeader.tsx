@@ -2,14 +2,14 @@ import { useEffect, Suspense } from 'react'
 import { Outlet, useParams } from 'react-router-dom'
 import { Loader } from '@mantine/core'
 
-import { useAtomRoomId } from '@/store/useRoomAtom'
+import { useAtomRoomIdCurrent } from '@/store/useRoomAtom'
 import CurrentRoomDataSuspense from './data-suspense/CurrentRoom'
 import Header from './header/Header'
 
 export default function WithHeader() {
   // sync roomIdd in url to Atom
   const param = useParams()
-  const [roomId, setRoomId] = useAtomRoomId().tuple()
+  const [roomId, setRoomId] = useAtomRoomIdCurrent().tuple()
   useEffect(() => {
     setRoomId(param.roomId || '')
     return () => {

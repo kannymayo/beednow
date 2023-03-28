@@ -2,35 +2,75 @@ import { atom, useSetAtom, useAtomValue } from 'jotai'
 
 import { Room } from '@/api/room'
 import { firebaseAtomFamily } from './helper/firebase-atom-family'
-import createAtomHooks from './helper/create-atom-hooks'
 
 // atom definitions
-const roomAtom = atom<Room | null>(null)
-const roomPreviewAtom = atom<Room | null>(null)
-const roomIdAtom = atom<string>('')
-const isRoomHostAtom = atom<boolean>(false)
-const readonlyChatsAtom = atom((get) => get(roomAtom)?.chats)
-const useChatAtoms = createAtomHooks(readonlyChatsAtom)
+// ----------------
+const atomRoomIdPreview = atom<string>('')
+const atomRoomPreview = atom<Room | null>(null)
+const atomRoomIdCurrent = atom<string>('')
+const atomIsRoomHost = atom<boolean>(false)
 
 // atom lifecycles
-roomPreviewAtom.onMount = (setAtom) => {
+// ---------------
+atomRoomPreview.onMount = (setAtom) => {
   return () => setAtom(null)
 }
-roomIdAtom.onMount = (setAtom) => {
+atomRoomIdCurrent.onMount = (setAtom) => {
   return () => setAtom('')
 }
-isRoomHostAtom.onMount = (setAtom) => {
+atomIsRoomHost.onMount = (setAtom) => {
   return () => setAtom(false)
 }
 
+// useAtom wrappers
+// ----------------
+function useAtomIsRoomHost() {
+  return {
+    getter: () => useAtomValue(atomIsRoomHost),
+    setter: () => useSetAtom(atomIsRoomHost),
+    tuple: () =>
+      [useAtomValue(atomIsRoomHost), useSetAtom(atomIsRoomHost)] as const,
+  }
+}
+function useAtomRoomIdCurrent() {
+  return {
+    getter: () => useAtomValue(atomRoomIdCurrent),
+    setter: () => useSetAtom(atomRoomIdCurrent),
+    tuple: () =>
+      [useAtomValue(atomRoomIdCurrent), useSetAtom(atomRoomIdCurrent)] as const,
+  }
+}
+function useAtomRoomIdPreview() {
+  return {
+    getter: () => useAtomValue(atomRoomIdPreview),
+    setter: () => useSetAtom(atomRoomIdPreview),
+    tuple: () =>
+      [useAtomValue(atomRoomIdPreview), useSetAtom(atomRoomIdPreview)] as const,
+  }
+}
+
+// useAsyncAtom wrappers
+// ---------------------
 function useAsyncAtomCurrentRoom({ isSubscribed = false } = {}) {
-  const roomId = useAtomValue(roomIdAtom)
+  const roomId = useAtomValue(atomRoomIdCurrent)
+  // a pity that it is closed over roomId, hence no derived atom
   const asyncAtomCurrentRoom = firebaseAtomFamily({
     segments: ['rooms', roomId],
     isSubscribed,
   })
   return {
     getter: () => useAtomValue<Room>(asyncAtomCurrentRoom),
+  }
+}
+
+function useAsyncAtomCurrentChats({ isSubscribed = false } = {}) {
+  const roomId = useAtomValue(atomRoomIdCurrent)
+  const asyncAtomCurrentRoom = firebaseAtomFamily({
+    segments: ['rooms', roomId],
+    isSubscribed,
+  })
+  return {
+    getter: () => useAtomValue<Room>(asyncAtomCurrentRoom).chats,
   }
 }
 
@@ -50,37 +90,29 @@ function useAsyncAtomRoom({
   }
 }
 
-function useAtomIsRoomHost() {
+function useAsyncAtomRoomPreview({
+  isSubscribed = false,
+}: {
+  isSubscribed?: boolean
+} = {}) {
+  const roomId = useAtomValue(atomRoomIdPreview)
+  const statusAtom = firebaseAtomFamily({
+    segments: ['rooms', roomId],
+    isSubscribed,
+  })
   return {
-    getter: () => useAtomValue(isRoomHostAtom),
-    setter: () => useSetAtom(isRoomHostAtom),
-    tuple: () =>
-      [useAtomValue(isRoomHostAtom), useSetAtom(isRoomHostAtom)] as const,
-  }
-}
-
-function useAtomRoomId() {
-  return {
-    getter: () => useAtomValue(roomIdAtom),
-    setter: () => useSetAtom(roomIdAtom),
-    tuple: () => [useAtomValue(roomIdAtom), useSetAtom(roomIdAtom)] as const,
-  }
-}
-
-function useAtomRoomPreview() {
-  return {
-    getter: () => useAtomValue(roomPreviewAtom),
-    setter: () => useSetAtom(roomPreviewAtom),
-    tuple: () =>
-      [useAtomValue(roomPreviewAtom), useSetAtom(roomPreviewAtom)] as const,
+    getter: () => useAtomValue<Room>(statusAtom),
   }
 }
 
 export {
+  // hooks for wrapped atom
+  useAtomIsRoomHost,
+  useAtomRoomIdCurrent,
+  useAtomRoomIdPreview,
+  // hooks for wrapped async atom
   useAsyncAtomRoom,
   useAsyncAtomCurrentRoom,
-  useAtomIsRoomHost,
-  useAtomRoomId,
-  useAtomRoomPreview,
-  useChatAtoms,
+  useAsyncAtomCurrentChats,
+  useAsyncAtomRoomPreview,
 }

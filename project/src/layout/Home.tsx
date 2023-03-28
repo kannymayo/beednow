@@ -6,7 +6,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { ReactComponent as Logo } from '@/assets/logo.svg'
 import { useCreateRoom } from '@/api/room'
 import { useUserAtoms } from '@/store/useUserAtom'
-import { useAtomRoomPreview, useAsyncAtomRoom } from '@/store/useRoomAtom'
+import { useAtomRoomIdPreview, useAsyncAtomRoom } from '@/store/useRoomAtom'
 import Login from './landing/Login'
 import Register from './landing/Register'
 import MyRooms from './landing/RoomsOverview'
@@ -35,7 +35,7 @@ export default function EnterRoom() {
   const navigate = useNavigate()
   const [user] = useUserAtoms().get()
   const [createNewRoom] = useCreateRoom()
-  const setRoomPreview = useAtomRoomPreview().setter()
+  const setIdPreview = useAtomRoomIdPreview().setter()
   const [isFadingIn, setIsFadingIn] = useState(false)
   const [isBtnDisabled, setIsBtnDisabled] = useState(false)
   const [isAtLogin, setIsAtLogin] = useState(true)
@@ -47,7 +47,7 @@ export default function EnterRoom() {
     <div className="flex items-stretch justify-center bg-slate-50 px-24 py-10  2xl:px-72">
       <Suspense>
         <ErrorBoundary fallback={<></>} resetKeys={[potentialRoomId]}>
-          <RoomDataSuspense roomId={potentialRoomId} setRoom={setRoomPreview} />
+          <RoomDataSuspense roomId={potentialRoomId} setRoom={setIdPreview} />
         </ErrorBoundary>
       </Suspense>
 
