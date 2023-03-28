@@ -1,23 +1,24 @@
-import { useEffect } from 'react'
 import { atom, useSetAtom, useAtomValue } from 'jotai'
 
 import { Room } from '@/api/room'
 import { firebaseAtomFamily } from './helper/firebase-atom-family'
 import createAtomHooks from './helper/create-atom-hooks'
 
+// atom definitions
 const roomAtom = atom<Room | null>(null)
-
 const roomPreviewAtom = atom<Room | null>(null)
+const roomIdAtom = atom<string>('')
+const isRoomHostAtom = atom<boolean>(false)
+const readonlyChatsAtom = atom((get) => get(roomAtom)?.chats)
+const useChatAtoms = createAtomHooks(readonlyChatsAtom)
+
+// atom lifecycles
 roomPreviewAtom.onMount = (setAtom) => {
   return () => setAtom(null)
 }
-
-const roomIdAtom = atom<string>('')
 roomIdAtom.onMount = (setAtom) => {
   return () => setAtom('')
 }
-
-const isRoomHostAtom = atom<boolean>(false)
 isRoomHostAtom.onMount = (setAtom) => {
   return () => setAtom(false)
 }
@@ -32,9 +33,6 @@ function useAsyncAtomCurrentRoom({ isSubscribed = false } = {}) {
     getter: () => useAtomValue<Room>(asyncAtomCurrentRoom),
   }
 }
-
-const readonlyChatsAtom = atom((get) => get(roomAtom)?.chats)
-const useChatAtoms = createAtomHooks(readonlyChatsAtom)
 
 function useAsyncAtomRoom({
   roomId,
