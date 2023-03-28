@@ -33,25 +33,6 @@ interface RoomActivity {
   lastModified: Timestamp
 }
 
-function useQueryRoomActivities({
-  enabled = true,
-  subscribe = false,
-}: {
-  enabled?: boolean
-  subscribe?: boolean
-}) {
-  const [user] = useUserAtoms().get()
-  const queryKey = ['users', user?.uid, 'roomActivities']
-
-  const [query] = useQueryFirebase<RoomActivity[]>({
-    segments: queryKey,
-    isSubscribed: subscribe,
-    isEnabled: enabled,
-  })
-
-  return [query, queryKey] as const
-}
-
 function useCreateRoom() {
   const [user] = useUserAtoms().get()
   const [joinRoom] = useJoinRoom()
@@ -157,11 +138,10 @@ function useUpdateRoomAcvitity() {
 }
 
 export {
+  useJoinRoom,
   useCreateRoom,
   useUpdateRoomAcvitity,
-  useJoinRoom,
   useMutationDeleteRoom,
-  useQueryRoomActivities,
 }
 
-export type { Room }
+export type { Room, RoomActivity }

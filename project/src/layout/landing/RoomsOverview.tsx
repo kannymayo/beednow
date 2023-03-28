@@ -1,28 +1,13 @@
 import clsx from 'clsx'
 import { useState, Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
-
-import { useUserAtoms } from '@/atoms/user'
-import { useQueryRoomActivities } from '@/api/room'
 import { Loader } from '@mantine/core'
+
+import { useAsyncAtomRoomActivities } from '@/atoms/activities'
 import RoomListItem from './room-preview/RoomListItem'
 
 export default function MyRooms() {
-  const [user] = useUserAtoms().get()
   const [activeTab, setActiveTab] = useState('hosted')
-  const [roomActivities] = useQueryRoomActivities({
-    enabled: !!user?.uid,
-    subscribe: true,
-  })
-
-  const activitiesJoin = roomActivities.data?.filter(
-    (activity) => activity?.type === 'joined'
-  )
-  const activitiesHost = roomActivities.data?.filter(
-    (activity) => activity?.type === 'hosted'
-  )
-  const displayedActivities =
-    activeTab === 'hosted' ? activitiesHost : activitiesJoin
 
   const tabHostedCls = clsx(
     { 'tab-active': activeTab === 'hosted' },
@@ -52,18 +37,7 @@ export default function MyRooms() {
         {tabRoomsCategories}
 
         <div className="flex-1">
-          <ErrorBoundary fallback={<></>} resetKeys={[activeTab]}>
-            <Suspense fallback={<Loader className="mx-auto mt-4" />}>
-              <ul className="overflow-y-auto">
-                {displayedActivities?.map((RoomActivity) => (
-                  <RoomListItem
-                    key={RoomActivity.id}
-                    roomId={RoomActivity.id}
-                  />
-                ))}
-              </ul>
-            </Suspense>
-          </ErrorBoundary>
+          <SuspenseRoomList activeTab={activeTab} />
         </div>
       </div>
     </section>
@@ -73,4 +47,35 @@ export default function MyRooms() {
     const tab = e.currentTarget.textContent?.toLowerCase()
     if (tab) setActiveTab(tab.toLowerCase())
   }
+}
+
+function SuspenseRoomList({ activeTab }: { activeTab: string }) {
+  return (
+    <ErrorBoundary fallback={<></>} resetKeys={[activeTab]}>
+      <Suspense fallback={<Loader className="mx-auto mt-4" />}>
+        <RoomList activeTab={activeTab} />
+      </Suspense>
+    </ErrorBoundary>
+  )
+}
+
+function RoomList({ activeTab }: { activeTab: string }) {
+  const roomActivities = useAsyncAtomRoomActivities().getter()
+
+  const activitiesJoin = roomActivities.filter(
+    (activity) => activity?.type === 'joined'
+  )
+  const activitiesHost = roomActivities.filter(
+    (activity) => activity?.type === 'hosted'
+  )
+  const displayedActivities =
+    activeTab === 'hosted' ? activitiesHost : activitiesJoin
+
+  return (
+    <ul className="overflow-y-auto">
+      {displayedActivities?.map((RoomActivity) => (
+        <RoomListItem key={RoomActivity.id} roomId={RoomActivity.id} />
+      ))}
+    </ul>
+  )
 }
