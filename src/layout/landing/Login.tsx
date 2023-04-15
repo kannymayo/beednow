@@ -8,6 +8,7 @@ import {
 } from '@/hooks/useToastyAuth'
 import { useRedirectOnValidUser } from '@/hooks/navigateUX'
 import { useUserAtoms } from '@/store/useUserAtom'
+import imgOpenInNewTab from '@/assets/open-in-new-tab.png'
 
 export default function LoginPage({
   children,
@@ -39,7 +40,7 @@ export default function LoginPage({
         type="email"
         placeholder="Email address"
         required
-        className=" input input-bordered w-full px-10"
+        className=" input-bordered input w-full px-10"
       />
     </div>
   )
@@ -52,7 +53,7 @@ export default function LoginPage({
         type="password"
         placeholder="Password"
         required
-        className="input input-bordered w-full px-10"
+        className="input-bordered input w-full px-10"
       />
     </div>
   )
@@ -91,7 +92,7 @@ export default function LoginPage({
     <section className={topCls}>
       <form
         onSubmit={handleSubmit}
-        className="mx-auto flex h-full max-w-md flex-col items-stretch justify-start px-6"
+        className="mx-auto flex max-w-md flex-col items-stretch justify-start px-6"
       >
         {loginBanner}
         {emailField}
@@ -100,6 +101,15 @@ export default function LoginPage({
           {emailSignInBtn}
           {dividerForAlternative}
           {signInWithGoogleBtn}
+          <div className="mt-1 text-center">
+            To use Google Sign-on in a Stackblitz instance, reopen the preview
+            in a new tab.
+            <img
+              src={imgOpenInNewTab}
+              alt=""
+              className="my-1 h-28 w-full rounded-md object-cover object-top"
+            />
+          </div>
           {children}
         </div>
       </form>

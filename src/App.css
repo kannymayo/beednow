@@ -3,13 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
-#root {
-  height: 100%;
-}
-
 body {
   font-family: 'Karla', sans-serif;
-  height: 100vh;
 }
 
 /* remove up/down control for number input */
