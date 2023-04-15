@@ -1,6 +1,0 @@
-span.tape {
-  /* top: 0; */
-  top: calc(var(--value) * 1em - var(--max-value) * 1em - 1em);
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.78, 1.55, 0.71, 0.8);
-}
