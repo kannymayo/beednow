@@ -86,7 +86,7 @@ export default function LoginPage({
 
   const topCls = clsx(
     { 'opacity-50 pointer-events-none': isFadingIn },
-    'flex-1 basis-1'
+    'flex-1 basis-1 overflow-auto'
   )
   const _RETURN = (
     <section className={topCls}>

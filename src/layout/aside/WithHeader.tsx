@@ -33,7 +33,7 @@ export default function WithHeader() {
   }, [param])
 
   return (
-    <div className="grid min-h-[100vh] w-full min-w-[768px] grid-rows-2-header-body">
+    <div className="grid h-full min-h-[100vh] w-full min-w-[768px] grid-rows-2-header-body">
       <Header />
       <Outlet />
     </div>
